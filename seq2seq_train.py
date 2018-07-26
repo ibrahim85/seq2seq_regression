@@ -12,6 +12,8 @@ options = {
     'split_name': 'train',
     'batch_size': 128,   # number of examples in queue either for training or inference
     'reverse_time': True,
+    'mfcc_num_features': 128,
+    'raw_audio_num_features': 256,
     'num_classes': 28,  # number of output classes 29 = |a-z, " ", <sos>, <eos>|
     'max_out_len_multiplier': 0.50,  # max_out_len = max_out_len_multiplier * max_in_len
 
