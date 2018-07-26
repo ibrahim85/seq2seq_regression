@@ -19,7 +19,7 @@ def length(sequence):
   return length
 
 
-def get_split(batch_size=32, num_classes=7, is_training=True, split_name='train'):
+def get_split(batch_size, base_path, num_classes=7, is_training=True, split_name='train'):
     """Returns a data split of the BBC dataset.
 
     Args:
@@ -34,7 +34,7 @@ def get_split(batch_size=32, num_classes=7, is_training=True, split_name='train'
         word: the current word.
     """
 
-    base_path = Path('/vol/atlas/homes/pt511/db/audio_to_3d/tf_records')
+    base_path = Path(base_path)
     if split_name == 'example':
         paths = np.loadtxt(str(base_path / 'example_set.csv'), dtype=str).tolist()
         print('Examples : ', len(paths))
