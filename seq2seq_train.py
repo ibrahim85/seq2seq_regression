@@ -16,13 +16,13 @@ options = {
     'max_out_len_multiplier': 0.50,  # max_out_len = max_out_len_multiplier * max_in_len
 
     'encoder_num_layers': 3,  # number of hidden layers in encoder lstm
-    'encoder_num_residual_layers': 3,  # number of residual layers, starting from first layer
+    'residual_encoder': True,  # 
     'encoder_num_hidden': 128,  # number of hidden units in encoder lstm
     'encoder_dropout_keep_prob' : None,  # probability of keeping neuron, deprecated
     'encoder_layer_norm': True,
 
     'decoder_num_layers': 3,  # number of hidden layers in decoder lstm
-    'decoder_num_residual_layers': 3,  # number of residual layers, starting from first layer
+    'residual_encoder': True,  # 
     'decoder_num_hidden': 128,  # number of hidden units in decoder lstm
     'encoder_state_as_decoder_init' : False,  # bool. encoder state is used for decoder init state, else zero state
     'decoder_layer_norm': True,
