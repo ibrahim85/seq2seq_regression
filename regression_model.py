@@ -101,7 +101,7 @@ class RegressionModel:
             encoder_out, encoder_hidden = stacked_lstm(
                 num_layers=self.options['encoder_num_layers'], num_hidden=self.options['encoder_num_hidden'],
                 residual=self.options['residual_encoder'], use_peepholes=True,
-                input_forw=self.features_res, return_cell=False)
+                input_forw=self.encoder_inputs, return_cell=False)
 
         with tf.variable_scope('decoder_lstm'):
             ss_prob = self.options['ss_prob']
