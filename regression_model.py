@@ -33,17 +33,14 @@ class RegressionModel:
         #
         # self.number_of_steps_per_epoch, self.number_of_steps = \
         #     get_number_of_steps(self.data_paths, self.options)
-        _, \
-            self.encoder_inputs, \
+        _, self.encoder_inputs, \
             self.target_labels, \
             self.num_examples, \
             self.words, \
             self.decoder_inputs, \
             self.target_labels_lengths, \
             self.encoder_inputs_lengths, \
-            self.decoder_inputs_lengths = \
-            get_split(batch_size=self.batch_size, base_path=self.base_path, 
-                      split_name=self.split_name, is_training=self.is_training)
+            self.decoder_inputs_lengths = get_split(options)
         
         # THSI SHOULD GO!!!
         #self.target_labels = tf.clip_by_value(self.target_labels, clip_value_min=-15., clip_value_max=15.)
