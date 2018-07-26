@@ -110,6 +110,10 @@ def get_split(options):  # batch_size, base_path, num_classes=7, is_training=Tru
     label_lengths = length(label)
     mfcc_lengths = length(mfcc)
     decoder_inputs_lengths = length(decoder_inputs)
+    
+    if options['reverse_time']:
+        raw_audio = tf.reverse(raw_audio, axis=[1])
+        mfcc = tf.reverse(mfcc, axis=[1])
 
     return raw_audio, mfcc, target_labels, num_examples, word, decoder_inputs, label_lengths, mfcc_lengths, decoder_inputs_lengths
 
