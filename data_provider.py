@@ -19,7 +19,7 @@ def length(sequence):
   return length
 
 
-def get_split(batch_size, base_path, num_classes=7, is_training=True, split_name='train'):
+def get_split(options):  # batch_size, base_path, num_classes=7, is_training=True, split_name='train'):
     """Returns a data split of the BBC dataset.
 
     Args:
@@ -33,8 +33,13 @@ def get_split(batch_size, base_path, num_classes=7, is_training=True, split_name
         num_examples: the number of audio samples in the set.
         word: the current word.
     """
-
-    base_path = Path(base_path)
+    batch_size = options['batch_size']
+    num_classes = options['num_classes']
+    mfcc_num_features = options['mfcc_num_features']
+    raw_audio_num_features = options['raw_audio_num_features']
+    base_path = Path(options['data_root_dir'])
+    split_name = options['split_name']
+    
     if split_name == 'example':
         paths = np.loadtxt(str(base_path / 'example_set.csv'), dtype=str).tolist()
         print('Examples : ', len(paths))
@@ -88,8 +93,8 @@ def get_split(batch_size, base_path, num_classes=7, is_training=True, split_name
         num_threads=1, capacity=1000, dynamic_pad=True)
 
     label = tf.reshape(label, (batch_size, -1, num_classes))
-    mfcc = tf.reshape(mfcc, (batch_size, -1, 20))
-    raw_audio = tf.reshape(raw_audio, (batch_size, -1, 256))
+    mfcc = tf.reshape(mfcc, (batch_size, -1, mfcc_num_features))
+    raw_audio = tf.reshape(raw_audio, (batch_size, -1, raw_audio_num_features))
     #
     # sos_slice = tf.constant(0., dtype=tf.float32, shape=[batch_size, 1, num_classes])
     sos_token = tf.constant(0, dtype=tf.int32, shape=[batch_size, 1])
