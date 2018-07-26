@@ -11,7 +11,7 @@ options = {
     'is_training' : True,
     'split_name': 'train',
     'batch_size': 128,   # number of examples in queue either for training or inference
-  
+    'reverse_time': True,
     'num_classes': 28,  # number of output classes 29 = |a-z, " ", <sos>, <eos>|
     'max_out_len_multiplier': 0.50,  # max_out_len = max_out_len_multiplier * max_in_len
 
@@ -50,13 +50,17 @@ options = {
 
     'ss_prob': 0.0,  # scheduled sampling probability for training. probability of passing decoder output as next
    
-    'restore': True, # boolean. restore model from disk
+    'restore': False, # boolean. restore model from disk
     'restore_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model2/seq2seq_m3_train_era1_final",  # path to model to restore
 
     'save': True,  # boolean. save model to disk during current era
     'save_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model2/seq2seq_m3_train_era2",
     'num_models_saved': 50,  # total number of models saved
-    'save_steps': 200  # every how many steps to save model
+    'save_steps': 200,  # every how many steps to save model
+
+    'save_graph': False,
+    'save_dir': "/data/mat10/MSc_Project/Models/m4_train",
+    'save_summaries': True
 
           }
 
