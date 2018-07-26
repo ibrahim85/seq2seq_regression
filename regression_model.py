@@ -25,6 +25,7 @@ class RegressionModel:
         self.is_training = options['is_training']
         self.split_name = options['split_name']
         self.batch_size = options['batch_size']
+        self.base_path = options['data_root_dir']
   
         self.epsilon = tf.constant(1e-10, dtype=tf.float32)
         # self.data_paths = get_data_paths(self.options)
@@ -40,7 +41,8 @@ class RegressionModel:
             self.target_labels_lengths, \
             self.encoder_inputs_lengths, \
             self.decoder_inputs_lengths = \
-            get_split(batch_size=self.batch_size, split_name=self.split_name, is_training=self.is_training)
+            get_split(batch_size=self.batch_size, base_path=self.base_path, 
+                      split_name=self.split_name, is_training=self.is_training)
         
         # THSI SHOULD GO!!!
         #self.target_labels = tf.clip_by_value(self.target_labels, clip_value_min=-15., clip_value_max=15.)
