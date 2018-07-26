@@ -1,9 +1,1 @@
-from PT:
-ta dedomena mporeis na ta vreis edw: /vol/atlas/homes/pt511/db/audio_to_3d/tf_records/
-Ekei tha vreis kai 3 csv arxeia poy periexoyn ta training, validation and test samples.
-Episis, soy stelnw kai to data_provider arxeio gia na ta diavazeis.
-
-Ta mfcc exoyn ginei extract me parathyro 25ms and overlap 10ms kai gia kathe audio arxeio yparxoyn 129.
-Mporeis na ta xrisimopoiiseis ola an thes i mporeis na xrisimopoiiseis apo to 25-30 (poy antisoixei sto 0.3s) poy tha arxizei i leksi, mexri px 110.
-
-Episis, mporeis na dokimaseis na xrisimopoiiseis to raw_audio kai na dokimaseis arxitektoniki paromoia toy tacotron2, px to EncoderConvolutions kai EncoderRNN (https://github.com/Rayhane-mamah/Tacotron-2/blob/master/tacotron/models/modules.py#L82).
+Seq2seq model for regression, applied on predicting visual features from audio recording (under development)
