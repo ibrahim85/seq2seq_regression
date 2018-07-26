@@ -4,12 +4,13 @@ from tf_utils import start_interactive_session
 from regression_model import RegressionModel
 
 options = {
+    'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_enhanced",
 
     'is_training' : True,
     'split_name': 'train',
-    'batch_size': 256,   # number of examples in queue either for training or inference
+    'batch_size': 128,   # number of examples in queue either for training or inference
   
-    'num_classes': 7,  # number of output classes 29 = |a-z, " ", <sos>, <eos>|
+    'num_classes': 28,  # number of output classes 29 = |a-z, " ", <sos>, <eos>|
     'max_out_len_multiplier': 0.50,  # max_out_len = max_out_len_multiplier * max_in_len
 
     'encoder_num_layers': 3,  # number of hidden layers in encoder lstm

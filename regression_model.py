@@ -9,6 +9,7 @@ from tqdm import tqdm
 from tensorflow.contrib.rnn import LSTMStateTuple
 import numpy as np
 
+
 class RegressionModel:
     """
     03/07/18 : The 2nd seq2seq model trained on MVLRS
