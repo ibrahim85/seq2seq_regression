@@ -6,16 +6,16 @@ from regression_model import RegressionModel
 set_gpu(5)
 
 options = {
-    'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_enhanced",
+    'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records",   # _enhanced",
 
     'is_training' : True,
     'split_name': 'train',
-    'batch_size': 128,   # number of examples in queue either for training or inference
+    'batch_size': 32,   # number of examples in queue either for training or inference
     'reverse_time': True,
     'shuffle': True,
-    'mfcc_num_features': 156,
+    'mfcc_num_features': 20,
     'raw_audio_num_features': 256,
-    'num_classes': 28,  # number of output classes 29 = |a-z, " ", <sos>, <eos>|
+    'num_classes': 7,  # number of output classes 29 = |a-z, " ", <sos>, <eos>|
     'max_out_len_multiplier': 0.50,  # max_out_len = max_out_len_multiplier * max_in_len
 
     'encoder_num_layers': 3,  # number of hidden layers in encoder lstm
@@ -26,7 +26,7 @@ options = {
     'bidir_encoder': False,
 
     'decoder_num_layers': 3,  # number of hidden layers in decoder lstm
-    'residual_decoder': True,  # 
+    'residual_decoder': False,  # 
     'decoder_num_hidden': 128,  # number of hidden units in decoder lstm
     'encoder_state_as_decoder_init' : False,  # bool. encoder state is used for decoder init state, else zero state
     'decoder_layer_norm': True,
@@ -68,11 +68,19 @@ options = {
 
           }
 
-model = RegressionModel(options)
+
+from data_provider import get_split
+
+raw_audio, mfcc, target_labels, \
+num_examples, word, decoder_inputs, \
+label_lengths, mfcc_lengths, decoder_inputs_lengths = get_split(options)
+
+
+#model = RegressionModel(options)
 
 sess = start_interactive_session()
+#model.train(sess)
 
-model.train(sess)
 
 
 

@@ -77,13 +77,13 @@ def get_split(options):  # batch_size, base_path, num_classes=7, is_training=Tru
     #raw_audio = tf.reshape(raw_audio, ([1, 20480]))
 
     mfcc = tf.decode_raw(features['mfcc'], tf.float64)
-    mfcc = tf.cast(mfcc, tf.float32)
-    # mfcc = tf.reshape(mfcc, ([20, 129]))
+    #mfcc = tf.cast(mfcc, tf.float32)
+    #mfcc = tf.reshape(mfcc, ([20, 129]))
     #mfcc = tf.cast(tf.transpose(mfcc, (1,0)), tf.float32)
 
     label = tf.decode_raw(features['labels'], tf.float32)
-    # label = tf.reshape(label, ([1, 7]))
-    # label = tf.transpose(label, (1,0))
+    #label = tf.reshape(label, ([-1, num_classes]))
+    #label = tf.transpose(label, (1,0))
 
     subject_id = features['subject_id']
     word = features['word']
