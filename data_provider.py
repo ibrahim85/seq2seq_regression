@@ -56,7 +56,7 @@ def get_split(options):  # batch_size, base_path, num_classes=7, is_training=Tru
     num_examples = len(paths)
     # print(num_examples)
 
-    filename_queue = tf.train.string_input_producer(paths, shuffle=is_training)
+    filename_queue = tf.train.string_input_producer(paths, shuffle=options['shuffle'])
 
     reader = tf.TFRecordReader()
 

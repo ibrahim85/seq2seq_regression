@@ -12,7 +12,8 @@ options = {
     'split_name': 'train',
     'batch_size': 128,   # number of examples in queue either for training or inference
     'reverse_time': True,
-    'mfcc_num_features': 128,
+    'shuffle': True,
+    'mfcc_num_features': 156,
     'raw_audio_num_features': 256,
     'num_classes': 28,  # number of output classes 29 = |a-z, " ", <sos>, <eos>|
     'max_out_len_multiplier': 0.50,  # max_out_len = max_out_len_multiplier * max_in_len
@@ -22,9 +23,10 @@ options = {
     'encoder_num_hidden': 128,  # number of hidden units in encoder lstm
     'encoder_dropout_keep_prob' : None,  # probability of keeping neuron, deprecated
     'encoder_layer_norm': True,
+    'bidir_encoder': False,
 
     'decoder_num_layers': 3,  # number of hidden layers in decoder lstm
-    'residual_encoder': True,  # 
+    'residual_decoder': True,  # 
     'decoder_num_hidden': 128,  # number of hidden units in decoder lstm
     'encoder_state_as_decoder_init' : False,  # bool. encoder state is used for decoder init state, else zero state
     'decoder_layer_norm': True,
