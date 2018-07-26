@@ -3,7 +3,7 @@ import tensorflow as tf
 from tf_utils import start_interactive_session, set_gpu
 from regression_model import RegressionModel
 
-set_gpu(0)
+set_gpu(5)
 
 options = {
     'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_enhanced",

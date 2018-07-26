@@ -163,13 +163,13 @@ class RegressionModel:
 #                 cell=out_cell,
 #                 helper=helper,
 #                 initial_state=decoder_init_state)
-        decoder = tf.contrib.seq2seq.BasicDecoder(
+            decoder = tf.contrib.seq2seq.BasicDecoder(
                 cell=attn_cell,
                 helper=helper,
                 initial_state=decoder_init_state,
                 output_layer=tf.layers.Dense(self.options['num_classes']))
     
-        outputs, final_state, final_sequence_lengths = tf.contrib.seq2seq.dynamic_decode(
+            outputs, final_state, final_sequence_lengths = tf.contrib.seq2seq.dynamic_decode(
                 decoder=decoder,
                 output_time_major=False,
                 impute_finished=True,
@@ -313,7 +313,7 @@ class RegressionModel:
         self.global_step = tf.Variable(value, trainable=False)
         self.increment_global_step = tf.assign(self.global_step, self.global_step + 1)
 
-   def restore_model(self, sess):
+    def restore_model(self, sess):
         print("reading model %s ..." % self.options['restore_model'])
         self.saver.restore(sess, self.options['restore_model'])
         print("model restored.")
