@@ -138,7 +138,7 @@ class RegressionModel:
                 cell=decoder_cell,
                 attention_mechanism=attention_mechanism,
                 attention_layer_size=self.options['attention_layer_size'],
-                alignment_history=False,
+                alignment_history=self.options['alignment_history'],
                 cell_input_fn=None,
                 output_attention=True, # Luong: True, Bahdanau: False ?
                 initial_cell_state=None,
@@ -166,7 +166,7 @@ class RegressionModel:
                 initial_state=decoder_init_state,
                 output_layer=tf.layers.Dense(self.options['num_classes']))
     
-            outputs, final_state, final_sequence_lengths = tf.contrib.seq2seq.dynamic_decode(
+            outputs, self.final_state, final_sequence_lengths = tf.contrib.seq2seq.dynamic_decode(
                 decoder=decoder,
                 output_time_major=False,
                 impute_finished=True,
@@ -179,21 +179,24 @@ class RegressionModel:
             #                                   maxlen=None,  # data_options['max_out_len']+1,
             #                                   dtype=tf.float32)
             # self.train_loss = tf.losses.mean_squared_error self.target_labels, self.decoder_outputs)  # , weights=target_weights)
-            target_labels_ = tf.reshape(self.target_labels, [-1, self.options['num_classes']]) # + self.epsilon
-            predictions_ = tf.reshape(self.decoder_outputs, [-1, self.options['num_classes']]) # + self.epsilon
+            target_labels_ = tf.reshape(self.target_labels, [-1,])  # self.options['num_classes']]) # + self.epsilon
+            predictions_ = tf.reshape(self.decoder_outputs, [-1,])  #self.options['num_classes']]) # + self.epsilon
             # self.train_loss = tf.abs(tf.losses.cosine_distance(target_labels_, predictions_, dim=0, weights=1.0 , reduction=tf.losses.Reduction.MEAN))/self.batch_size  # , wdim=0, eights=target_weights)
             # self.train_loss = tf.losses.mean_squared_error(target_labels_, predictions_)
+            self.l2_loss = self.options['reg_constant'] * tf.add_n([tf.nn.l2_loss(tf.cast(v, tf.float32)) for v in tf.trainable_variables()])
             if self.options['loss_fun'] is "mse":
                 # self.train_loss = tf.reduce_mean(tf.pow(predictions_ - target_labels_, 2))
-                self.l2_loss = self.options['reg_constant'] * tf.add_n([tf.nn.l2_loss(tf.cast(v, tf.float32)) for v in tf.trainable_variables()])
-                self.train_loss = tf.reduce_mean(tf.pow(predictions_ - target_labels_, 2)) + self.l2_loss
+                #self.l2_loss = self.options['reg_constant'] * tf.add_n([tf.nn.l2_loss(tf.cast(v, tf.float32)) for v in tf.trainable_variables()])
+                self.train_loss = tf.reduce_mean(tf.pow(predictions_ - target_labels_, 2)) #+ self.l2_loss
             elif self.options['loss_fun'] is "cos":
                 # reg_losses = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES)
                 # reg_constant = 0.01  # Choose an appropriate one.
                 # loss = my_normal_loss + reg_constant * sum(reg_losses)
-                self.l2_loss = self.options['reg_constant'] * tf.add_n([tf.nn.l2_loss(tf.cast(v, tf.float32)) for v in tf.trainable_variables()])
-                self.train_loss = tf.abs(tf.reduce_mean(tf.losses.cosine_distance(target_labels_, predictions_, dim=0))) + self.l2_loss
-            
+                #self.l2_loss = self.options['reg_constant'] * tf.add_n([tf.nn.l2_loss(tf.cast(v, tf.float32)) for v in tf.trainable_variables()])
+                self.train_loss = tf.abs(tf.reduce_mean(tf.losses.cosine_distance(target_labels_, predictions_, dim=0))) #+ self.l2_loss
+            elif self.options['loss_fun'] is 'concordance_cc':
+                self.train_loss = tf.reduce_mean(-self.concordance_cc(predictions_, target_labels_))
+            self.train_loss = self.train_loss + self.l2_loss
             if self.options['save_summaries']:
                 tf.summary.scalar('train_loss', self.train_loss)
                 tf.summary.scalar('l2_loss', self.l2_loss)
@@ -259,6 +262,7 @@ class RegressionModel:
                      # self.accuracy2,
                      self.optimizer._lr,
                      self.sampling_prob])
+                
                 print("%d,%d,%d,%d,%d,%.4f,%.4f,%.8f,%.4f"
                       % (gstep, epoch,
                          self.options['num_epochs'],
@@ -266,7 +270,7 @@ class RegressionModel:
                          self.number_of_steps_per_epoch,
                          loss, l2loss, lr, sp))
                 
-                if np.isinf(loss):
+                if np.isinf(loss) or np.isnan(loss):
                     self.ei = ei
                     self.do = do
                     self.tl = tl
@@ -285,15 +289,21 @@ class RegressionModel:
         if self.options['save_summaries']:
             self.save_summaries(sess=sess, summaries=self.merged_summaries, step=gs)
 
-
     def build_inference_graph(self):
         """
+        No differences between train and test graphs
         """
-        pass       
+        self.build_train_graph()       
 
     def predict(self, sess, num_steps=None):
-        pass
-    
+        if num_steps is None:
+            num_steps = self.number_of_steps_per_epoch
+        loss_ = []
+        for i in range(num_steps):
+            l_ = sess.run(self.train_loss)
+            loss_.append(l_) 
+            print("%d, %d, %.4f" % (i, num_steps, l_))
+        return loss_    
     
     @property
     def learn_rate_decay_steps(self):
@@ -350,4 +360,16 @@ class RegressionModel:
             return decoder_init_state
         else:
             raise NotImplemented
-
+    
+    def concordance_cc(self, prediction, ground_truth):
+        """Defines concordance loss for training the model. 
+        Args:
+           prediction: prediction of the model.
+           ground_truth: ground truth values.
+        Returns:
+           The concordance value.
+        """
+        pred_mean, pred_var = tf.nn.moments(prediction, (0,))
+        gt_mean, gt_var = tf.nn.moments(ground_truth, (0,))
+        mean_cent_prod = tf.reduce_mean((prediction - pred_mean) * (ground_truth - gt_mean))
+        return (2 * mean_cent_prod) / (pred_var + gt_var + tf.square(pred_mean - gt_mean))
