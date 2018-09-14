@@ -14,10 +14,11 @@ options = {
     'batch_size': 512,   # number of examples in queue either for training or inference
     'reverse_time': False,
     'shuffle': False,
+    'random_crop': False,
     'mfcc_num_features': 20,  # 20,
     'raw_audio_num_features': 533,  # 256,
     'num_classes': 28,  # number of output classes 29 = |a-z, " ", <sos>, <eos>|
-    'max_out_len_multiplier': 0.70,  # max_out_len = max_out_len_multiplier * max_in_len
+    'max_out_len_multiplier': 1.0,  # max_out_len = max_out_len_multiplier * max_in_len
     
     'mfcc_gaussian_noise_std': 0.05,
     'label_gaussian_noise_std':0.0,

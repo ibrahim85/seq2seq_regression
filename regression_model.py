@@ -29,10 +29,7 @@ class RegressionModel:
         self.base_path = options['data_root_dir']
   
         self.epsilon = tf.constant(1e-10, dtype=tf.float32)
-        # self.data_paths = get_data_paths(self.options)
-        #
-        # self.number_of_steps_per_epoch, self.number_of_steps = \
-        #     get_number_of_steps(self.data_paths, self.options)
+
         if self.options['data_root_dir'][-5:] == 'clean':
             self.encoder_inputs, \
             self.target_labels, \
@@ -55,18 +52,13 @@ class RegressionModel:
         #self.encoder_inputs_pl = tf.placeholder(tf.float32, shape=(None, None, 20))  # placeholder for encoder inputs
         #self.decoder_inputs_pl = tf.placeholder(tf.float32, shape=(None, None, 28))
         #self.decoder_inputs_lengths = tf.placeholder(tf.int32, shape=(None,)) 
-        
-        # THSI SHOULD GO!!!
-        #self.target_labels = tf.clip_by_value(self.target_labels, clip_value_min=-15., clip_value_max=15.)
-        
+
         self.number_of_steps_per_epoch = self.num_examples // self.batch_size
         self.number_of_steps = self.number_of_steps_per_epoch * options['num_epochs']
                 
         self.init_global_step()
         
-        self.max_decoding_steps = tf.to_int32(
-                tf.round(self.options['max_out_len_multiplier'] *
-                         tf.to_float(tf.reduce_max(self.encoder_inputs_lengths))))
+        self.max_decoding_steps = tf.reduce_max(self.encoder_inputs_lengths)
        
         if self.is_training:
             self.train_era_step = self.options['train_era_step']
@@ -102,12 +94,16 @@ class RegressionModel:
         if self.options['has_encoder']:
             with tf.variable_scope('encoder'):
                 if self.options['bidir_encoder']:
-                    self.encoder_out, self.encoder_hidden = blstm_encoder(input_forw=self.encoder_inputs, options=self.options)
+                    self.encoder_out, self.encoder_hidden = blstm_encoder(
+                        input_forw=self.encoder_inputs, options=self.options)
                 else:
                     self.encoder_out, self.encoder_hidden = stacked_lstm(
-                        num_layers=self.options['encoder_num_layers'], num_hidden=self.options['encoder_num_hidden'],
-                        residual=self.options['residual_encoder'], use_peepholes=True,
-                        input_forw=self.encoder_inputs, return_cell=False)
+                        num_layers=self.options['encoder_num_layers'],
+                        num_hidden=self.options['encoder_num_hidden'],
+                        residual=self.options['residual_encoder'],
+                        use_peepholes=True,
+                        input_forw=self.encoder_inputs,
+                        return_cell=False)
                     print("Encoder hidden:", self.encoder_hidden)
 
         else:
@@ -122,65 +118,30 @@ class RegressionModel:
                 self.decoder_inputs_lengths,
                 self.sampling_prob)
             
-            # decoder_cell = [tf.contrib.rnn.LayerNormBasicLSTMCell(self.options['decoder_num_hidden'], layer_norm=self.options['decoder_layer_norm']) for _ in range(self.options['decoder_num_layers'])]
-            #decoder_cell = [tf.contrib.rnn.LSTMCell(self.options['decoder_num_hidden']) for _ in range(self.options['decoder_num_layers'])]
-            #decoder_cell = tf.nn.rnn_cell.MultiRNNCell(decoder_cell, state_is_tuple=True)
             decoder_cell = stacked_lstm(
-                num_layers=self.options['decoder_num_layers'],num_hidden=self.options['decoder_num_hidden'],
-                residual=self.options['residual_decoder'], use_peepholes=True,
-                input_forw=None, return_cell=True)
-            
+                num_layers=self.options['decoder_num_layers'],
+                num_hidden=self.options['decoder_num_hidden'],
+                residual=self.options['residual_decoder'],
+                use_peepholes=True,
+                input_forw=None,
+                return_cell=True)
 
             if self.options['attention_type'] is None:
-                
-                #assert self.options['encoder_state_as_decoder_init'], "Decoder must use encoder final hidden state if no Attention mechanism is defined"
+                assert self.options['encoder_state_as_decoder_init'], \
+                    "Decoder must use encoder final hidden state if no Attention mechanism is defined"
                 attn_cell = decoder_cell
-
             else:
-
                 attention_mechanism = self.get_attention_mechanism()
             
-            #attention_mechanism = tf.contrib.seq2seq.BahdanauAttention(
-            #    num_units=self.options['decoder_num_hidden'],  # The depth of the query mechanism.
-            #    memory=encoder_out,  # The memory to query; usually the output of an RNN encoder
-            #    memory_sequence_length=self.encoder_inputs_lengths,  # Sequence lengths for the batch
-            #    # entries in memory. If provided, the memory tensor rows are masked with zeros for values
-            #    # past the respective sequence lengths.
-            #    normalize=self.options['attention_layer_norm'],  # boolean. Whether to normalize the energy term.
-            #    name='BahdanauAttention')
-            
-#             attn_cell = tf.contrib.seq2seq.AttentionWrapper(
-#                 cell=decoder_cell,
-#                 attention_mechanism=attention_mechanism,
-#                 attention_layer_size=self.options['attention_layer_size'],
-#                 alignment_history=False,
-#                 cell_input_fn=None,
-#                 output_attention=False, # Luong: True, Bahdanau: False ?
-#                 initial_cell_state=None,
-#                 name=None)
                 attn_cell = tf.contrib.seq2seq.AttentionWrapper(
                     cell=decoder_cell,
                     attention_mechanism=attention_mechanism,
                     attention_layer_size=self.options['attention_layer_size'],
                     alignment_history=self.options['alignment_history'],
                     output_attention=self.options['output_attention']) # Luong: True, Bahdanau: False ?
-            
-#             out_cell = tf.contrib.rnn.OutputProjectionWrapper(
-#                 attn_cell, self.options['num_classes'])
+
             decoder_init_state = self.get_decoder_init_state(self.encoder_hidden, attn_cell)
 
-#             if self.options['encoder_state_as_decoder_init']:  # use encoder state for decoder init
-#                 init_state = self.get_decoder_init_state(encoder_hidden)
-#                 decoder_init_state = out_cell.zero_state(dtype=tf.float32, batch_size=self.options['batch_size']
-#                                                          ).clone(cell_state=init_state)
-#             else:  # use zero state
-#                 decoder_init_state = out_cell.zero_state(dtype=tf.float32,
-#                                                          batch_size=self.options['batch_size'])
-
-#             decoder = tf.contrib.seq2seq.BasicDecoder(
-#                 cell=out_cell,
-#                 helper=helper,
-#                 initial_state=decoder_init_state)
             decoder = tf.contrib.seq2seq.BasicDecoder(
                 cell=attn_cell,
                 helper=helper,
@@ -193,28 +154,16 @@ class RegressionModel:
                 impute_finished=True,
                 maximum_iterations=self.options['max_out_len'])
             self.decoder_outputs = outputs.rnn_output
-            # decoder_greedy_pred = tf.argmax(decoder_outputs, axis=2)
 
         with tf.variable_scope('loss_function'):
-            # target_weights = tf.sequence_mask(self.target_labels_lengths,  # +1 for <eos> token
-            #                                   maxlen=None,  # data_options['max_out_len']+1,
-            #                                   dtype=tf.float32)
-            # self.train_loss = tf.losses.mean_squared_error self.target_labels, self.decoder_outputs)  # , weights=target_weights)
-            target_labels_ = tf.reshape(self.target_labels, [-1,])  # self.options['num_classes']]) # + self.epsilon
-            predictions_ = tf.reshape(self.decoder_outputs, [-1,])  #self.options['num_classes']]) # + self.epsilon
-            # self.train_loss = tf.abs(tf.losses.cosine_distance(target_labels_, predictions_, dim=0, weights=1.0 , reduction=tf.losses.Reduction.MEAN))/self.batch_size  # , wdim=0, eights=target_weights)
-            # self.train_loss = tf.losses.mean_squared_error(target_labels_, predictions_)
-            self.l2_loss = self.options['reg_constant'] * tf.add_n([tf.nn.l2_loss(tf.cast(v, tf.float32)) for v in tf.trainable_variables()])
+            target_labels_ = tf.reshape(self.target_labels, [-1, ])
+            predictions_ = tf.reshape(self.decoder_outputs, [-1, ])
+            self.l2_loss = self.options['reg_constant'] * \
+                           tf.add_n([tf.nn.l2_loss(tf.cast(v, tf.float32)) for v in tf.trainable_variables()])
             if self.options['loss_fun'] is "mse":
-                # self.train_loss = tf.reduce_mean(tf.pow(predictions_ - target_labels_, 2))
-                #self.l2_loss = self.options['reg_constant'] * tf.add_n([tf.nn.l2_loss(tf.cast(v, tf.float32)) for v in tf.trainable_variables()])
-                self.train_loss = tf.reduce_mean(tf.pow(predictions_ - target_labels_, 2)) #+ self.l2_loss
+                self.train_loss = tf.reduce_mean(tf.pow(predictions_ - target_labels_, 2))
             elif self.options['loss_fun'] is "cos":
-                # reg_losses = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES)
-                # reg_constant = 0.01  # Choose an appropriate one.
-                # loss = my_normal_loss + reg_constant * sum(reg_losses)
-                #self.l2_loss = self.options['reg_constant'] * tf.add_n([tf.nn.l2_loss(tf.cast(v, tf.float32)) for v in tf.trainable_variables()])
-                self.train_loss = tf.abs(tf.reduce_mean(tf.losses.cosine_distance(target_labels_, predictions_, dim=0))) #+ self.l2_loss
+                self.train_loss = tf.abs(tf.reduce_mean(tf.losses.cosine_distance(target_labels_, predictions_, dim=0)))
             elif self.options['loss_fun'] is 'concordance_cc':
                 self.train_loss = tf.reduce_mean(-self.concordance_cc(predictions_, target_labels_))
             self.train_loss = self.train_loss + self.l2_loss
