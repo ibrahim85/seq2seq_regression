@@ -4,7 +4,7 @@ from __future__ import print_function
 import tensorflow as tf
 from model_utils import stacked_lstm, blstm_encoder
 from metrics import char_accuracy, flatten_list
-from data_provider import get_split, get_split2
+from data_provider import get_split, get_split2, get_split3
 from tqdm import tqdm
 from tensorflow.contrib.rnn import LSTMStateTuple
 import numpy as np
@@ -30,16 +30,7 @@ class RegressionModel:
   
         self.epsilon = tf.constant(1e-10, dtype=tf.float32)
 
-        if self.options['data_root_dir'][-5:] == 'clean':
-            self.encoder_inputs, \
-            self.target_labels, \
-            self.num_examples, \
-            self.words, \
-            self.decoder_inputs, \
-            self.target_labels_lengths, \
-            self.encoder_inputs_lengths, \
-            self.decoder_inputs_lengths = get_split2(options)
-        else:
+        if self.options['data_split'] == 'split1':
             _, self.encoder_inputs, \
             self.target_labels, \
             self.num_examples, \
@@ -48,6 +39,24 @@ class RegressionModel:
             self.target_labels_lengths, \
             self.encoder_inputs_lengths, \
             self.decoder_inputs_lengths = get_split(options)
+        elif self.options['data_split'] == 'split2':
+            self.encoder_inputs, \
+            self.target_labels, \
+            self.num_examples, \
+            self.words, \
+            self.decoder_inputs, \
+            self.target_labels_lengths, \
+            self.encoder_inputs_lengths, \
+            self.decoder_inputs_lengths = get_split2(options)
+        elif self.options['data_split'] == 'split3':
+            self.encoder_inputs, \
+            self.target_labels, \
+            self.num_examples, \
+            self.words, \
+            self.decoder_inputs, \
+            self.target_labels_lengths, \
+            self.encoder_inputs_lengths, \
+            self.decoder_inputs_lengths = get_split3(options)
         
         #self.encoder_inputs_pl = tf.placeholder(tf.float32, shape=(None, None, 20))  # placeholder for encoder inputs
         #self.decoder_inputs_pl = tf.placeholder(tf.float32, shape=(None, None, 28))
@@ -158,8 +167,8 @@ class RegressionModel:
         with tf.variable_scope('loss_function'):
 
             lengths_transposed = tf.expand_dims(self.target_labels_lengths, 1)
-            range = tf.range(0, tf.shape(self.target_labels)[1], 1)
-            range_row = tf.expand_dims(range, 0)
+            range_ = tf.range(0, tf.shape(self.target_labels)[1], 1)
+            range_row = tf.expand_dims(range_, 0)
             # Use the logical operations to create a mask
             mask = tf.less(range_row, lengths_transposed)
             # Use the select operation to select between 1 or 0 for each value.
@@ -183,7 +192,9 @@ class RegressionModel:
             #     self.train_loss = tf.abs(tf.reduce_mean(tf.losses.cosine_distance(target_labels_, predictions_, dim=0)))
             elif self.options['loss_fun'] is 'concordance_cc':
                 self.train_loss = tf.reduce_mean(-self.concordance_cc(predictions_, target_labels_))
+            
             self.train_loss = self.train_loss + self.l2_loss
+            
             if self.options['save_summaries']:
                 tf.summary.scalar('train_loss', self.train_loss)
                 tf.summary.scalar('l2_loss', self.l2_loss)

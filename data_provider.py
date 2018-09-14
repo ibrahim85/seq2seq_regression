@@ -398,7 +398,7 @@ def get_split3(options):
     rmse = tf.reshape(rmse, (batch_size, -1, 1))
     #raw_audio = tf.reshape(raw_audio, (batch_size, -1, 735))
 
-    encoder_inputs = tf.concat([frame_mfcc, rmse], axis=1)
+    encoder_inputs = tf.concat([frame_mfcc, rmse], axis=-1)
 
     # sos_token
     sos_token = tf.constant(1, dtype=tf.float32, shape=[batch_size, num_classes])
