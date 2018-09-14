@@ -2,9 +2,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 import tensorflow as tf
-from model_utils import stacked_lstm
+from model_utils import stacked_lstm, blstm_encoder
 from metrics import char_accuracy, flatten_list
-from data_provider import get_split
+from data_provider import get_split, get_split2
 from tqdm import tqdm
 from tensorflow.contrib.rnn import LSTMStateTuple
 import numpy as np
@@ -33,7 +33,17 @@ class RegressionModel:
         #
         # self.number_of_steps_per_epoch, self.number_of_steps = \
         #     get_number_of_steps(self.data_paths, self.options)
-        _, self.encoder_inputs, \
+        if self.options['data_root_dir'][-5:] == 'clean':
+            self.encoder_inputs, \
+            self.target_labels, \
+            self.num_examples, \
+            self.words, \
+            self.decoder_inputs, \
+            self.target_labels_lengths, \
+            self.encoder_inputs_lengths, \
+            self.decoder_inputs_lengths = get_split2(options)
+        else:
+            _, self.encoder_inputs, \
             self.target_labels, \
             self.num_examples, \
             self.words, \
@@ -41,6 +51,10 @@ class RegressionModel:
             self.target_labels_lengths, \
             self.encoder_inputs_lengths, \
             self.decoder_inputs_lengths = get_split(options)
+        
+        #self.encoder_inputs_pl = tf.placeholder(tf.float32, shape=(None, None, 20))  # placeholder for encoder inputs
+        #self.decoder_inputs_pl = tf.placeholder(tf.float32, shape=(None, None, 28))
+        #self.decoder_inputs_lengths = tf.placeholder(tf.int32, shape=(None,)) 
         
         # THSI SHOULD GO!!!
         #self.target_labels = tf.clip_by_value(self.target_labels, clip_value_min=-15., clip_value_max=15.)
@@ -50,6 +64,10 @@ class RegressionModel:
                 
         self.init_global_step()
         
+        self.max_decoding_steps = tf.to_int32(
+                tf.round(self.options['max_out_len_multiplier'] *
+                         tf.to_float(tf.reduce_max(self.encoder_inputs_lengths))))
+       
         if self.is_training:
             self.train_era_step = self.options['train_era_step']
             # self.encoder_inputs, self.target_labels, self.decoder_inputs, self.encoder_inputs_lengths, \
@@ -61,10 +79,11 @@ class RegressionModel:
             # self.encoder_inputs, self.target_labels, self.decoder_inputs, self.encoder_inputs_lengths, \
             # self.target_labels_lengths, self.decoder_inputs_lengths, self.max_input_len = \
             #     get_inference_data_batch(self.data_paths, self.options)
-            self.max_decoding_steps = tf.to_int32(
-                tf.round(self.options['max_out_len_multiplier'] *
-                         tf.to_float(tf.reduce_max(self.encoder_inputs_lengths))))
-            self.build_inference_graph()
+            #self.max_decoding_steps = tf.to_int32(
+            #    tf.round(self.options['max_out_len_multiplier'] *
+            #             tf.to_float(tf.reduce_max(self.encoder_inputs_lengths))))
+            self.build_train_graph()
+            #self.build_inference_graph()
 
         # else:
         #     raise ValueError("options.mode must be either 'train' or 'test'")
@@ -80,25 +99,20 @@ class RegressionModel:
             self.writer = tf.summary.FileWriter(self.options['save_dir'])
    
     def build_train_graph(self):
+        if self.options['has_encoder']:
+            with tf.variable_scope('encoder'):
+                if self.options['bidir_encoder']:
+                    self.encoder_out, self.encoder_hidden = blstm_encoder(input_forw=self.encoder_inputs, options=self.options)
+                else:
+                    self.encoder_out, self.encoder_hidden = stacked_lstm(
+                        num_layers=self.options['encoder_num_layers'], num_hidden=self.options['encoder_num_hidden'],
+                        residual=self.options['residual_encoder'], use_peepholes=True,
+                        input_forw=self.encoder_inputs, return_cell=False)
+                    print("Encoder hidden:", self.encoder_hidden)
 
-        with tf.variable_scope('encoder'):
-            # encoder_out, encoder_hidden = blstm_encoder(self.encoder_inputs, self.options)
-            # rnn_layers = [tf.contrib.rnn.LayerNormBasicLSTMCell(self.options['encoder_num_hidden'], layer_norm=self.options['encoder_layer_norm']) for _ in range(self.options['encoder_num_layers'])]
-            # create a RNN cell composed sequentially of a number of RNNCells
-            # multi_rnn_cell_forw = tf.nn.rnn_cell.MultiRNNCell(rnn_layers)
-            # multi_rnn_cell_back = tf.nn.rnn_cell.MultiRNNCell(rnn_layers)
-            # outputs, encoder_hidden = tf.nn.bidirectional_dynamic_rnn(
-            #                 multi_rnn_cell_forw, multi_rnn_cell_back,
-            #                 self.encoder_inputs, dtype=tf.float32)
-            # encoder_out = tf.concat(outputs, 2)
-            #encoder_cell = [tf.contrib.rnn.LSTMCell(self.options['encoder_num_hidden']) for _ in range(self.options['encoder_num_layers'])]
-            # encoder_cell = [tf.contrib.rnn.LayerNormBasicLSTMCell(self.options['encoder_num_hidden'], layer_norm=self.options['encoder_layer_norm']) for _ in range(self.options['encoder_num_layers'])]
-            #encoder_cell = tf.nn.rnn_cell.MultiRNNCell(encoder_cell, state_is_tuple=True)
-            #encoder_out, encoder_hidden = tf.nn.dynamic_rnn(encoder_cell, self.encoder_inputs, dtype=tf.float32)
-            encoder_out, encoder_hidden = stacked_lstm(
-                num_layers=self.options['encoder_num_layers'], num_hidden=self.options['encoder_num_hidden'],
-                residual=self.options['residual_encoder'], use_peepholes=True,
-                input_forw=self.encoder_inputs, return_cell=False)
+        else:
+            self.encoder_out = self.encoder_inputs
+            self.encoder_hidden = None
 
         with tf.variable_scope('decoder_lstm'):
             ss_prob = self.options['ss_prob']
@@ -116,14 +130,24 @@ class RegressionModel:
                 residual=self.options['residual_decoder'], use_peepholes=True,
                 input_forw=None, return_cell=True)
             
-            attention_mechanism = tf.contrib.seq2seq.BahdanauAttention(
-                num_units=self.options['decoder_num_hidden'],  # The depth of the query mechanism.
-                memory=encoder_out,  # The memory to query; usually the output of an RNN encoder
-                memory_sequence_length=self.encoder_inputs_lengths,  # Sequence lengths for the batch
-                # entries in memory. If provided, the memory tensor rows are masked with zeros for values
-                # past the respective sequence lengths.
-                normalize=self.options['attention_layer_norm'],  # boolean. Whether to normalize the energy term.
-                name='BahdanauAttention')
+
+            if self.options['attention_type'] is None:
+                
+                #assert self.options['encoder_state_as_decoder_init'], "Decoder must use encoder final hidden state if no Attention mechanism is defined"
+                attn_cell = decoder_cell
+
+            else:
+
+                attention_mechanism = self.get_attention_mechanism()
+            
+            #attention_mechanism = tf.contrib.seq2seq.BahdanauAttention(
+            #    num_units=self.options['decoder_num_hidden'],  # The depth of the query mechanism.
+            #    memory=encoder_out,  # The memory to query; usually the output of an RNN encoder
+            #    memory_sequence_length=self.encoder_inputs_lengths,  # Sequence lengths for the batch
+            #    # entries in memory. If provided, the memory tensor rows are masked with zeros for values
+            #    # past the respective sequence lengths.
+            #    normalize=self.options['attention_layer_norm'],  # boolean. Whether to normalize the energy term.
+            #    name='BahdanauAttention')
             
 #             attn_cell = tf.contrib.seq2seq.AttentionWrapper(
 #                 cell=decoder_cell,
@@ -134,19 +158,16 @@ class RegressionModel:
 #                 output_attention=False, # Luong: True, Bahdanau: False ?
 #                 initial_cell_state=None,
 #                 name=None)
-            attn_cell = tf.contrib.seq2seq.AttentionWrapper(
-                cell=decoder_cell,
-                attention_mechanism=attention_mechanism,
-                attention_layer_size=self.options['attention_layer_size'],
-                alignment_history=self.options['alignment_history'],
-                cell_input_fn=None,
-                output_attention=True, # Luong: True, Bahdanau: False ?
-                initial_cell_state=None,
-                name=None)
+                attn_cell = tf.contrib.seq2seq.AttentionWrapper(
+                    cell=decoder_cell,
+                    attention_mechanism=attention_mechanism,
+                    attention_layer_size=self.options['attention_layer_size'],
+                    alignment_history=self.options['alignment_history'],
+                    output_attention=self.options['output_attention']) # Luong: True, Bahdanau: False ?
             
 #             out_cell = tf.contrib.rnn.OutputProjectionWrapper(
 #                 attn_cell, self.options['num_classes'])
-            decoder_init_state = self.get_decoder_init_state(encoder_hidden, attn_cell)
+            decoder_init_state = self.get_decoder_init_state(self.encoder_hidden, attn_cell)
 
 #             if self.options['encoder_state_as_decoder_init']:  # use encoder state for decoder init
 #                 init_state = self.get_decoder_init_state(encoder_hidden)
@@ -214,6 +235,8 @@ class RegressionModel:
             initial_learn_rate = tf.constant(self.options['learn_rate'], tf.float32)
             if self.options['decay_steps'] is None:
                 decay_steps = self.number_of_steps_per_epoch
+            elif type(self.options['decay_steps']) is float:
+                decay_steps = self.options['decay_steps'] * self.number_of_steps_per_epoch
             else:
                 decay_steps = self.options['decay_steps']
             learn_rate = tf.train.exponential_decay(learning_rate=initial_learn_rate, global_step=self.global_step,
@@ -221,7 +244,10 @@ class RegressionModel:
                                                     decay_rate=self.options['learn_rate_decay'],
                                                     staircase=self.options['staircase_decay'])
             self.optimizer = tf.train.AdamOptimizer(learn_rate)
-            self.update_step = self.optimizer.apply_gradients(zip(self.clipped_gradients, params), global_step=self.global_step)
+            
+            update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+            with tf.control_dependencies(update_ops):
+                self.update_step = self.optimizer.apply_gradients(zip(self.clipped_gradients, params), global_step=self.global_step)
 
     def train(self, sess, number_of_steps=None):
 
@@ -287,13 +313,78 @@ class RegressionModel:
         if self.options['save']:
             self.save_model(sess=sess, save_path=self.options['save_model'] + "_final")
         if self.options['save_summaries']:
-            self.save_summaries(sess=sess, summaries=self.merged_summaries, step=gs)
+            self.save_summaries(sess=sess, summaries=self.merged_summaries)
 
     def build_inference_graph(self):
         """
         No differences between train and test graphs
         """
-        self.build_train_graph()       
+        #self.build_train_graph()       
+        encoder_inputs_pl = tf.placeholder(tf.float32, shape=(None, None, 20))  # placeholder for encoder inputs
+        decoder_inputs_pl = tf.placeholder(tf.float32, shape=(None, None, 28))
+        decoder_inputs_lengths_pl = tf.placeholder(tf.int32, shape=(None,))
+
+        with tf.variable_scope('encoder'):
+            
+            if self.options['bidir_encoder']:
+                self.encoder_out, encoder_hidden = blstm_encoder(input_forw=encoder_inputs_pl, options=self.options)
+            else:
+                self.encoder_out, encoder_hidden = stacked_lstm(
+                    num_layers=self.options['encoder_num_layers'], num_hidden=self.options['encoder_num_hidden'],
+                    residual=self.options['residual_encoder'], use_peepholes=True,
+                    input_forw=encoder_inputs_pl, return_cell=False)
+                print("Encoder hidden:", encoder_hidden)
+
+        with tf.variable_scope('decoder_lstm'):
+            ss_prob = self.options['ss_prob']
+            self.sampling_prob = tf.constant(ss_prob, dtype=tf.float32)
+            helper = tf.contrib.seq2seq.ScheduledOutputTrainingHelper(
+                decoder_inputs_pl,
+                decoder_inputs_lengths_pl,
+                self.sampling_prob)                            
+            #helper = tf.contrib.seq2seq.InferenceHelper(
+            #    sample_fn=lambda outputs: outputs,
+            #    sample_shape=[1],  # again because dim=1
+            #    sample_dtype=dtypes.float32,
+            #    start_inputs=start_tokens,
+            #    end_fn=lambda sample_ids: False)
+            decoder_cell = stacked_lstm(
+                num_layers=self.options['decoder_num_layers'],num_hidden=self.options['decoder_num_hidden'],
+                residual=self.options['residual_decoder'], use_peepholes=True,
+                input_forw=None, return_cell=True)
+
+
+            if self.options['attention_type'] is None:
+
+                assert self.options['encoder_state_as_decoder_init'], "Decoder must use encoder final hidden state if no Attention mechanism is defined"
+                attn_cell = decoder_cell
+
+            else:
+
+                attention_mechanism = self.get_attention_mechanism()
+                attn_cell = tf.contrib.seq2seq.AttentionWrapper(
+                    cell=decoder_cell,
+                    attention_mechanism=attention_mechanism,
+                    attention_layer_size=self.options['attention_layer_size'],
+                    alignment_history=self.options['alignment_history'],
+                    output_attention=self.options['output_attention'])
+
+        decoder_init_state = self.get_decoder_init_state(encoder_hidden, attn_cell)
+
+        decoder = tf.contrib.seq2seq.BasicDecoder(
+                cell=attn_cell,
+                helper=helper,
+                initial_state=decoder_init_state,
+                output_layer=tf.layers.Dense(self.options['num_classes']))
+
+        outputs, self.final_state, final_sequence_lengths = tf.contrib.seq2seq.dynamic_decode(
+                decoder=decoder,
+                output_time_major=False,
+                impute_finished=True,
+                maximum_iterations=self.options['max_out_len'])
+        self.decoder_outputs = outputs.rnn_output
+
+
 
     def predict(self, sess, num_steps=None):
         if num_steps is None:
@@ -342,7 +433,24 @@ class RegressionModel:
         self.writer.add_summary(s, gs)
         self.writer.flush()
         
-
+    #def get_decoder_init_state(self, encoder_states, cell):
+    #    """
+    #    initial values for (unidirectional lstm) decoder network from (equal depth bidirectional lstm)
+    #    encoder hidden states. initially, the states of the forward and backward networks are concatenated
+    #    and a fully connected layer is defined for each lastm parameter (c, h) mapping from encoder to
+    #    decoder hidden size state
+    #    """
+    #    if not self.options['bidir_encoder']:
+    #        if self.options['encoder_state_as_decoder_init']:  # use encoder state for decoder init
+    #            init_state = encoder_states
+    #            decoder_init_state = cell.zero_state(dtype=tf.float32, batch_size=self.options['batch_size']
+    #                                                     ).clone(cell_state=init_state)
+    #        else:  # use zero state
+    #            decoder_init_state = cell.zero_state(dtype=tf.float32, batch_size=self.options['batch_size'])
+    #        return decoder_init_state
+    #    else:
+    #        raise NotImplemented
+    
     def get_decoder_init_state(self, encoder_states, cell):
         """
         initial values for (unidirectional lstm) decoder network from (equal depth bidirectional lstm)
@@ -351,16 +459,33 @@ class RegressionModel:
         decoder hidden size state
         """
         if not self.options['bidir_encoder']:
+            
             if self.options['encoder_state_as_decoder_init']:  # use encoder state for decoder init
                 init_state = encoder_states
-                decoder_init_state = cell.zero_state(dtype=tf.float32, batch_size=self.options['batch_size']
-                                                         ).clone(cell_state=init_state)
+
+                #if self.options['mode'] == 'train':
+                decoder_init_state = cell.zero_state(
+                        dtype=tf.float32, batch_size=self.options['batch_size']).clone(
+                        cell_state=init_state)
+                #elif self.options['mode'] == 'test':
+                #    decoder_init_state = cell.zero_state(
+                #        dtype=tf.float32,
+                #        batch_size=self.options['batch_size'] * self.options['beam_width']).clone(
+                #                cell_state=tf.contrib.seq2seq.tile_batch(init_state, self.options['beam_width']))
             else:  # use zero state
-                decoder_init_state = cell.zero_state(dtype=tf.float32, batch_size=self.options['batch_size'])
+                #if self.options['mode'] == 'train':
+                decoder_init_state = cell.zero_state(
+                        dtype=tf.float32,
+                        batch_size=self.options['batch_size'])
+                #elif self.options['mode'] == 'test':
+                #    decoder_init_state = cell.zero_state(
+                #        dtype=tf.float32,
+                #        batch_size=self.options['batch_size'] * self.options['beam_width'])
             return decoder_init_state
+
         else:
             raise NotImplemented
-    
+
     def concordance_cc(self, prediction, ground_truth):
         """Defines concordance loss for training the model. 
         Args:
@@ -373,3 +498,96 @@ class RegressionModel:
         gt_mean, gt_var = tf.nn.moments(ground_truth, (0,))
         mean_cent_prod = tf.reduce_mean((prediction - pred_mean) * (ground_truth - gt_mean))
         return (2 * mean_cent_prod) / (pred_var + gt_var + tf.square(pred_mean - gt_mean))
+    
+    def get_attention_mechanism(self):
+        if self.options['attention_type'] is "bahdanau":
+            attention_mechanism = tf.contrib.seq2seq.BahdanauAttention(
+                num_units=self.options['decoder_num_hidden'],  # The depth of the query mechanism.
+                memory=self.encoder_out,  # The memory to query; usually the output of an RNN encoder
+                memory_sequence_length=self.encoder_inputs_lengths,  # Sequence lengths for the batch
+                # entries in memory. If provided, the memory tensor rows are masked with zeros for values
+                # past the respective sequence lengths.
+                normalize=self.options['attention_layer_norm'],  # boolean. Whether to normalize the energy term.
+                name='BahdanauAttention')
+        elif self.options['attention_type'] is "monotonic_bahdanau":
+            attention_mechanism = tf.contrib.seq2seq.BahdanauMonotonicAttention(
+                num_units=self.options['decoder_num_hidden'],  # The depth of the query mechanism.
+                memory=self.encoder_out,  # The memory to query; usually the output of an RNN encoder
+                memory_sequence_length=self.encoder_inputs_lengths,  # Sequence lengths for the batch
+                # entries in memory. If provided, the memory tensor rows are masked with zeros for values
+                # past the respective sequence lengths.
+                normalize=self.options['attention_layer_norm'],  # boolean. Whether to normalize the energy term.
+                name='BahdanauMonotonicAttention')
+        elif self.options['attention_type'] is "luong":
+            attention_mechanism = tf.contrib.seq2seq.LuongAttention(
+                num_units=self.options['decoder_num_hidden'],  # The depth of the query mechanism.
+                memory=self.encoder_out,  # The memory to query; usually the output of an Rif self.options['mode'] == 'train':
+                memory_sequence_length=self.encoder_inputs_lengths,  # Sequence lengths for the batch
+                scale=self.options['attention_layer_norm'],  # boolean. Whether to normalize the energy term.
+                name='LuongAttention')
+        elif self.options['attention_type'] is "monotonic_luong":
+            attention_mechanism = tf.contrib.seq2seq.LuongMonotonicAttention(
+                num_units=self.options['decoder_num_hidden'],  # The depth of the query mechanism.
+                memory=self.encoder_out,  # The memory to query; usually the output of an RNN encoder
+                memory_sequence_length=self.encoder_inputs_lengths,  # Sequence lengths for the batch
+                scale=self.options['attention_layer_norm'],  # boolean. Whether to normalize the energy term.
+                sigmoid_noise=0.0,
+                score_bias_init=0.0,
+                mode='parallel',
+                name='LuongMonotonicAttention')
+        return attention_mechanism
+
+    def get_attention_weights(self, sess):
+        assert self.options['alignment_history']
+        input_lengths, label_lengths, alignments = sess.run(
+            [self.encoder_inputs_lengths, self.target_labels_lengths, self.final_state.alignment_history.stack()])
+        return input_lengths, label_lengths, alignments
+
+    #def get_decoder_init_state(self, encoder_states, cell):
+    #    """
+    #    initial values for (unidirectional lstm) decoder network from (equal depth bidirectional lstm)
+    #    encoder hidden states. initially, the states of the forward and backward networks are concatenated
+    #    and a fully connected layer is defined for each lastm parameter (c, h) mapping from encoder to
+    #    decoder hidden size state
+    #    """
+    #    if not self.options['bidir_encoder']:
+    #        
+    #        if self.options['encoder_state_as_decoder_init']:  # use encoder state for decoder init
+    #            init_state = encoder_states
+    #
+    #            if self.options['mode'] == 'train':
+    #                decoder_init_state = cell.zero_state(
+    #                    dtype=tf.float32, batch_size=self.options['batch_size']).clone(
+    #                    cell_state=init_state)
+    #            elif self.options['mode'] == 'test':
+    #                decoder_init_state = cell.zero_state(
+    #                    dtype=tf.float32,
+    #                    batch_size=self.options['batch_size'] * self.options['beam_width']).clone(
+    #                            cell_state=tf.contrib.seq2seq.tile_batch(init_state, self.options['beam_width']))
+    #        else:  # use zero state
+    #            if self.options['mode'] == 'train':
+    #                decoder_init_state = cell.zero_state(
+    #                    dtype=tf.float32,
+    #                    batch_size=self.options['batch_size'])
+    #            elif self.options['mode'] == 'test':
+    #                decoder_init_state = cell.zero_state(
+    #                    dtype=tf.float32,
+    #                    batch_size=self.options['batch_size'] * self.options['beam_width'])
+    #        return decoder_init_state
+    #    else:
+    #        raise NotImplemented
+    #def get_decoder_init_state(self, encoder_final_state, cell):
+    #    """
+    #    initial values for (unidirectional lstm) decoder network from (equal depth bidirectional lstm)
+    #    encoder hidden states. initially, the states of the forward and backward networks are concatenated
+    #    and a fully connected layer is defined for each lastm parameter (c, h) mapping from encoder to
+    #    decoder hidden size state
+    #    """
+    #    if self.options['attention_type'] is None:
+    #        return encoder_final_state
+
+    #    # Unidirectional Encoder
+    #    if not self.options['bidir_encoder']:
+    #        if self.options['encoder_state_as_decoder_init']:  # use encoder state for decoder init
+    #            init_state = encoder_final_state
+    #            decoder_init_state = cell.zero_state(dtype=tf.float32, batch_size=self.options['batch_size']

@@ -7,36 +7,40 @@ import numpy as np
 set_gpu(5)
 
 options = {
-    'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_enhanced",
+    'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
 
-    'is_training' : False,
-    'split_name': 'train',
-    'batch_size': 128,   # number of examples in queue either for training or inference
+    'is_training' : False ,
+    'split_name': 'devel',
+    'batch_size': 512,   # number of examples in queue either for training or inference
     'reverse_time': False,
-    'shuffle': True,
+    'shuffle': False,
     'mfcc_num_features': 20,  # 20,
     'raw_audio_num_features': 533,  # 256,
     'num_classes': 28,  # number of output classes 29 = |a-z, " ", <sos>, <eos>|
     'max_out_len_multiplier': 0.70,  # max_out_len = max_out_len_multiplier * max_in_len
-
+    
+    'mfcc_gaussian_noise_std': 0.05,
+    'label_gaussian_noise_std':0.0,
+    
+    'has_encoder': True,
     'encoder_num_layers': 3,  # number of hidden layers in encoder lstm
     'residual_encoder': False,  # 
-    'encoder_num_hidden': 128,  # number of hidden units in encoder lstm
+    'encoder_num_hidden': 256,  # number of hidden units in encoder lstm
     'encoder_dropout_keep_prob' : None,  # probability of keeping neuron, deprecated
     'encoder_layer_norm': True,
     'bidir_encoder': False,
 
     'decoder_num_layers': 3,  # number of hidden layers in decoder lstm
     'residual_decoder': False,  # 
-    'decoder_num_hidden': 128,  # number of hidden units in decoder lstm
+    'decoder_num_hidden': 256,  # number of hidden units in decoder lstm
     'encoder_state_as_decoder_init' : False,  # bool. encoder state is used for decoder init state, else zero state
     'decoder_layer_norm': True,
 
     'attention_type': 'bahdanau',
     'output_attention': True,
-    'attention_layer_size': 128,  # number of hidden units in attention layer
+    'attention_layer_size': 256,  # number of hidden units in attention layer
     'attention_layer_norm': True,
-    'num_hidden_out': 64,  # number of hidden units in output fcn
+    'num_hidden_out': 128,  # number of hidden units in output fcn
     'alignment_history': True,
 
     # 'beam_width': 20,  # number of best solutions used in beam decoder
@@ -59,16 +63,16 @@ options = {
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
    
     'restore': True, # boolean. restore model from disk
-    'restore_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model3_all_mfcc/bahdanau/seq2seq_train_cc_ss030_bahdanau_0init_outstate_era3_epoch6_step379",
-  
+    'restore_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model6_clean/bahdanau_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1_final",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model8_clean/bahdanau_noencoder_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1_final",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model7_overlap/bahdanau/seq2seq_train_largemodel_cc_ss100_bahdanau_0init_outstate_era1_final", # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model4/bahdanau/seq2seq_train_largemodel_cc_ss100_bahdanau_0init_outstate_era1_final", # path to model to restore
+
     'save': False,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model3_all_mfcc/luong/seq2seq_train_cc_ss030_luong_0init_outstate_era3",
+    'save_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model8_clean/bahdanau_noencoder_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1",
     'num_models_saved': 50,  # total number of models saved
     'save_steps': 2000,  # every how many steps to save model
 
     'save_graph': False,
-    'save_dir': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model3_all_mfcc/summaries",
-    'save_summaries': False
+    'save_dir': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model4/bahdanau/summaries",
+    'save_summaries': True
 
           }
 
@@ -87,8 +91,7 @@ if options['restore']:
     model.restore_model(sess)
 
 #model.train(sess)
-loss = model.predict(sess, 10)
-
+loss = model.predict(sess)
 
 
 

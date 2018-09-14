@@ -54,46 +54,41 @@ def stacked_lstm(num_layers, num_hidden, residual=False, use_peepholes=True, inp
         return multi_rnn_cell
     outputs, states = tf.nn.dynamic_rnn(multi_rnn_cell, input_forw, dtype=tf.float32)
     outputs = tf.concat(outputs, 2)
+    #states = tf.concat(states, 2)
     return outputs, states
 
 
-def blstm_encoder(input_forw, model_options):
+def blstm_encoder(input_forw, options):
     """
     input_forw : input tensor forward in time
     """
-    if 'encoder_dropout_keep_prob' in model_options:
-        dropout_keep_prob = model_options['encoder_dropout_keep_prob']
+    if 'encoder_dropout_keep_prob' in options:
+        dropout_keep_prob = options['encoder_dropout_keep_prob']
     else:
         dropout_keep_prob = 1.0
 
-        # with tf.name_scope(name):
+    """
+    # with tf.name_scope(name):
     # input_back = tf.reverse(input_forw, axis=[1])
     if model_options['residual_encoder']:
         print('encoder : residual BLSTM')
         rnn_layers = [tf.contrib.rnn.ResidualWrapper(
                       tf.contrib.rnn.LayerNormBasicLSTMCell(model_options['encoder_num_hidden'],
                                                             forget_bias=1.0,
-                                                            input_size=None,
                                                             activation=tf.tanh,
                                                             layer_norm=True,
                                                             norm_gain=1.0,
-                                                            norm_shift=0.0,
-                                                            dropout_keep_prob=dropout_keep_prob,
-                                                            dropout_prob_seed=None,
-                                                            reuse=None))
+                                                            norm_shift=0.0,))
                       for _ in range(model_options['encoder_num_layers'])]
     else:
         print('encoder : BLSTM')
         rnn_layers = [tf.contrib.rnn.LayerNormBasicLSTMCell(model_options['encoder_num_hidden'],
                                                             forget_bias=1.0,
-                                                            input_size=None,
                                                             activation=tf.tanh,
                                                             layer_norm=True,
                                                             norm_gain=1.0,
                                                             norm_shift=0.0,
-                                                            dropout_keep_prob=dropout_keep_prob,
-                                                            dropout_prob_seed=None,
-                                                            reuse=None)
+                                                            dropout_keep_prob=dropout_keep_prob)
                       for _ in range(model_options['encoder_num_layers'])]
     # create a RNN cell composed sequentially of a number of RNNCells
     multi_rnn_cell_forw = tf.nn.rnn_cell.MultiRNNCell(rnn_layers)
@@ -110,19 +105,41 @@ def blstm_encoder(input_forw, model_options):
     #     hidden_states_list.append(hidden_states[1][layer_id])  # backward
     # hidden_states = tuple(hidden_states_list)
     return outputs, hidden_states
+    """
+    dense_out_forw = input_forw #tf.squeeze(dense_out, axis=2)
+    dense_out_back = tf.reverse(dense_out_forw, axis=[1])
+    # create 2 layer LSTMCells
+    rnn_layers = [tf.contrib.rnn.LayerNormBasicLSTMCell(options['encoder_num_hidden'],
+                                                            forget_bias=1.0,
+                                                            input_size=None,
+                                                            activation=tf.tanh,
+                                                            layer_norm=True,
+                                                            norm_gain=1.0,
+                                                            norm_shift=0.0,
+                                                            #dropout_keep_prob=dropout_keep_prob,
+                                                            dropout_prob_seed=None,
+                                                            reuse=None) for _ in range(options['encoder_num_layers'])]
+    # rnn_layers = [tf.contrib.rnn.LSTMCell(size) for size in [256, 256]]
+
+    # create a RNN cell composed sequentially of a number of RNNCells
+    multi_rnn_cell_forw = tf.nn.rnn_cell.MultiRNNCell(rnn_layers)
+    multi_rnn_cell_back = tf.nn.rnn_cell.MultiRNNCell(rnn_layers)
 
     # 'outputs' is a tensor of shape [batch_size, max_time, 256]
     # 'state' is a N-tuple where N is the number of LSTMCells containing a
     # tf.contrib.rnn.LSTMStateTuple for each cell
-    # outputs_forw, _ = tf.nn.dynamic_rnn(cell=multi_rnn_cell_forw,
-    #                                     inputs=input_forw,
-    #                                     dtype=tf.float32)
-    # outputs_back, _ = tf.nn.dynamic_rnn(cell=multi_rnn_cell_back,
-    #                                     inputs=input_back,
-    #                                     dtype=tf.float32)
-    # bilstm_out = tf.concat([last_forw, last_back], axis=1)
-    # print("shape of bilstm output is %s" % bilstm_out.get_shape())
-    # return bilstm_out
+    outputs_forw, hidden_forw = tf.nn.dynamic_rnn(cell=multi_rnn_cell_forw,
+                                            inputs=dense_out_forw,
+                                            dtype=tf.float32)
+    outputs_back, hidden_back = tf.nn.dynamic_rnn(cell=multi_rnn_cell_back,
+                                            inputs=dense_out_back,
+                                            dtype=tf.float32)    
+    bilstm_out = tf.concat([outputs_forw, tf.reverse(outputs_back, axis=[1])], axis=-1)
+    bilstm_hidden = tf.concat([hidden_forw, tf.reverse(hidden_back, axis=[1])], axis=-1)
+    return bilstm_out, bilstm_hidden  
+
+
+
 
 def blstm_2layer(x_input, name="blstm_2layer"):
     with tf.name_scope(name):

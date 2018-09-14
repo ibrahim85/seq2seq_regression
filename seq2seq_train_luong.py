@@ -7,11 +7,11 @@ import numpy as np
 set_gpu(5)
 
 options = {
-    'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_enhanced",
+    'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",
 
     'is_training' : False,
-    'split_name': 'train',
-    'batch_size': 128,   # number of examples in queue either for training or inference
+    'split_name': 'devel',
+    'batch_size': 512,   # number of examples in queue either for training or inference
     'reverse_time': False,
     'shuffle': True,
     'mfcc_num_features': 20,  # 20,
@@ -21,22 +21,22 @@ options = {
 
     'encoder_num_layers': 3,  # number of hidden layers in encoder lstm
     'residual_encoder': False,  # 
-    'encoder_num_hidden': 128,  # number of hidden units in encoder lstm
+    'encoder_num_hidden': 256,  # number of hidden units in encoder lstm
     'encoder_dropout_keep_prob' : None,  # probability of keeping neuron, deprecated
     'encoder_layer_norm': True,
     'bidir_encoder': False,
 
     'decoder_num_layers': 3,  # number of hidden layers in decoder lstm
     'residual_decoder': False,  # 
-    'decoder_num_hidden': 128,  # number of hidden units in decoder lstm
+    'decoder_num_hidden': 256,  # number of hidden units in decoder lstm
     'encoder_state_as_decoder_init' : False,  # bool. encoder state is used for decoder init state, else zero state
     'decoder_layer_norm': True,
 
-    'attention_type': 'bahdanau',
+    'attention_type': 'luong',
     'output_attention': True,
-    'attention_layer_size': 128,  # number of hidden units in attention layer
+    'attention_layer_size': 256,  # number of hidden units in attention layer
     'attention_layer_norm': True,
-    'num_hidden_out': 64,  # number of hidden units in output fcn
+    'num_hidden_out': 128,  # number of hidden units in output fcn
     'alignment_history': True,
 
     # 'beam_width': 20,  # number of best solutions used in beam decoder
@@ -51,7 +51,7 @@ options = {
     'reset_global_step': False,
     'train_era_step': 1,  # start train step during current era, value of 0 saves the current model
     
-    'learn_rate': 0.001,  # initial learn rate corresponing top global step 0, or max lr for Adam
+    'learn_rate': 0.00,  # initial learn rate corresponing top global step 0, or max lr for Adam
     'learn_rate_decay': 0.9,
     'staircase_decay': True,
     'decay_steps': 0.5,
@@ -59,16 +59,16 @@ options = {
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
    
     'restore': True, # boolean. restore model from disk
-    'restore_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model3_all_mfcc/bahdanau/seq2seq_train_cc_ss030_bahdanau_0init_outstate_era3_epoch6_step379",
-  
+    'restore_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model6_clean/luong/seq2seq_train_largemodel_cc_ss100_luong_0init_outstate_era1_final",  #"/data/mat10/MSc_Project/audio_to_3dvideo/Models/model4/luong/seq2seq_train_largemodel_cc_ss100_luong_0init_outstate_era1_final",  #/seq2seq_train_cc_ss015_luong_0init_outstate_era2_epoch4_step2627",  # path to model to restore
+
     'save': False,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model3_all_mfcc/luong/seq2seq_train_cc_ss030_luong_0init_outstate_era3",
+    'save_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model6_clean/luong/seq2seq_train_largemodel_cc_ss100_luong_0init_outstate_era1",
     'num_models_saved': 50,  # total number of models saved
     'save_steps': 2000,  # every how many steps to save model
 
     'save_graph': False,
     'save_dir': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model3_all_mfcc/summaries",
-    'save_summaries': False
+    'save_summaries': True
 
           }
 
@@ -87,9 +87,9 @@ if options['restore']:
     model.restore_model(sess)
 
 #model.train(sess)
-loss = model.predict(sess, 10)
 
-
+loss = model.predict(sess)
+#np.mean(loss)
 
 
 # ra, mf, l, w, di, ll, mfl, dil = sess.run([raw_audio, mfcc, label, word,

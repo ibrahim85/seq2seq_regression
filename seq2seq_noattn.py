@@ -4,14 +4,14 @@ from tf_utils import start_interactive_session, set_gpu
 from regression_model import RegressionModel
 import numpy as np
 
-set_gpu(5)
+set_gpu(7)
 
 options = {
-    'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_enhanced",
+    'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",
 
     'is_training' : False,
-    'split_name': 'train',
-    'batch_size': 128,   # number of examples in queue either for training or inference
+    'split_name': 'devel',  # 'train',
+    'batch_size': 512,   # number of examples in queue either for training or inference
     'reverse_time': False,
     'shuffle': True,
     'mfcc_num_features': 20,  # 20,
@@ -21,22 +21,22 @@ options = {
 
     'encoder_num_layers': 3,  # number of hidden layers in encoder lstm
     'residual_encoder': False,  # 
-    'encoder_num_hidden': 128,  # number of hidden units in encoder lstm
+    'encoder_num_hidden': 256,  # number of hidden units in encoder lstm
     'encoder_dropout_keep_prob' : None,  # probability of keeping neuron, deprecated
     'encoder_layer_norm': True,
     'bidir_encoder': False,
 
     'decoder_num_layers': 3,  # number of hidden layers in decoder lstm
     'residual_decoder': False,  # 
-    'decoder_num_hidden': 128,  # number of hidden units in decoder lstm
+    'decoder_num_hidden': 256,  # number of hidden units in decoder lstm
     'encoder_state_as_decoder_init' : False,  # bool. encoder state is used for decoder init state, else zero state
     'decoder_layer_norm': True,
 
-    'attention_type': 'bahdanau',
+    'attention_type': None,
     'output_attention': True,
-    'attention_layer_size': 128,  # number of hidden units in attention layer
+    'attention_layer_size': 256,  # number of hidden units in attention layer
     'attention_layer_norm': True,
-    'num_hidden_out': 64,  # number of hidden units in output fcn
+    'num_hidden_out': 128,  # number of hidden units in output fcn
     'alignment_history': True,
 
     # 'beam_width': 20,  # number of best solutions used in beam decoder
@@ -59,16 +59,16 @@ options = {
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
    
     'restore': True, # boolean. restore model from disk
-    'restore_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model3_all_mfcc/bahdanau/seq2seq_train_cc_ss030_bahdanau_0init_outstate_era3_epoch6_step379",
-  
+    'restore_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model6_clean/no_attention/seq2seq_train_largemodel_cc_ss100_noattn_era1_final", #  "/data/mat10/MSc_Project/audio_to_3dvideo/Models/no_attention_model/seq2seq_train_largemodel_cc_ss100_noattn_era1_final",  # path to model to restore
+
     'save': False,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model3_all_mfcc/luong/seq2seq_train_cc_ss030_luong_0init_outstate_era3",
+    'save_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model6_clean/no_attention/seq2seq_train_largemodel_cc_ss100_noattn_era1", # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/no_attention_model"
     'num_models_saved': 50,  # total number of models saved
     'save_steps': 2000,  # every how many steps to save model
 
     'save_graph': False,
     'save_dir': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model3_all_mfcc/summaries",
-    'save_summaries': False
+    'save_summaries': True
 
           }
 
@@ -87,8 +87,7 @@ if options['restore']:
     model.restore_model(sess)
 
 #model.train(sess)
-loss = model.predict(sess, 10)
-
+loss = model.predict(sess)
 
 
 

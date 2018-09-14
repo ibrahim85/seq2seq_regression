@@ -9,8 +9,8 @@ options = {
     'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_enhanced",
 
     'is_training' : True,
-    'split_name': 'devel',
-    'batch_size': 64,   # number of examples in queue either for training or inference
+    'split_name': 'train',
+    'batch_size': 128,   # number of examples in queue either for training or inference
     'reverse_time': False,
     'shuffle': True,
     'mfcc_num_features': 20,  # 20,
@@ -28,13 +28,15 @@ options = {
     'decoder_num_layers': 3,  # number of hidden layers in decoder lstm
     'residual_decoder': False,  # 
     'decoder_num_hidden': 128,  # number of hidden units in decoder lstm
-    'encoder_state_as_decoder_init' : True,  # bool. encoder state is used for decoder init state, else zero state
+    'encoder_state_as_decoder_init' : False,  # bool. encoder state is used for decoder init state, else zero state
     'decoder_layer_norm': True,
 
+    'attention_type': 'monotonic_bahdanau',
+    'output_attention': True,
     'attention_layer_size': 128,  # number of hidden units in attention layer
     'attention_layer_norm': True,
     'num_hidden_out': 64,  # number of hidden units in output fcn
-    'alignment_history': False,
+    'alignment_history': True,
 
     # 'beam_width': 20,  # number of best solutions used in beam decoder
     'max_in_len': None,  # maximum number of frames in input videos
@@ -53,13 +55,13 @@ options = {
     'staircase_decay': True,
     'decay_steps': None,
 
-    'ss_prob': 0.2,  # scheduled sampling probability for training. probability of passing decoder output as next
+    'ss_prob': 0.15,  # scheduled sampling probability for training. probability of passing decoder output as next
    
     'restore': True, # boolean. restore model from disk
-    'restore_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model3_all_mfcc/seq2seq_train_concordancecc_era2_final",  # path to model to restore
+    'restore_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model3_all_mfcc/monotonic_bahdanau/seq2seq_train_cc_ss000_mbahdanau_0init_outstate_era1_epoch2_step1750",  # path to model to restore
 
     'save': True,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model3_all_mfcc/seq2seq_train_concordancecc_ss020_era3",
+    'save_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model3_all_mfcc/monotonic_bahdanau/seq2seq_train_cc_ss015_mbahdanau_0init_outstate_era2",
     'num_models_saved': 50,  # total number of models saved
     'save_steps': 2000,  # every how many steps to save model
 
@@ -80,7 +82,8 @@ model = RegressionModel(options)
 
 sess = start_interactive_session()
 
-model.restore_model(sess)
+if options['restore']:
+    model.restore_model(sess)
 
 model.train(sess)
 

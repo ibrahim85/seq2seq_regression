@@ -44,7 +44,7 @@ def get_split(options):  # batch_size, base_path, num_classes=7, is_training=Tru
         paths = np.loadtxt(str(base_path / 'example_set.csv'), dtype=str).tolist()
         print('Examples : ', len(paths))
     elif split_name == 'train':
-        paths = np.loadtxt(str(base_path / 'train_set.csv'), dtype=str).tolist()
+        paths = np.loadtxt(str(base_path / 'train_set.csv'), dtype='<U150').tolist()
         print('Training examples : ', len(paths))
     elif  split_name == 'devel':
         paths = np.loadtxt(str(base_path / 'valid_set.csv'), dtype=str).tolist()
@@ -95,10 +95,23 @@ def get_split(options):  # batch_size, base_path, num_classes=7, is_training=Tru
     label = tf.reshape(label, (batch_size, -1, num_classes))
     mfcc = tf.reshape(mfcc, (batch_size, -1, mfcc_num_features))
     raw_audio = tf.reshape(raw_audio, (batch_size, -1, raw_audio_num_features))
-    #
+    
+    # Add random Noise
+    if options['mfcc_gaussian_noise_std'] != 0.0:
+        mfcc = tf.add(mfcc, 
+                      tf.random_normal(tf.shape(mfcc), mean=0.0, 
+                          stddev=options['mfcc_gaussian_noise_std']))
+    
+    if options['label_gaussian_noise_std'] != 0.0:
+        label = tf.add(label,
+                       tf.random_normal(tf.shape(label), mean=0.0,
+                           stddev=options['label_gaussian_noise_std']))
+
     # sos_slice = tf.constant(0., dtype=tf.float32, shape=[batch_size, 1, num_classes])
-    sos_token = tf.constant(0, dtype=tf.int32, shape=[batch_size, 1])
-    sos_slice = tf.one_hot(sos_token, num_classes)
+    sos_token = tf.constant(1, dtype=tf.float32, shape=[batch_size, num_classes])
+    #sos_slice = tf.one_hot(sos_token, num_classes)
+    #sos_token = tf.zeros([batch_size, num_classes])
+    sos_slice = tf.expand_dims(sos_token, [1])
     decoder_inputs = tf.concat([sos_slice, label], axis=1)
     #
     # eos_token = tf.constant(1, dtype=tf.int32, shape=[batch_size, 1])
@@ -114,6 +127,300 @@ def get_split(options):  # batch_size, base_path, num_classes=7, is_training=Tru
     if options['reverse_time']:
         raw_audio = tf.reverse(raw_audio, axis=[1])
         mfcc = tf.reverse(mfcc, axis=[1])
+    
+    return raw_audio, mfcc, target_labels, num_examples, word, decoder_inputs,\
+           label_lengths, mfcc_lengths, decoder_inputs_lengths
 
-    return raw_audio, mfcc, target_labels, num_examples, word, decoder_inputs, label_lengths, mfcc_lengths, decoder_inputs_lengths
+"""
+def get_split2(options):  # batch_size, base_path, num_classes=7, is_training=True, split_name='train'):
+    batch_size = options['batch_size']
+    num_classes = options['num_classes']
+    mfcc_num_features = options['mfcc_num_features']
+    raw_audio_num_features = options['raw_audio_num_features']
+    base_path = Path(options['data_root_dir'])
+    split_name = options['split_name']
 
+    if split_name == 'example':
+        paths = np.loadtxt(str(base_path / 'example_set.csv'), dtype=str).tolist()
+        print('Examples : ', len(paths))
+    elif split_name == 'train':
+        paths = np.loadtxt(str(base_path / 'train_set.csv'), dtype=str).tolist()
+        print('Training examples : ', len(paths))
+    elif  split_name == 'devel':
+        paths = np.loadtxt(str(base_path / 'valid_set.csv'), dtype=str).tolist()
+        print('Evaluating examples : ', len(paths))
+    elif split_name == 'test':
+        paths = np.loadtxt(str(base_path / 'test_set.csv'), dtype=str).tolist()
+        print('Testing examples : ', len(paths))
+
+    num_examples = len(paths)
+    # print(num_examples)
+
+    filename_queue = tf.train.string_input_producer(paths, shuffle=options['shuffle'])
+
+    reader = tf.TFRecordReader()
+
+    _, serialized_example = reader.read(filename_queue)
+
+    #features = tf.parse_single_example(
+    #    serialized_example,
+    #    features={
+    #        'raw_audio': tf.FixedLenFeature([], tf.string),
+    #        'labels': tf.FixedLenFeature([], tf.string),
+    #        'subject_id': tf.FixedLenFeature([], tf.string),
+    #        'word': tf.FixedLenFeature([], tf.string),
+    #        'mfcc': tf.FixedLenFeature([], tf.string)
+    #    }
+    #)
+
+    features = tf.parse_single_example(
+        serialized_example,
+        features={
+            'raw_audio': tf.FixedLenFeature([], tf.string),
+            'labels': tf.FixedLenFeature([], tf.string),
+            'subject_id': tf.FixedLenFeature([], tf.string),
+            'word': tf.FixedLenFeature([], tf.string),
+            'mfcc': tf.FixedLenFeature([], tf.string),
+            'frame_mfcc': tf.FixedLenFeature([], tf.string),
+            'delta_frame_mfcc': tf.FixedLenFeature([], tf.string),
+            'delta2_frame_mfcc': tf.FixedLenFeature([], tf.string),
+            'rmse': tf.FixedLenFeature([], tf.string),
+        }
+    )
+
+    raw_audio = tf.decode_raw(features['raw_audio'], tf.float32)
+    raw_audio = tf.reshape(raw_audio, ([1, -1]))
+
+    mfcc = tf.decode_raw(features['mfcc'], tf.float32)
+    mfcc = tf.reshape(mfcc, ([mfcc_num_features, -1]))
+    mfcc = tf.cast(tf.transpose(mfcc, (1,0)), tf.float32)
+    
+    frame_mfcc = tf.decode_raw(features['frame_mfcc'], tf.float32)
+    frame_mfcc = tf.reshape(frame_mfcc, (20, -1))
+    frame_mfcc = tf.cast(tf.transpose(frame_mfcc, (1,0)), tf.float32)
+    
+    delta_frame_mfcc = tf.decode_raw(features['delta_frame_mfcc'], tf.float32)
+    delta_frame_mfcc = tf.reshape(delta_frame_mfcc, (20, -1))
+    delta_frame_mfcc = tf.cast(tf.transpose(delta_frame_mfcc, (1,0)), tf.float32)
+
+    label = tf.decode_raw(features['labels'], tf.float32)
+    label = tf.reshape(label, ([-1, num_classes]))
+    #label = tf.transpose(label, (1,0))
+
+    rmse = tf.decode_raw(features['rmse'], tf.float32)
+    rmse = tf.reshape(rmse, (-1, 1))
+
+    subject_id = features['subject_id']
+    word = features['word']
+
+    #raw_audio, mfcc, label, subject_id, word = tf.train.batch(
+    #    [raw_audio, mfcc, label, subject_id, word], batch_size,
+    #    num_threads=1, capacity=1000, dynamic_pad=True)
+
+    raw_audio, mfcc, frame_mfcc, delta_frame_mfcc, rmse, label, subject_id, word = tf.train.batch(
+        [raw_audio, mfcc, frame_mfcc, delta_frame_mfcc, rmse, label, subject_id, word], batch_size, 
+        num_threads=1, capacity=1000, dynamic_pad=True)
+
+
+    label = tf.reshape(label, (batch_size, -1, num_classes))
+    mfcc = tf.reshape(mfcc, (batch_size, -1, mfcc_num_features))
+    raw_audio = tf.reshape(raw_audio, (batch_size, -1, raw_audio_num_features))
+    #
+    # sos_slice = tf.constant(0., dtype=tf.float32, shape=[batch_size, 1, num_classes])
+    sos_token = tf.constant(1, dtype=tf.float32, shape=[batch_size, num_classes])
+    #sos_slice = tf.one_hot(sos_token, num_classes)
+    #sos_token = tf.zeros([batch_size, num_classes])
+    sos_slice = tf.expand_dims(sos_token, [1])
+    decoder_inputs = tf.concat([sos_slice, label], axis=1)
+    #
+    # eos_token = tf.constant(1, dtype=tf.int32, shape=[batch_size, 1])
+    # eos_slice = tf.one_hot(eos_token, num_classes)
+    eos_token = tf.zeros([batch_size, num_classes])
+    eos_slice = tf.expand_dims(eos_token, [1])
+    target_labels = tf.concat([label, eos_slice], axis=1)
+
+    label_lengths = length(label)
+    mfcc_lengths = length(mfcc)
+    decoder_inputs_lengths = length(decoder_inputs)
+
+    if options['reverse_time']:
+        raw_audio = tf.reverse(raw_audio, axis=[1])
+        mfcc = tf.reverse(mfcc, axis=[1])
+
+    subject_id = features['subject_id']
+    word = features['word']
+
+    raw_audio, mfcc, label, subject_id, word = tf.train.batch(
+        [raw_audio, mfcc, label, subject_id, word], batch_size,
+        num_threads=1, capacity=1000, dynamic_pad=True)
+
+    label = tf.reshape(label, (batch_size, -1, num_classes))
+    mfcc = tf.reshape(mfcc, (batch_size, -1, mfcc_num_features))
+    raw_audio = tf.reshape(raw_audio, (batch_size, -1, raw_audio_num_features))
+
+    sos_token = tf.constant(1, dtype=tf.float32, shape=[batch_size, num_classes])
+    sos_slice = tf.expand_dims(sos_token, [1])
+    decoder_inputs = tf.concat([sos_slice, label], axis=1)
+   
+    eos_token = tf.zeros([batch_size, num_classes])
+    eos_slice = tf.expand_dims(eos_token, [1])
+    target_labels = tf.concat([label, eos_slice], axis=1)
+
+    label_lengths = length(label)
+    mfcc_lengths = length(mfcc)
+    decoder_inputs_lengths = length(decoder_inputs)
+
+    if options['reverse_time']:
+        raw_audio = tf.reverse(raw_audio, axis=[1])
+        mfcc = tf.reverse(mfcc, axis=[1])
+    
+    return raw_audio, frame_mfcc, target_labels, num_examples, word, decoder_inputs, label_lengths, mfcc_lengths, decoder_inputs_lengths
+"""
+
+def get_split2(options):  # batch_size, base_path, num_classes=7, is_training=True, split_name='train'):
+    """Returns a data split of the BBC dataset.
+
+    Args:
+        batch_size: the number of batches to return.
+        is_training: whether to shuffle the dataset.
+        split_name: A train/test/valid split name.
+    Returns:
+        raw_audio: the raw audio examples.
+        mfcc: the mfcc features.
+        label: the 3d components of each word.
+        num_examples: the number of audio samples in the set.
+        word: the current word.
+    """
+    batch_size = options['batch_size']
+    num_classes = options['num_classes']
+    mfcc_num_features = options['mfcc_num_features']
+    raw_audio_num_features = options['raw_audio_num_features']
+    base_path = Path(options['data_root_dir'])
+    split_name = options['split_name']
+
+    if split_name == 'example':
+        paths = np.loadtxt(str(base_path / 'example_set.csv'), dtype='<U150').tolist()
+        print('Examples : ', len(paths))
+    elif split_name == 'train':
+        paths = np.loadtxt(str(base_path / 'train_set.csv'), dtype='<U150').tolist()
+        #paths = [p for p in paths if len(p)<100]
+        print('Training examples : ', len(paths))
+        #print(paths[:10])
+    elif  split_name == 'devel':
+        paths = np.loadtxt(str(base_path / 'valid_set.csv'), dtype='<U150').tolist()
+        print('Evaluating examples : ', len(paths))
+    elif split_name == 'test':
+        paths = np.loadtxt(str(base_path / 'test_set.csv'), dtype='<U150').tolist()
+        print('Testing examples : ', len(paths))
+
+    num_examples = len(paths)
+    # print(num_examples)
+
+    filename_queue = tf.train.string_input_producer(paths, shuffle=options['shuffle'])
+
+    reader = tf.TFRecordReader()
+
+    _, serialized_example = reader.read(filename_queue)
+
+    features = tf.parse_single_example(
+        serialized_example,
+        features={
+            'raw_audio': tf.FixedLenFeature([], tf.string),
+            'labels': tf.FixedLenFeature([], tf.string),
+            'subject_id': tf.FixedLenFeature([], tf.string),
+            'word': tf.FixedLenFeature([], tf.string),
+            'mfcc': tf.FixedLenFeature([], tf.string),
+            'frame_mfcc': tf.FixedLenFeature([], tf.string),
+            'frame_mfcc_overlap': tf.FixedLenFeature([], tf.string),
+            'delta_frame_mfcc': tf.FixedLenFeature([], tf.string),
+            'delta2_frame_mfcc': tf.FixedLenFeature([], tf.string),
+            'rmse': tf.FixedLenFeature([], tf.string),
+        }
+    )
+
+    #raw_audio = tf.decode_raw(features['raw_audio'], tf.float32)
+    #raw_audio = tf.reshape(raw_audio, ([1, -1]))
+
+    #mfcc = tf.decode_raw(features['mfcc'], tf.float32)
+    #mfcc = tf.cast(mfcc, tf.float32)
+    #mfcc = tf.reshape(mfcc, ([mfcc_num_features, -1]))
+    #mfcc = tf.cast(tf.transpose(mfcc, (1,0)), tf.float32)
+
+    frame_mfcc = tf.decode_raw(features['frame_mfcc'], tf.float32)
+    frame_mfcc = tf.reshape(frame_mfcc, (mfcc_num_features, -1))
+    frame_mfcc = tf.cast(tf.transpose(frame_mfcc, (1,0)), tf.float32)
+
+    #frame_mfcc_overlap = tf.decode_raw(features['frame_mfcc_overlap'], tf.float32)
+    #frame_mfcc_overlap = tf.reshape(frame_mfcc_overlap, (mfcc_num_features, -1))
+    #frame_mfcc_overlap = tf.cast(tf.transpose(frame_mfcc_overlap, (1,0)), tf.float32)
+    
+    #delta_frame_mfcc = tf.decode_raw(features['delta_frame_mfcc'], tf.float32)
+    #delta_frame_mfcc = tf.reshape(delta_frame_mfcc, (mfcc_num_features, -1))
+    #delta_frame_mfcc = tf.cast(tf.transpose(delta_frame_mfcc, (1,0)), tf.float32)
+
+    label = tf.decode_raw(features['labels'], tf.float32)
+    label = tf.reshape(label, ([-1, num_classes]))
+    #label = tf.transpose(label, (1,0))
+
+    #rmse = tf.decode_raw(features['rmse'], tf.float32)
+    #rmse = tf.reshape(rmse, (-1, 1))
+
+    subject_id = features['subject_id']
+    word = features['word']
+
+    frame_mfcc, label, subject_id, word = tf.train.batch(
+        [frame_mfcc, label, subject_id, word], batch_size, 
+      num_threads=1, capacity=2000, dynamic_pad=True)
+
+    # Add random Noise
+    if options['mfcc_gaussian_noise_std'] != 0.0:
+        frame_mfcc = tf.add(frame_mfcc,
+                      tf.random_normal(tf.shape(frame_mfcc), mean=0.0,
+                          stddev=options['mfcc_gaussian_noise_std']))
+
+    if options['label_gaussian_noise_std'] != 0.0:
+        label = tf.add(label,
+                       tf.random_normal(tf.shape(label), mean=0.0,
+                           stddev=options['label_gaussian_noise_std']))
+
+    label = tf.reshape(label, (batch_size, -1, num_classes))
+    #mfcc = tf.reshape(mfcc, (batch_size, -1, mfcc_num_features))
+    #raw_audio = tf.reshape(raw_audio, (batch_size, -1, raw_audio_num_features))
+    
+    frame_mfcc = tf.reshape(frame_mfcc, (batch_size, -1, mfcc_num_features))
+    #frame_mfcc_overlap = tf.reshape(frame_mfcc_overlap, (batch_size, -1, mfcc_num_features))
+    #delta_frame_mfcc = tf.reshape(delta_frame_mfcc, (batch_size, -1, ))
+    #rmse = tf.reshape(rmse, (batch_size, -1, 1))
+
+    # sos_slice = tf.constant(0., dtype=tf.float32, shape=[batch_size, 1, num_classes])
+    sos_token = tf.constant(1, dtype=tf.float32, shape=[batch_size, num_classes])
+    #sos_slice = tf.one_hot(sos_token, num_classes)
+    #sos_token = tf.zeros([batch_size, num_classes])
+    sos_slice = tf.expand_dims(sos_token, [1])
+    decoder_inputs = tf.concat([sos_slice, label], axis=1)
+    #
+    # eos_token = tf.constant(1, dtype=tf.int32, shape=[batch_size, 1])
+    # eos_slice = tf.one_hot(eos_token, num_classes)
+    eos_token = tf.zeros([batch_size, num_classes])
+    eos_slice = tf.expand_dims(eos_token, [1])
+    target_labels = tf.concat([label, eos_slice], axis=1)
+
+    #label_lengths = length(label)
+    #mfcc_lengths = length(mfcc)
+    decoder_inputs_lengths = length(decoder_inputs)
+
+    eos_token = tf.zeros([batch_size, num_classes])
+    eos_slice = tf.expand_dims(eos_token, [1])
+    target_labels = tf.concat([label, eos_slice], axis=1)
+
+    label_lengths = length(target_labels) + 1
+    #mfcc_lengths = length(frame_mfcc)
+    mfcc_lengths = length(frame_mfcc)
+    decoder_inputs_lengths = length(decoder_inputs)
+
+    #if options['reverse_time']:
+        #raw_audio = tf.reverse(raw_audio, axis=[1])
+        #mfcc = tf.reverse(mfcc, axis=[1])
+
+    return frame_mfcc, target_labels, num_examples, word, decoder_inputs,\
+           label_lengths, mfcc_lengths, decoder_inputs_lengths

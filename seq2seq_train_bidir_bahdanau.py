@@ -2,14 +2,13 @@ import tensorflow as tf
 # from data_provider2 import get_split
 from tf_utils import start_interactive_session, set_gpu
 from regression_model import RegressionModel
-import numpy as np
 
 set_gpu(5)
 
 options = {
     'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_enhanced",
 
-    'is_training' : False,
+    'is_training' : True,
     'split_name': 'train',
     'batch_size': 128,   # number of examples in queue either for training or inference
     'reverse_time': False,
@@ -21,10 +20,10 @@ options = {
 
     'encoder_num_layers': 3,  # number of hidden layers in encoder lstm
     'residual_encoder': False,  # 
-    'encoder_num_hidden': 128,  # number of hidden units in encoder lstm
+    'encoder_num_hidden': 64,  # number of hidden units in encoder lstm
     'encoder_dropout_keep_prob' : None,  # probability of keeping neuron, deprecated
     'encoder_layer_norm': True,
-    'bidir_encoder': False,
+    'bidir_encoder': True,
 
     'decoder_num_layers': 3,  # number of hidden layers in decoder lstm
     'residual_decoder': False,  # 
@@ -56,19 +55,19 @@ options = {
     'staircase_decay': True,
     'decay_steps': 0.5,
 
-    'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
+    'ss_prob': 0.0,  # scheduled sampling probability for training. probability of passing decoder output as next
    
-    'restore': True, # boolean. restore model from disk
-    'restore_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model3_all_mfcc/bahdanau/seq2seq_train_cc_ss030_bahdanau_0init_outstate_era3_epoch6_step379",
-  
-    'save': False,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model3_all_mfcc/luong/seq2seq_train_cc_ss030_luong_0init_outstate_era3",
+    'restore': False, # boolean. restore model from disk
+    'restore_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model3_all_mfcc/bahdanau/seq2seq_train_cc_ss015_luong_0init_outstate_era2_epoch4_step2627",  # path to model to restore
+
+    'save': True,  # boolean. save model to disk during current era
+    'save_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/bidir_encoder/bahdanau/seq2seq_train_cc_ss000_bidir_bahdanau_0init_outstate_era1",
     'num_models_saved': 50,  # total number of models saved
     'save_steps': 2000,  # every how many steps to save model
 
     'save_graph': False,
     'save_dir': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model3_all_mfcc/summaries",
-    'save_summaries': False
+    'save_summaries': True
 
           }
 
@@ -86,8 +85,7 @@ sess = start_interactive_session()
 if options['restore']:
     model.restore_model(sess)
 
-#model.train(sess)
-loss = model.predict(sess, 10)
+model.train(sess)
 
 
 
