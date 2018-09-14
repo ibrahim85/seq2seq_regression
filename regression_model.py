@@ -156,14 +156,31 @@ class RegressionModel:
             self.decoder_outputs = outputs.rnn_output
 
         with tf.variable_scope('loss_function'):
-            target_labels_ = tf.reshape(self.target_labels, [-1, ])
-            predictions_ = tf.reshape(self.decoder_outputs, [-1, ])
+
+            lengths_transposed = tf.expand_dims(self.target_labels_lengths, 1)
+            range = tf.range(0, tf.shape(self.target_labels)[1], 1)
+            range_row = tf.expand_dims(range, 0)
+            # Use the logical operations to create a mask
+            mask = tf.less(range_row, lengths_transposed)
+            # Use the select operation to select between 1 or 0 for each value.
+            # mask = tf.where(mask,
+            #                 tf.ones(tf.shape(self.target_labels)[:2]),
+            #                 tf.zeros(tf.shape(self.target_labels)[:2]))
+            mask = tf.reshape(mask, [-1, ])
+
+            # target_labels_ = tf.reshape(self.target_labels, [-1, ])
+            # predictions_ = tf.reshape(self.decoder_outputs, [-1, ])
+
+            target_labels_ = tf.boolean_mask(tf.reshape(self.target_labels, [-1, ]), mask)
+            predictions_ = tf.boolean_mask(tf.reshape(self.decoder_outputs, [-1, ]), mask)
+
             self.l2_loss = self.options['reg_constant'] * \
                            tf.add_n([tf.nn.l2_loss(tf.cast(v, tf.float32)) for v in tf.trainable_variables()])
+
             if self.options['loss_fun'] is "mse":
-                self.train_loss = tf.reduce_mean(tf.pow(predictions_ - target_labels_, 2))
-            elif self.options['loss_fun'] is "cos":
-                self.train_loss = tf.abs(tf.reduce_mean(tf.losses.cosine_distance(target_labels_, predictions_, dim=0)))
+                self.train_loss = tf.reduce_mean(tf.pow(predictions_ - target_labels_, 2)) 
+            # elif self.options['loss_fun'] is "cos":
+            #     self.train_loss = tf.abs(tf.reduce_mean(tf.losses.cosine_distance(target_labels_, predictions_, dim=0)))
             elif self.options['loss_fun'] is 'concordance_cc':
                 self.train_loss = tf.reduce_mean(-self.concordance_cc(predictions_, target_labels_))
             self.train_loss = self.train_loss + self.l2_loss
@@ -540,3 +557,5 @@ class RegressionModel:
     #        if self.options['encoder_state_as_decoder_init']:  # use encoder state for decoder init
     #            init_state = encoder_final_state
     #            decoder_init_state = cell.zero_state(dtype=tf.float32, batch_size=self.options['batch_size']
+
+
