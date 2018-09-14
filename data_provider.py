@@ -227,6 +227,22 @@ def get_split2(options):
     subject_id = features['subject_id']
     word = features['word']
 
+    ########## Augment Data
+    if options['random_crop']:  # split_name == 'train':
+
+        maxval = tf.cast(tf.shape(label)[0], tf.float32)
+        s = tf.random_uniform([1], minval=0, maxval=0.5, dtype=tf.float32)
+        s = tf.cast(tf.floor(s * maxval), tf.int32)[0]
+
+        e = tf.random_uniform([1], minval=0.5, maxval=1, dtype=tf.float32)
+        e = tf.cast(tf.floor(e * maxval - tf.cast(s, tf.float32) + 1), tf.int32)[0]
+        e = tf.cond(e > s, lambda: e, lambda: s - e + 1)
+
+        label = tf.slice(label, [s, 0], [e, 28])
+        frame_mfcc = tf.slice(frame_mfcc, [s, 0], [e, 20])
+    ##########
+
+    
     frame_mfcc, label, subject_id, word = tf.train.batch(
         [frame_mfcc, label, subject_id, word], batch_size, 
       num_threads=1, capacity=2000, dynamic_pad=True)
