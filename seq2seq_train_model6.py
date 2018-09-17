@@ -9,12 +9,13 @@ set_gpu(5)
 options = {
     'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
 
-    'is_training' : False ,
-    'split_name': 'devel',
-    'data_split': 'split3',
+    'is_training' : True ,
+    'split_name': 'train',
+    'data_split': "split3",
+    'use_rmse': False,
     'batch_size': 512,   # number of examples in queue either for training or inference
     'reverse_time': False,
-    'shuffle': False,
+    'shuffle': True,
     'random_crop': False,
     'mfcc_num_features': 20,  # 20,
     'raw_audio_num_features': 533,  # 256,
@@ -51,7 +52,7 @@ options = {
 
     'loss_fun': "concordance_cc",  # "mse", "cos", "concordance_cc"
     'reg_constant': 0.00,
-    'max_grad_norm': 5.0, 
+    'max_grad_norm': 1.0, 
     'num_epochs': 10,  # number of epochs over dataset for training
     'start_epoch': 1,  # epoch to start
     'reset_global_step': False,
@@ -60,15 +61,15 @@ options = {
     'learn_rate': 0.001,  # initial learn rate corresponing top global step 0, or max lr for Adam
     'learn_rate_decay': 0.9,
     'staircase_decay': True,
-    'decay_steps': 0.5,
+    'decay_steps': 0.75,
 
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
    
-    'restore': True, # boolean. restore model from disk
-    'restore_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model9_clean/bahdanau_rmse/seq2seq_train_maskedcc_std005_ss100_bahdanau_0init_randomcrop_m4_era1_final",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model6_clean/bahdanau_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1_final",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model8_clean/bahdanau_noencoder_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1_final",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model7_overlap/bahdanau/seq2seq_train_largemodel_cc_ss100_bahdanau_0init_outstate_era1_final", # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model4/bahdanau/seq2seq_train_largemodel_cc_ss100_bahdanau_0init_outstate_era1_final", # path to model to restore
+    'restore': False, # boolean. restore model from disk
+    'restore_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model9_clean/bahdanau/seq2seq_train_maskedcc_std005_ss100_bahdanau_0init_era1_final",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model6_clean/bahdanau_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1_final",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model8_clean/bahdanau_noencoder_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1_final",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model7_overlap/bahdanau/seq2seq_train_largemodel_cc_ss100_bahdanau_0init_outstate_era1_final", # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model4/bahdanau/seq2seq_train_largemodel_cc_ss100_bahdanau_0init_outstate_era1_final", # path to model to restore
 
-    'save': False,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model9_clean/bahdanau_rmse/seq2seq_train_maskedcc_std005_ss100_bahdanau_0init_randomcrop_m4_era1",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model8_clean/bahdanau_noencoder_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1",
+    'save': True,  # boolean. save model to disk during current era
+    'save_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model9_clean/bahdanau/seq2seq_train_maskedcc_std005_ss100_bahdanau_noeos_0init_era1",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model8_clean/bahdanau_noencoder_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1",
     'num_models_saved': 50,  # total number of models saved
     'save_steps': 2000,  # every how many steps to save model
 
@@ -92,8 +93,8 @@ sess = start_interactive_session()
 if options['restore']:
     model.restore_model(sess)
 
-#model.train(sess)
-loss = model.predict(sess)
+model.train(sess)
+#loss = model.predict(sess, return_words=True)
 
 
 

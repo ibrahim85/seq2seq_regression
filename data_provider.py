@@ -397,8 +397,11 @@ def get_split3(options):
     #delta_frame_mfcc = tf.reshape(delta_frame_mfcc, (batch_size, -1, 20))
     rmse = tf.reshape(rmse, (batch_size, -1, 1))
     #raw_audio = tf.reshape(raw_audio, (batch_size, -1, 735))
-
-    encoder_inputs = tf.concat([frame_mfcc, rmse], axis=-1)
+    
+    if options['use_rmse']:
+        encoder_inputs = tf.concat([frame_mfcc, rmse], axis=-1)
+    else:
+        encoder_inputs = frame_mfcc
 
     # sos_token
     sos_token = tf.constant(1, dtype=tf.float32, shape=[batch_size, num_classes])
@@ -410,7 +413,7 @@ def get_split3(options):
     label_lengths = length(target_labels)
     mfcc_lengths = length(frame_mfcc)
     decoder_inputs_lengths = length(decoder_inputs)
-    rmse_lengths = length(rmse)
+    #rmse_lengths = length(rmse)
 
     return encoder_inputs, target_labels, num_examples, word, decoder_inputs,\
            label_lengths, mfcc_lengths, decoder_inputs_lengths

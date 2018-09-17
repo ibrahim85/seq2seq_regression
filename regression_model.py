@@ -363,15 +363,55 @@ class RegressionModel:
 
 
 
-    def predict(self, sess, num_steps=None):
+    def predict(self, sess, num_steps=None, return_words=False):
         if num_steps is None:
             num_steps = self.number_of_steps_per_epoch
         loss_ = []
-        for i in range(num_steps):
-            l_ = sess.run(self.train_loss)
-            loss_.append(l_) 
-            print("%d, %d, %.4f" % (i, num_steps, l_))
+        if return_words:
+            assert self.batch_size == 1, "batch_size must be set to 1 for getting loss per word"
+            for i in range(num_steps):
+                l_, w_ = sess.run([self.train_loss, self.words])
+                loss_.append([l_, w_[0].decode("utf-8")])
+                print("%d, %d, %.4f, %s" % (i, num_steps, l_, w_))
+            loss_ = pd.DataFrame(loss_, columns=["loss", "word"])
+            # return results aggregated per word
+            loss_ = loss_.groupby("word").agg({"loss": [np.mean, np.sum]}).reset_index(drop=False)
+        else:
+            for i in range(num_steps):
+                l_ = sess.run(self.train_loss)
+                loss_.append(l_) 
+                print("%d, %d, %.4f" % (i, num_steps, l_))
         return loss_    
+
+    def predict_from_array(self, sess, mfcc_path, num_steps=None):
+        mfcc = np.loadtxt(mfcc_path)
+        mfcc = np.expand_dims(mfcc, 0)
+        seq_length = mfcc.shape[1]
+        if num_steps is not None:
+            pred = []
+            step_length = int(seq_length/num_steps)
+            rem_length = seq_length - step_length * num_steps
+            for i in range(num_steps+1):
+                start_ = i*step_length
+                print("start_ %d" % start_)
+                if i != num_steps:
+                    end_ = (i+1)*step_length
+                    len_ = step_length
+                else:
+                    end_ = seq_length
+                    len_ = rem_length       
+                print("end_ %d" % end_) 
+                print("len_ %d" % len_)        
+                feed_dict={self.encoder_inputs: mfcc[:, start_:end_, :],
+                           self.decoder_inputs: np.ones((1, len_, self.options['num_classes'])),   
+                           self.decoder_inputs_lengths: [len_]}
+                pred.append(sess.run(self.decoder_outputs, feed_dict=feed_dict))
+        else:        
+            feed_dict={self.encoder_inputs: mfcc, 
+                       self.decoder_inputs: np.ones((1, seq_length, self.options['num_classes'])), 
+                       self.decoder_inputs_lengths: [seq_length]}
+            pred = sess.run(self.decoder_outputs, feed_dict=feed_dict)
+        return pred
     
     @property
     def learn_rate_decay_steps(self):
