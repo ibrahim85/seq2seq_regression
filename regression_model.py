@@ -170,28 +170,44 @@ class RegressionModel:
             range_ = tf.range(0, tf.shape(self.target_labels)[1], 1)
             range_row = tf.expand_dims(range_, 0)
             # Use the logical operations to create a mask
-            mask = tf.less(range_row, lengths_transposed)
+            self.mask = tf.less(range_row, lengths_transposed)
             # Use the select operation to select between 1 or 0 for each value.
             # mask = tf.where(mask,
             #                 tf.ones(tf.shape(self.target_labels)[:2]),
             #                 tf.zeros(tf.shape(self.target_labels)[:2]))
-            mask = tf.reshape(mask, [-1, ])
-
-            # target_labels_ = tf.reshape(self.target_labels, [-1, ])
-            # predictions_ = tf.reshape(self.decoder_outputs, [-1, ])
-
-            target_labels_ = tf.boolean_mask(tf.reshape(self.target_labels, [-1, ]), mask)
-            predictions_ = tf.boolean_mask(tf.reshape(self.decoder_outputs, [-1, ]), mask)
+            #mask = tf.reshape(mask, [-1, ])
+            #target_labels_ = tf.reshape(self.target_labels, [-1, ])
+            #predictions_ = tf.reshape(self.decoder_outputs, [-1, ])
+            #target_labels_ = tf.boolean_mask(tf.reshape(self.target_labels, [-1, ]), mask)
+            #predictions_ = tf.boolean_mask(tf.reshape(self.decoder_outputs, [-1, ]), mask)
 
             self.l2_loss = self.options['reg_constant'] * \
                            tf.add_n([tf.nn.l2_loss(tf.cast(v, tf.float32)) for v in tf.trainable_variables()])
 
             if self.options['loss_fun'] is "mse":
-                self.train_loss = tf.reduce_mean(tf.pow(predictions_ - target_labels_, 2)) 
+                #self.mask = tf.reshape(self.mask, [-1, ])
+                self.mask = tf.expand_dims(self.mask, -1)
+                multiply = tf.constant([1, 1, self.options['num_classes']])
+                self.mask = tf.reshape(tf.tile(self.mask, multiply), [-1, ])
+                #self.target_labels_ = tf.reshape(self.target_labels, [-1, ])
+                #self.predictions_ = tf.reshape(self.decoder_outputs, [-1, ])
+                self.target_labels_ = tf.boolean_mask(tf.reshape(self.target_labels, [-1, ]), self.mask)
+                self.predictions_ = tf.boolean_mask(tf.reshape(self.decoder_outputs, [-1, ]), self.mask)
+                self.train_loss = tf.reduce_mean(tf.pow(self.predictions_ - self.target_labels_, 2)) 
             # elif self.options['loss_fun'] is "cos":
             #     self.train_loss = tf.abs(tf.reduce_mean(tf.losses.cosine_distance(target_labels_, predictions_, dim=0)))
             elif self.options['loss_fun'] is 'concordance_cc':
-                self.train_loss = tf.reduce_mean(-self.concordance_cc(predictions_, target_labels_))
+                self.mask = tf.expand_dims(self.mask, -1)
+                multiply = tf.constant([1, 1, self.options['num_classes']])
+                self.mask = tf.tile(self.mask, multiply)
+                self.mask = tf.reshape(tf.transpose(self.mask, (0, 2, 1)), (self.options['batch_size']*self.options['num_classes'], -1))
+                self.target_labels_ = tf.reshape(tf.transpose(self.target_labels, (0, 2, 1)), (self.options['batch_size']*self.options['num_classes'], -1))
+                self.decoder_outputs_ = tf.reshape(tf.transpose(self.decoder_outputs, (0, 2, 1)), (self.options['batch_size']*self.options['num_classes'], -1))
+                self.train_loss = tf.reduce_mean(
+                                     tf.map_fn(fn=self.concordance_cc, 
+                                               elems=(self.decoder_outputs_, self.target_labels_, self.mask),
+                                               dtype=tf.float32))
+                #self.train_loss = tf.reduce_mean(-self.concordance_cc(predictions_, target_labels_))
             
             self.train_loss = self.train_loss + self.l2_loss
             
@@ -502,15 +518,22 @@ class RegressionModel:
 
         else:
             raise NotImplemented
-
-    def concordance_cc(self, prediction, ground_truth):
+    
+    @staticmethod
+    def concordance_cc(values_in):
         """Defines concordance loss for training the model. 
         Args:
            prediction: prediction of the model.
            ground_truth: ground truth values.
+           mask: True for non padded elements, False for padded elements
         Returns:
            The concordance value.
         """
+        prediction, ground_truth, mask = values_in
+        # apply mask to predictions and ground truth
+        prediction = tf.boolean_mask(prediction, mask)
+        ground_truth = tf.boolean_mask(ground_truth, mask)
+        # compute CCC with masked tensors
         pred_mean, pred_var = tf.nn.moments(prediction, (0,))
         gt_mean, gt_var = tf.nn.moments(ground_truth, (0,))
         mean_cent_prod = tf.reduce_mean((prediction - pred_mean) * (ground_truth - gt_mean))
