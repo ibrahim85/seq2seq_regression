@@ -102,13 +102,13 @@ def get_split(options):
     label = tf.reshape(label, (batch_size, -1, num_classes))
     mfcc = tf.reshape(mfcc, (batch_size, -1, mfcc_num_features))
     raw_audio = tf.reshape(raw_audio, (batch_size, -1, raw_audio_num_features))
-    
+
     # Add random Noise
     if options['mfcc_gaussian_noise_std'] != 0.0:
-        mfcc = tf.add(mfcc, 
-                      tf.random_normal(tf.shape(mfcc), mean=0.0, 
+        mfcc = tf.add(mfcc,
+                      tf.random_normal(tf.shape(mfcc), mean=0.0,
                           stddev=options['mfcc_gaussian_noise_std']))
-    
+
     if options['label_gaussian_noise_std'] != 0.0:
         label = tf.add(label,
                        tf.random_normal(tf.shape(label), mean=0.0,
@@ -127,11 +127,11 @@ def get_split(options):
     label_lengths = length(label)
     mfcc_lengths = length(mfcc)
     decoder_inputs_lengths = length(decoder_inputs)
-    
+
     if options['reverse_time']:
         raw_audio = tf.reverse(raw_audio, axis=[1])
         mfcc = tf.reverse(mfcc, axis=[1])
-    
+
     return raw_audio, mfcc, target_labels, num_examples, word, decoder_inputs,\
            label_lengths, mfcc_lengths, decoder_inputs_lengths
 
@@ -160,18 +160,6 @@ def get_split2(options):
     base_path = Path(options['data_root_dir'])
     split_name = options['split_name']
     paths = get_paths(base_path, split_name)
-    # if split_name == 'example':
-    #     paths = np.loadtxt(str(base_path / 'example_set.csv'), dtype='<U150').tolist()
-    #     print('Examples : ', len(paths))
-    # elif split_name == 'train':
-    #     paths = np.loadtxt(str(base_path / 'train_set.csv'), dtype='<U150').tolist()
-    #     print('Training examples : ', len(paths))
-    # elif split_name == 'devel':
-    #     paths = np.loadtxt(str(base_path / 'valid_set.csv'), dtype='<U150').tolist()
-    #     print('Evaluating examples : ', len(paths))
-    # elif split_name == 'test':
-    #     paths = np.loadtxt(str(base_path / 'test_set.csv'), dtype='<U150').tolist()
-    #     print('Testing examples : ', len(paths))
 
     num_examples = len(paths)
 
@@ -212,7 +200,7 @@ def get_split2(options):
     #frame_mfcc_overlap = tf.decode_raw(features['frame_mfcc_overlap'], tf.float32)
     #frame_mfcc_overlap = tf.reshape(frame_mfcc_overlap, (mfcc_num_features, -1))
     #frame_mfcc_overlap = tf.cast(tf.transpose(frame_mfcc_overlap, (1,0)), tf.float32)
-    
+
     #delta_frame_mfcc = tf.decode_raw(features['delta_frame_mfcc'], tf.float32)
     #delta_frame_mfcc = tf.reshape(delta_frame_mfcc, (mfcc_num_features, -1))
     #delta_frame_mfcc = tf.cast(tf.transpose(delta_frame_mfcc, (1,0)), tf.float32)
@@ -242,9 +230,9 @@ def get_split2(options):
         frame_mfcc = tf.slice(frame_mfcc, [s, 0], [e, 20])
     ##########
 
-    
+
     frame_mfcc, label, subject_id, word = tf.train.batch(
-        [frame_mfcc, label, subject_id, word], batch_size, 
+        [frame_mfcc, label, subject_id, word], batch_size,
       num_threads=1, capacity=2000, dynamic_pad=True)
 
     # Add random Noise
@@ -362,6 +350,9 @@ def get_split3(options):
     label = tf.decode_raw(features['labels'], tf.float32)
     label = tf.reshape(label, (-1, num_classes))
 
+    # when used without <eos>
+    decoder_inputs = label[:-1, :]
+
     rmse = tf.decode_raw(features['rmse'], tf.float32)
     rmse = tf.reshape(rmse, (-1, 1))
 
@@ -386,18 +377,19 @@ def get_split3(options):
         rmse = tf.slice(rmse, [s, 0], [e, 1])
     ##########
 
-    frame_mfcc, rmse, label, subject_id, word = tf.train.batch(
-        [frame_mfcc, rmse, label, subject_id, word], batch_size,
+    frame_mfcc, rmse, label, decoder_inputs, subject_id, word = tf.train.batch(
+        [frame_mfcc, rmse, label, decoder_inputs, subject_id, word], batch_size,
         num_threads=1, capacity=1000, dynamic_pad=True)
 
     label = tf.reshape(label, (batch_size, -1, num_classes))
+    decoder_inputs = tf.reshape(decoder_inputs, (batch_size, -1, num_classes))
     #mfcc = tf.reshape(mfcc, (batch_size, -1, 20))
     frame_mfcc = tf.reshape(frame_mfcc, (batch_size, -1, 20))
     #frame_mfcc_overlap = tf.reshape(frame_mfcc_overlap, (batch_size, -1, 20))
     #delta_frame_mfcc = tf.reshape(delta_frame_mfcc, (batch_size, -1, 20))
     rmse = tf.reshape(rmse, (batch_size, -1, 1))
     #raw_audio = tf.reshape(raw_audio, (batch_size, -1, 735))
-    
+
     if options['use_rmse']:
         encoder_inputs = tf.concat([frame_mfcc, rmse], axis=-1)
     else:
@@ -406,7 +398,7 @@ def get_split3(options):
     # sos_token
     sos_token = tf.constant(1, dtype=tf.float32, shape=[batch_size, num_classes])
     sos_slice = tf.expand_dims(sos_token, [1])
-    decoder_inputs = tf.concat([sos_slice, label], axis=1)
+    decoder_inputs = tf.concat([sos_slice, decoder_inputs], axis=1)
 
     target_labels = label
 
