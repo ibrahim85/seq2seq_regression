@@ -9,7 +9,7 @@ set_gpu(5)
 options = {
     'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
 
-    'is_training' : True ,
+    'is_training' : False ,
     'split_name': 'devel',
     'data_split': "split3",
     'use_rmse': False,
@@ -22,7 +22,7 @@ options = {
     'num_classes': 28,  # number of output classes 29 = |a-z, " ", <sos>, <eos>|
     'max_out_len_multiplier': 1.0,  # max_out_len = max_out_len_multiplier * max_in_len
     
-    'mfcc_gaussian_noise_std': 0.0,  # 0.05,
+    'mfcc_gaussian_noise_std': 0.05,  # 0.05,
     'label_gaussian_noise_std':0.0,
     
     'has_encoder': True,
@@ -66,16 +66,16 @@ options = {
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
    
     'restore': True, # boolean. restore model from disk
-    'restore_model':  "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model10_clean/bahdanau/seq2seq_train_maskedccpersample_std000_ss100_bahdanau_0init_era1_epoch3_step243",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model6_clean/bahdanau_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1_final",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model8_clean/bahdanau_noencoder_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1_final",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model7_overlap/bahdanau/seq2seq_train_largemodel_cc_ss100_bahdanau_0init_outstate_era1_final", # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model4/bahdanau/seq2seq_train_largemodel_cc_ss100_bahdanau_0init_outstate_era1_final", # path to model to restore
+    'restore_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model10_clean/bahdanau/seq2seq_train_maskedccpersample_std005_randcrop_ss100_bahdanau_0init_era1_epoch3_step243",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model6_clean/bahdanau_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1_final",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model8_clean/bahdanau_noencoder_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1_final",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model7_overlap/bahdanau/seq2seq_train_largemodel_cc_ss100_bahdanau_0init_outstate_era1_final", # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model4/bahdanau/seq2seq_train_largemodel_cc_ss100_bahdanau_0init_outstate_era1_final", # path to model to restore
 
     'save': False,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model10_clean/bahdanau/seq2seq_train_maskedccpersample_std000_ss100_bahdanau_0init_era1",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model8_clean/bahdanau_noencoder_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1",
+    'save_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model10_clean/bahdanau/seq2seq_train_maskedccpersample_std005_randcrop_ss100_bahdanau_0init_era1",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model8_clean/bahdanau_noencoder_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1",
     'num_models_saved': 50,  # total number of models saved
     'save_steps': 2000,  # every how many steps to save model
 
     'save_graph': False,
     'save_dir': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model4/bahdanau/summaries",
-    'save_summaries': True
+    'save_summaries': False
 
           }
 

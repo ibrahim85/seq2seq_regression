@@ -61,6 +61,11 @@ class RegressionModel:
         self.number_of_steps_per_epoch = self.num_examples // self.batch_size
         self.number_of_steps = self.number_of_steps_per_epoch * options['num_epochs']
 
+        if self.options['save_steps'] is None:
+            self.save_steps = self.number_of_steps_per_epoch
+        else:
+            self.save_steps = self.options['save_steps']        
+
         self.init_global_step()
 
         self.max_decoding_steps = tf.reduce_max(self.encoder_inputs_lengths)
@@ -306,7 +311,7 @@ class RegressionModel:
                     self.tl = tl
                     return None
 
-                if (self.train_era_step % self.options['save_steps'] == 0) \
+                if (self.train_era_step % self.save_steps == 0) \
                     and self.options['save']:
                     # print("saving model at global step %d..." % global_step)
                     self.save_model(

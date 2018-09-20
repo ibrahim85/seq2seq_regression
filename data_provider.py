@@ -324,7 +324,7 @@ def get_split3(options):
     # mfcc = tf.cast(tf.transpose(mfcc, (1, 0)), tf.float32)
 
     frame_mfcc = tf.decode_raw(features['frame_mfcc'], tf.float32)
-    frame_mfcc = tf.reshape(frame_mfcc, (20, -1))
+    frame_mfcc = tf.reshape(frame_mfcc, (mfcc_num_features, -1))
     frame_mfcc = tf.cast(tf.transpose(frame_mfcc, (1, 0)), tf.float32)
 
     # frame_mfcc_overlap = tf.decode_raw(features['frame_mfcc_overlap'], tf.float32)
@@ -351,7 +351,7 @@ def get_split3(options):
     label = tf.reshape(label, (-1, num_classes))
 
     # when used without <eos>
-    decoder_inputs = label[:-1, :]
+    #decoder_inputs = label[:-1, :]
 
     rmse = tf.decode_raw(features['rmse'], tf.float32)
     rmse = tf.reshape(rmse, (-1, 1))
@@ -371,18 +371,20 @@ def get_split3(options):
         e = tf.cond(e > s, lambda: e, lambda: s - e + 1)
 
         label = tf.slice(label, [s, 0], [e, 28])
-        frame_mfcc = tf.slice(frame_mfcc, [s, 0], [e, 20])
+        #decoder_inputs = tf.slice(decoder_inputs, [s, 0], [e, num_classes])
+        frame_mfcc = tf.slice(frame_mfcc, [s, 0], [e, mfcc_num_features])
         # delta_frame_mfcc = tf.slice(delta_frame_mfcc, [s, 0], [e, 20])
         # delta2_frame_mfcc = tf.slice(delta2_frame_mfcc, [s, 0], [e, 20])
         rmse = tf.slice(rmse, [s, 0], [e, 1])
     ##########
 
-    frame_mfcc, rmse, label, decoder_inputs, subject_id, word = tf.train.batch(
-        [frame_mfcc, rmse, label, decoder_inputs, subject_id, word], batch_size,
+    frame_mfcc, rmse, label, subject_id, word = tf.train.batch(
+        [frame_mfcc, rmse, label, subject_id, word], batch_size,
         num_threads=1, capacity=1000, dynamic_pad=True)
 
     label = tf.reshape(label, (batch_size, -1, num_classes))
-    decoder_inputs = tf.reshape(decoder_inputs, (batch_size, -1, num_classes))
+    decoder_inputs = label[:, :-1, :]
+
     #mfcc = tf.reshape(mfcc, (batch_size, -1, 20))
     frame_mfcc = tf.reshape(frame_mfcc, (batch_size, -1, 20))
     #frame_mfcc_overlap = tf.reshape(frame_mfcc_overlap, (batch_size, -1, 20))
