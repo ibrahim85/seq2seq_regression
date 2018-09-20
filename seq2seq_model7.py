@@ -30,16 +30,16 @@ options = {
     'residual_encoder': False,  # 
     'encoder_num_hidden': 256,  # number of hidden units in encoder lstm
     'encoder_dropout_keep_prob' : None,  # probability of keeping neuron, deprecated
-    'encoder_layer_norm': True,
+    #'encoder_layer_norm': True,
     'bidir_encoder': False,
 
     'decoder_num_layers': 3,  # number of hidden layers in decoder lstm
     'residual_decoder': False,  # 
     'decoder_num_hidden': 256,  # number of hidden units in decoder lstm
-    'encoder_state_as_decoder_init' : False,  # bool. encoder state is used for decoder init state, else zero state
-    'decoder_layer_norm': True,
+    'encoder_state_as_decoder_init' : True,  # bool. encoder state is used for decoder init state, else zero state
+    #'decoder_layer_norm': True,
 
-    'attention_type': 'bahdanau',
+    'attention_type': None,
     'output_attention': True,
     'attention_layer_size': 256,  # number of hidden units in attention layer
     'attention_layer_norm': True,
@@ -63,13 +63,13 @@ options = {
     'staircase_decay': True,
     'decay_steps': 1.0,
 
-    'ss_prob': 0.5,  # scheduled sampling probability for training. probability of passing decoder output as next
+    'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
    
     'restore': False, # boolean. restore model from disk
     'restore_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model10_clean/bahdanau/seq2seq_train_maskedccpersample_std005_ss100_bahdanau_0init_era1_epoch1_step0",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model9_clean/bahdanau/seq2seq_train_maskedcc_std005_ss100_bahdanau_0init_era1_final",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model6_clean/bahdanau_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1_final",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model8_clean/bahdanau_noencoder_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1_final",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model7_overlap/bahdanau/seq2seq_train_largemodel_cc_ss100_bahdanau_0init_outstate_era1_final", # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model4/bahdanau/seq2seq_train_largemodel_cc_ss100_bahdanau_0init_outstate_era1_final", # path to model to restore
 
     'save': True,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model11/bahdanau/seq2seq_train_maskedccpersample_std005_ss050_bahdanau_era1",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model8_clean/bahdanau_noencoder_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1",
+    'save_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model11/no_attention/seq2seq_train_maskedccpersample_std005_ss100_noattn_era1",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model8_clean/bahdanau_noencoder_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1",
     'num_models_saved': 1000,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
 

@@ -108,53 +108,61 @@ class RegressionModel:
             self.encoder_out = self.encoder_inputs
             self.encoder_hidden = None
 
-        with tf.variable_scope('decoder_lstm'):
+        if self.options['has_decoder']:
+            with tf.variable_scope('decoder_lstm'):
+                ss_prob = self.options['ss_prob']
+                self.sampling_prob = tf.constant(ss_prob, dtype=tf.float32)
+                helper = tf.contrib.seq2seq.ScheduledOutputTrainingHelper(
+                    self.decoder_inputs,
+                    self.decoder_inputs_lengths,
+                    self.sampling_prob)
+
+                decoder_cell = stacked_lstm(
+                    num_layers=self.options['decoder_num_layers'],
+                    num_hidden=self.options['decoder_num_hidden'],
+                    residual=self.options['residual_decoder'],
+                    use_peepholes=True,
+                    input_forw=None,
+                    return_cell=True)
+
+                if self.options['attention_type'] is None:
+                    assert self.options['encoder_state_as_decoder_init'], \
+                        ("Decoder must use encoder final hidden state if"
+                        "no Attention mechanism is defined")
+                    attn_cell = decoder_cell
+                else:
+                    attention_mechanism = self.get_attention_mechanism()
+
+                    attn_cell = tf.contrib.seq2seq.AttentionWrapper(
+                        cell=decoder_cell,
+                        attention_mechanism=attention_mechanism,
+                        attention_layer_size=self.options['attention_layer_size'],
+                        alignment_history=self.options['alignment_history'],
+                        output_attention=self.options['output_attention']) # Luong: True, Bahdanau: False ?
+
+                decoder_init_state = self.get_decoder_init_state(
+                    self.encoder_hidden, attn_cell)
+
+                decoder = tf.contrib.seq2seq.BasicDecoder(
+                    cell=attn_cell,
+                    helper=helper,
+                    initial_state=decoder_init_state,
+                    output_layer=tf.layers.Dense(self.options['num_classes']))
+
+                outputs, self.final_state, final_sequence_lengths = \
+                    tf.contrib.seq2seq.dynamic_decode(
+                        decoder=decoder,
+                        output_time_major=False,
+                        impute_finished=True,
+                        maximum_iterations=self.options['max_out_len'])
+                self.decoder_outputs = outputs.rnn_output
+
+        else:
+            self.decoder_outputs = self.encoder_out
+            # the following two lines are for compatability (needs to print)
+            # there is no use for sampling_prob when there is no decoder 
             ss_prob = self.options['ss_prob']
             self.sampling_prob = tf.constant(ss_prob, dtype=tf.float32)
-            helper = tf.contrib.seq2seq.ScheduledOutputTrainingHelper(
-                self.decoder_inputs,
-                self.decoder_inputs_lengths,
-                self.sampling_prob)
-
-            decoder_cell = stacked_lstm(
-                num_layers=self.options['decoder_num_layers'],
-                num_hidden=self.options['decoder_num_hidden'],
-                residual=self.options['residual_decoder'],
-                use_peepholes=True,
-                input_forw=None,
-                return_cell=True)
-
-            if self.options['attention_type'] is None:
-                assert self.options['encoder_state_as_decoder_init'], \
-                    ("Decoder must use encoder final hidden state if"
-                    "no Attention mechanism is defined")
-                attn_cell = decoder_cell
-            else:
-                attention_mechanism = self.get_attention_mechanism()
-
-                attn_cell = tf.contrib.seq2seq.AttentionWrapper(
-                    cell=decoder_cell,
-                    attention_mechanism=attention_mechanism,
-                    attention_layer_size=self.options['attention_layer_size'],
-                    alignment_history=self.options['alignment_history'],
-                    output_attention=self.options['output_attention']) # Luong: True, Bahdanau: False ?
-
-            decoder_init_state = self.get_decoder_init_state(
-                self.encoder_hidden, attn_cell)
-
-            decoder = tf.contrib.seq2seq.BasicDecoder(
-                cell=attn_cell,
-                helper=helper,
-                initial_state=decoder_init_state,
-                output_layer=tf.layers.Dense(self.options['num_classes']))
-
-            outputs, self.final_state, final_sequence_lengths = \
-                tf.contrib.seq2seq.dynamic_decode(
-                    decoder=decoder,
-                    output_time_major=False,
-                    impute_finished=True,
-                    maximum_iterations=self.options['max_out_len'])
-            self.decoder_outputs = outputs.rnn_output
 
         with tf.variable_scope('loss_function'):
 
