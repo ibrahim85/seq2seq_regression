@@ -29,7 +29,7 @@ def get_paths(base_path, split_name):
 
 
 def length(sequence):
-  used = tf.sign(tf.reduce_max(tf.abs(sequence), 2))
+  used = tf.abs(tf.sign(tf.reduce_max(tf.abs(sequence), 2)))
   length = tf.reduce_sum(used, 1)
   length = tf.cast(length, tf.int32)
   return length
@@ -398,7 +398,7 @@ def get_split3(options):
         encoder_inputs = frame_mfcc
 
     # sos_token
-    sos_token = tf.constant(1, dtype=tf.float32, shape=[batch_size, num_classes])
+    sos_token = tf.constant(0, dtype=tf.float32, shape=[batch_size, num_classes])
     sos_slice = tf.expand_dims(sos_token, [1])
     decoder_inputs = tf.concat([sos_slice, decoder_inputs], axis=1)
 
@@ -406,7 +406,7 @@ def get_split3(options):
 
     label_lengths = length(target_labels)
     mfcc_lengths = length(frame_mfcc)
-    decoder_inputs_lengths = length(decoder_inputs)
+    decoder_inputs_lengths = length(decoder_inputs) + 1
     #rmse_lengths = length(rmse)
 
     return encoder_inputs, target_labels, num_examples, word, decoder_inputs,\

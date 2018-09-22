@@ -98,6 +98,9 @@ class RegressionModel:
                     self.encoder_out, self.encoder_hidden = stacked_lstm(
                         num_layers=self.options['encoder_num_layers'],
                         num_hidden=self.options['encoder_num_hidden'],
+                        layer_norm=self.options['encoder_layer_norm'],
+                        dropout_keep_prob=self.options['encoder_dropout_keep_prob'],
+                        is_training=True,
                         residual=self.options['residual_encoder'],
                         use_peepholes=True,
                         input_forw=self.encoder_inputs,
@@ -120,6 +123,9 @@ class RegressionModel:
                 decoder_cell = stacked_lstm(
                     num_layers=self.options['decoder_num_layers'],
                     num_hidden=self.options['decoder_num_hidden'],
+                    layer_norm=self.options['decoder_layer_norm'],
+                    dropout_keep_prob=self.options['decoder_dropout_keep_prob'],
+                    is_training=True,
                     residual=self.options['residual_decoder'],
                     use_peepholes=True,
                     input_forw=None,
@@ -158,7 +164,8 @@ class RegressionModel:
                 self.decoder_outputs = outputs.rnn_output
 
         else:
-            self.decoder_outputs = self.encoder_out
+            self.decoder_outputs = tf.layers.dense(
+                self.encoder_out, self.options['num_classes'], activation=None)
             # the following two lines are for compatability (needs to print)
             # there is no use for sampling_prob when there is no decoder 
             ss_prob = self.options['ss_prob']
@@ -204,29 +211,35 @@ class RegressionModel:
                 multiply = tf.constant([1, 1, self.options['num_classes']])
                 self.mask = tf.tile(self.mask, multiply)
                 if not self.options['ccc_loss_per_batch']:
+                    # Apply CCC loss per sample and component, take average
+                    self.train_losses = [[self.concordance_cc(
+                        (self.target_labels[i, :, j], self.decoder_outputs[i, :, j], self.mask[i, :, j]))
+                                        for j in range(self.decoder_outputs.shape[-1])]
+                                        for i in range(self.decoder_outputs.shape[0])]
+                    self.train_loss = tf.reduce_mean(self.train_losses)
                     ### MT - Loss (mean CCC loss per component, separately for all samples)
-                    self.mask = tf.reshape(
-                        tf.transpose(self.mask, (0, 2, 1)),
-                        (self.options['batch_size']*self.options['num_classes'], -1))
-                    self.target_labels_ = tf.reshape(
-                        tf.transpose(self.target_labels, (0, 2, 1)),
-                        (self.options['batch_size']*self.options['num_classes'], -1))
-                    self.decoder_outputs_ = tf.reshape(
-                        tf.transpose(self.decoder_outputs, (0, 2, 1)),
-                        (self.options['batch_size']*self.options['num_classes'], -1))
-                    self.train_loss = tf.reduce_mean(
-                        tf.map_fn(
-                            fn=self.concordance_cc,
-                            elems=(self.decoder_outputs_, self.target_labels_, self.mask),
-                            dtype=tf.float32))
+                    #self.mask = tf.reshape(
+                    #    tf.transpose(self.mask, (0, 2, 1)),
+                    #    (self.options['batch_size']*self.options['num_classes'], -1))
+                    #self.target_labels_ = tf.reshape(
+                    #    tf.transpose(self.target_labels, (0, 2, 1)),
+                    #    (self.options['batch_size']*self.options['num_classes'], -1))
+                    #self.decoder_outputs_ = tf.reshape(
+                    #    tf.transpose(self.decoder_outputs, (0, 2, 1)),
+                    #    (self.options['batch_size']*self.options['num_classes'], -1))
+                    #self.train_loss = tf.reduce_mean(
+                    #    tf.map_fn(
+                    #        fn=self.concordance_cc,
+                    #        elems=(self.decoder_outputs_, self.target_labels_, self.mask),
+                    #        dtype=tf.float32))
                 else:
                     ### PT - loss (mean CCC loss per component, per batch)
-                    self.train_loss = tf.reduce_mean(
-                        [self.concordance_cc(
+                    self.train_losses = [self.concordance_cc(
                             (tf.reshape(self.decoder_outputs[:, :, i], (-1,)),
                              tf.reshape(self.target_labels[:, :, i], (-1,)),
                              tf.reshape(self.mask[:, :, i], (-1,))))
-                         for i in range(self.options['num_classes'])])
+                         for i in range(self.options['num_classes'])]
+                    self.train_loss = tf.reduce_mean(self.train_losses)
 
             self.train_loss = self.train_loss + self.l2_loss
 
@@ -501,12 +514,11 @@ class RegressionModel:
         if not self.options['bidir_encoder']:
 
             if self.options['encoder_state_as_decoder_init']:  # use encoder state for decoder init
-                init_state = encoder_states
-
-                #if self.options['mode'] == 'train':
-                decoder_init_state = cell.zero_state(
-                        dtype=tf.float32, batch_size=self.options['batch_size']).clone(
-                        cell_state=init_state)
+                #init_state = encoder_states       
+                #decoder_init_state = cell.zero_state(
+                #        dtype=tf.float32, batch_size=self.options['batch_size']).clone(
+                #        cell_state=init_state)
+                decoder_init_state = encoder_states
                 #elif self.options['mode'] == 'test':
                 #    decoder_init_state = cell.zero_state(
                 #        dtype=tf.float32,

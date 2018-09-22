@@ -9,8 +9,8 @@ set_gpu(5)
 options = {
     'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
 
-    'is_training' : True ,
-    'split_name': 'train',
+    'is_training' : False ,
+    'split_name': 'devel',
     'data_split': "split3",
     'use_rmse': False,
     'batch_size': 512,   # number of examples in queue either for training or inference
@@ -32,13 +32,13 @@ options = {
     'encoder_dropout_keep_prob' : None,  # probability of keeping neuron, deprecated
     #'encoder_layer_norm': True,
     'bidir_encoder': False,
-
+    
+    'has_decoder': True,
     'decoder_num_layers': 3,  # number of hidden layers in decoder lstm
     'residual_decoder': False,  # 
     'decoder_num_hidden': 256,  # number of hidden units in decoder lstm
     'encoder_state_as_decoder_init' : False,  # bool. encoder state is used for decoder init state, else zero state
     #'decoder_layer_norm': True,
-
     'attention_type': "bahdanau",
     'output_attention': True,
     'attention_layer_size': 256,  # number of hidden units in attention layer
@@ -58,17 +58,17 @@ options = {
     'reset_global_step': False,
     'train_era_step': 1,  # start train step during current era, value of 0 saves the current model
     
-    'learn_rate': 0.0005,  # initial learn rate corresponing top global step 0, or max lr for Adam
+    'learn_rate': 0.000,  # initial learn rate corresponing top global step 0, or max lr for Adam
     'learn_rate_decay': 0.9,
     'staircase_decay': True,
     'decay_steps': 1.0,
 
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
    
-    'restore': False, # boolean. restore model from disk
-    'restore_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model10_clean/bahdanau/seq2seq_train_maskedccpersample_std005_ss100_bahdanau_0init_era1_epoch1_step0",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model9_clean/bahdanau/seq2seq_train_maskedcc_std005_ss100_bahdanau_0init_era1_final",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model6_clean/bahdanau_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1_final",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model8_clean/bahdanau_noencoder_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1_final",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model7_overlap/bahdanau/seq2seq_train_largemodel_cc_ss100_bahdanau_0init_outstate_era1_final", # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model4/bahdanau/seq2seq_train_largemodel_cc_ss100_bahdanau_0init_outstate_era1_final", # path to model to restore
+    'restore': True, # boolean. restore model from disk
+    'restore_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model11/bahdanau_decoder/seq2seq_train_maskedccpersample_std005_ss100_bahdanaudecoder_era1_final",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model9_clean/bahdanau/seq2seq_train_maskedcc_std005_ss100_bahdanau_0init_era1_final",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model6_clean/bahdanau_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1_final",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model8_clean/bahdanau_noencoder_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1_final",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model7_overlap/bahdanau/seq2seq_train_largemodel_cc_ss100_bahdanau_0init_outstate_era1_final", # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model4/bahdanau/seq2seq_train_largemodel_cc_ss100_bahdanau_0init_outstate_era1_final", # path to model to restore
 
-    'save': True,  # boolean. save model to disk during current era
+    'save': False,  # boolean. save model to disk during current era
     'save_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model11/bahdanau_decoder/seq2seq_train_maskedccpersample_std005_ss100_bahdanaudecoder_era1",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model8_clean/bahdanau_noencoder_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1",
     'num_models_saved': 1000,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
@@ -81,7 +81,7 @@ options = {
 
 
 #from data_provider import get_split
-#raw_audio, mfcc, target_labels, \
+#raw_audio, mfcc, targe'has_decoder': False,t_labels, \
 #num_examples, word, decoder_inputs, \
 #label_lengths, mfcc_lengths, decoder_inputs_lengths = get_split(options)
 #raw_audio, mfcc, label, num_examples, word = get_split()
@@ -93,8 +93,10 @@ sess = start_interactive_session()
 if options['restore']:
     model.restore_model(sess)
 
-model.train(sess)
-#loss = model.predict(sess, return_words=False)
+if options['is_training']:
+    model.train(sess)
+else:
+    loss = model.predict(sess, return_words=False)
 
 #pred = model.predict_from_array(sess, feed_dict)
 

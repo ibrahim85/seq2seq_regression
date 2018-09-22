@@ -9,13 +9,13 @@ set_gpu(5)
 options = {
     'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
 
-    'is_training' : False ,
+    'is_training' : False,
     'split_name': 'devel',
     'data_split': "split3",
     'use_rmse': False,
     'batch_size': 512,   # number of examples in queue either for training or inference
     'reverse_time': False,
-    'shuffle': False,
+    'shuffle': True,
     'random_crop': False,
     'mfcc_num_features': 20,  # 20,
     'raw_audio_num_features': 533,  # 256,
@@ -30,7 +30,7 @@ options = {
     'encoder_num_layers': 3,  # number of hidden layers in encoder lstm
     'residual_encoder': False,  # 
     'encoder_num_hidden': 256,  # number of hidden units in encoder lstm
-    'encoder_dropout_keep_prob' : 1.0,  # probability of keeping neuron, deprecated
+    'encoder_dropout_keep_prob' : 0.8,  # probability of keeping neuron, deprecated
     'encoder_layer_norm': True,
     'bidir_encoder': False,
  
@@ -40,7 +40,7 @@ options = {
     'decoder_num_hidden': 256,  # number of hidden units in decoder lstm
     'encoder_state_as_decoder_init' : False,  # bool. encoder state is used for decoder init state, else zero state
     'decoder_layer_norm': False,
-    'decoder_dropout_keep_prob': 1.0,
+    'decoder_dropout_keep_prob': 0.8,
     'attention_type': 'bahdanau',
     'output_attention': True,
     'attention_layer_size': 256,  # number of hidden units in attention layer
@@ -68,10 +68,10 @@ options = {
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
    
     'restore': True, # boolean. restore model from disk
-    'restore_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model12/bahdanau/seq2seq_train_maskedccpersample_std000_ss100_bahdanau_reg000_sos0_bs512_lr001_layernorm_era1_final",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model6_clean/bahdanau_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1_final",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model8_clean/bahdanau_noencoder_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1_final",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model7_overlap/bahdanau/seq2seq_train_largemodel_cc_ss100_bahdanau_0init_outstate_era1_final", # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model4/bahdanau/seq2seq_train_largemodel_cc_ss100_bahdanau_0init_outstate_era1_final", # path to model to restore
+    'restore_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model12/bahdanau/seq2seq_train_maskedccpersample_std000_ss100_bahdanau_reg000_sos0_bs512_lr001_layernorm_encdecdr080_era1_final",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model6_clean/bahdanau_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1_final",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model8_clean/bahdanau_noencoder_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1_final",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model7_overlap/bahdanau/seq2seq_train_largemodel_cc_ss100_bahdanau_0init_outstate_era1_final", # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model4/bahdanau/seq2seq_train_largemodel_cc_ss100_bahdanau_0init_outstate_era1_final", # path to model to restore
 
     'save': True,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model12/bahdanau/seq2seq_train_maskedccpersample_std000_ss100_bahdanau_reg000_sos0_bs512_lr001_layernorm_era1",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model8_clean/bahdanau_noencoder_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1",
+    'save_model': "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model12/bahdanau/seq2seq_train_maskedccpersample_std000_ss100_bahdanau_reg000_sos0_bs512_lr001_layernorm_encdecdr080_era1",  # "/data/mat10/MSc_Project/audio_to_3dvideo/Models/model8_clean/bahdanau_noencoder_mfcc_std005/seq2seq_train_largemodel_cc_std005_ss100_bahdanau_0init_outstate_era1",
     'num_models_saved': 1000,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
 

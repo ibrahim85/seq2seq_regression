@@ -20,7 +20,7 @@ from tensorflow.python.ops import nn
 from tensorflow.python.ops import standard_ops
 
 
-def stacked_lstm(num_layers, num_hidden, residual=False, use_peepholes=True, input_forw=None, return_cell=False):
+def stacked_lstm(num_layers, num_hidden, layer_norm, dropout_keep_prob, is_training, residual=False, use_peepholes=True, input_forw=None, return_cell=False):
     """
     input_forw : (tensor) input tensor forward in time
     num_layers : (int) depth of stacked LSTM
@@ -33,21 +33,39 @@ def stacked_lstm(num_layers, num_hidden, residual=False, use_peepholes=True, inp
     #     "length of num_hidden %d, must match num_layers %d" % (len(num_hidden), num_layers)
     # with tf.name_scope(name):
     # input_back = tf.reverse(input_forw, axis=[1])
+    #if residual:
+    #    rnn_layers = [tf.contrib.rnn.ResidualWrapper(
+    #                  tf.contrib.rnn.LSTMCell(
+    #                     num_units=layer_size_,
+    #                     use_peepholes=use_peepholes, cell_clip=None, initializer=None, num_proj=None, proj_clip=None,
+    #                     forget_bias=1.0, state_is_tuple=True,
+    #                     activation=tf.tanh, reuse=None))
+    #                  for _, layer_size_ in enumerate(num_hidden)]
+    #else:
+    #    rnn_layers = [tf.contrib.rnn.LSTMCell(
+    #                     num_units=layer_size_,
+    #                     use_peepholes=use_peepholes, cell_clip=None, initializer=None, num_proj=None, proj_clip=None,
+    #                     forget_bias=1.0, state_is_tuple=True,
+    #                     activation=tf.tanh, reuse=None)
+    #                  for _, layer_size_ in enumerate(num_hidden)]
+    def cellfn(layer_size):
+        return tf.contrib.rnn.LayerNormBasicLSTMCell(
+                         num_units=layer_size,
+                         forget_bias=1.0,
+                         input_size=None,
+                         activation=tf.tanh,
+                         layer_norm=layer_norm, 
+                         norm_gain=1.0,
+                         norm_shift=0.0,
+                         dropout_keep_prob=dropout_keep_prob,
+                         dropout_prob_seed=None,
+                         reuse=None)
     if residual:
-        rnn_layers = [tf.contrib.rnn.ResidualWrapper(
-                      tf.contrib.rnn.LSTMCell(
-                         num_units=layer_size_,
-                         use_peepholes=use_peepholes, cell_clip=None, initializer=None, num_proj=None, proj_clip=None,
-                         forget_bias=1.0, state_is_tuple=True,
-                         activation=tf.tanh, reuse=None))
-                      for _, layer_size_ in enumerate(num_hidden)]
+        rnn_layers = [tf.contrib.rnn.ResidualWrapper(cellfn(layer_size))
+                      for _, layer_size in enumerate(num_hidden)]
     else:
-        rnn_layers = [tf.contrib.rnn.LSTMCell(
-                         num_units=layer_size_,
-                         use_peepholes=use_peepholes, cell_clip=None, initializer=None, num_proj=None, proj_clip=None,
-                         forget_bias=1.0, state_is_tuple=True,
-                         activation=tf.tanh, reuse=None)
-                      for _, layer_size_ in enumerate(num_hidden)]
+        rnn_layers = [cellfn(layer_size) for _, layer_size in enumerate(num_hidden)]
+
     # create a RNN cell composed sequentially of a number of RNNCells
     multi_rnn_cell = tf.nn.rnn_cell.MultiRNNCell(rnn_layers)
     if return_cell:
