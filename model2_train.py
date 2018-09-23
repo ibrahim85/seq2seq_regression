@@ -27,15 +27,15 @@ options = {
     'label_gaussian_noise_std':0.0,
     
     'has_encoder': True,
-    'encoder_num_layers': 1,  # number of hidden layers in encoder lstm
+    'encoder_num_layers': 3,  # number of hidden layers in encoder lstm
     'residual_encoder': False,  # 
     'encoder_num_hidden': 256,  # number of hidden units in encoder lstm
     'encoder_dropout_keep_prob' : 1.0,  # probability of keeping neuron, deprecated
     'encoder_layer_norm': True,
     'bidir_encoder': False,
     
-    'has_decoder': True,
-    'decoder_num_layers': 1,  # number of hidden layers in decoder lstm
+    'has_decoder': False,
+    'decoder_num_layers': 3,  # number of hidden layers in decoder lstm
     'residual_decoder': False,  # 
     'decoder_num_hidden': 256,  # number of hidden units in decoder lstm
     'encoder_state_as_decoder_init' : False,  # bool. encoder state is used for decoder init state, else zero state
@@ -71,7 +71,7 @@ options = {
     'restore_model': "",
 
     'save': True,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/Projects/audio23d/Models/bahdanau/seq2seq_model1_bahdanau_era1",
+    'save_model': "/data/mat10/Projects/audio23d/Models/no_decoder/seq2seq_model1_nodec_era1",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
 
