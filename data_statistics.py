@@ -5,7 +5,7 @@ from models import RegressionModel
 import numpy as np
 from data_provider import get_split, get_split2, get_split3
 
-# set_gpu(5)
+set_gpu(5)
 
 def get_train_data_stats(options):
     encoder_inputs, target_labels, num_examples, words, decoder_inputs, \
@@ -28,18 +28,18 @@ def get_train_data_stats(options):
         tlstd.append(tl[1])
         eilm.append(eil)
 
-    eim = np.stack(eim, axis=0).mean(axis=0)
-    eistd = np.stack(eistd, axis=0).mean(axis=0)
-    tlm = np.stack(tl, axis=0).mean(axis=0)
-    tlstd = np.stack(tl, axis=0).mean(axis=0)
+    eim = np.stack(eim, axis=0)#.mean(axis=0)
+    eistd = np.stack(eistd, axis=0)#.mean(axis=0)
+    tlm = np.stack(tl, axis=0)#.mean(axis=0)
+    tlstd = np.stack(tl, axis=0)#.mean(axis=0)
     eilm = np.mean(eilm)
     return eim, eistd, tlm, tlstd, eilm
 
 options = {
-    'data_root_dir': "/home/mat10/Desktop/test_models/example_data",  # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
-    'split_name': "example",
+    'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
+    'split_name': "train",
     'use_rmse': False,
-    'batch_size': 1,   # number of examples in queue either for training or inference
+    'batch_size': 10000,   # number of examples in queue either for training or inference
     'reverse_time': False,
     'shuffle': False,
     'random_crop': False,
