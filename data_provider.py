@@ -233,7 +233,7 @@ def get_split2(options):
 
     frame_mfcc, label, subject_id, word = tf.train.batch(
         [frame_mfcc, label, subject_id, word], batch_size,
-      num_threads=1, capacity=2000, dynamic_pad=True)
+      num_threads=1, capacity=2048, dynamic_pad=True)
 
     # Add random Noise
     if options['mfcc_gaussian_noise_std'] != 0.0:
@@ -380,7 +380,7 @@ def get_split3(options):
 
     frame_mfcc, rmse, label, subject_id, word = tf.train.batch(
         [frame_mfcc, rmse, label, subject_id, word], batch_size,
-        num_threads=1, capacity=1000, dynamic_pad=True)
+        num_threads=1, capacity=1000, dynamic_pad=True, allow_smaller_final_batch=True)
 
     label = tf.reshape(label, (batch_size, -1, num_classes))
     decoder_inputs = label[:, :-1, :]

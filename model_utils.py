@@ -20,7 +20,9 @@ from tensorflow.python.ops import nn
 from tensorflow.python.ops import standard_ops
 
 
-def stacked_lstm(num_layers, num_hidden, layer_norm, dropout_keep_prob, is_training, residual=False, use_peepholes=True, input_forw=None, return_cell=False):
+def stacked_lstm(num_layers, num_hidden, is_training, input_forw=None,
+                 layer_norm=False, dropout_keep_prob=1.0, residual=False,
+                 return_cell=False, use_peepholes=True):
     """
     input_forw : (tensor) input tensor forward in time
     num_layers : (int) depth of stacked LSTM
@@ -28,6 +30,8 @@ def stacked_lstm(num_layers, num_hidden, layer_norm, dropout_keep_prob, is_train
     """
     if type(num_hidden) is int:
         num_hidden = [num_hidden] * num_layers
+    if not is_training:
+        dropout_keep_prob = 1.0
     # print(len(num_hidden))
     # assert len(num_hidden) == num_layers \
     #     "length of num_hidden %d, must match num_layers %d" % (len(num_hidden), num_layers)
@@ -52,14 +56,11 @@ def stacked_lstm(num_layers, num_hidden, layer_norm, dropout_keep_prob, is_train
         return tf.contrib.rnn.LayerNormBasicLSTMCell(
                          num_units=layer_size,
                          forget_bias=1.0,
-                         input_size=None,
                          activation=tf.tanh,
                          layer_norm=layer_norm, 
                          norm_gain=1.0,
                          norm_shift=0.0,
-                         dropout_keep_prob=dropout_keep_prob,
-                         dropout_prob_seed=None,
-                         reuse=None)
+                         dropout_keep_prob=dropout_keep_prob)
     if residual:
         rnn_layers = [tf.contrib.rnn.ResidualWrapper(cellfn(layer_size))
                       for _, layer_size in enumerate(num_hidden)]
@@ -70,6 +71,7 @@ def stacked_lstm(num_layers, num_hidden, layer_norm, dropout_keep_prob, is_train
     multi_rnn_cell = tf.nn.rnn_cell.MultiRNNCell(rnn_layers)
     if return_cell:
         return multi_rnn_cell
+    assert input_forw is not None, "RNN input is None"
     outputs, states = tf.nn.dynamic_rnn(multi_rnn_cell, input_forw, dtype=tf.float32)
     outputs = tf.concat(outputs, 2)
     #states = tf.concat(states, 2)
@@ -239,6 +241,106 @@ def get_model_variables():
                                                               and "Adam" not in v.name]
     return vars
 
+
+def get_decoder_init_state(cell, init_state, options):
+    """
+    initial values for (unidirectional lstm) decoder network from (equal depth bidirectional lstm)
+    encoder hidden states. initially, the states of the forward and backward networks are concatenated
+    and a fully connected layer is defined for each lastm parameter (c, h) mapping from encoder to
+    decoder hidden size state
+    """
+    if options['bidir_encoder']:
+        raise NotImplemented
+    else:
+        if options['encoder_state_as_decoder_init']:  # use encoder state for decoder init
+            decoder_init_state = init_state
+            #    decoder_init_state = cell.zero_state(
+            #        dtype=tf.float32,
+            #        batch_size=self.options['batch_size'] * self.options['beam_width']).clone(
+            #                cell_state=tf.contrib.seq2seq.tile_batch(init_state, self.options['beam_width']))
+        else:  # use zero state
+            decoder_init_state = cell.zero_state(
+                    dtype=tf.float32,
+                    batch_size=options['batch_size'])
+    return decoder_init_state
+
+
+def get_attention_cell(cell, options, memories=None, memories_lengths=None):
+    if options['attention_type'] is None:
+        assert options['encoder_state_as_decoder_init'], \
+            ("Decoder must use encoder final hidden state if"
+             "no Attention mechanism is defined")
+        attention_cell = cell
+        return attention_cell
+    assert (memories is not None) and (memories_lengths is not None), \
+        "memory and memory_lengths tensors must be provided for attention cell"
+    if options['attention_type'] is "bahdanau":
+        attention_mechanism = tf.contrib.seq2seq.BahdanauAttention(
+            num_units=options['decoder_num_hidden'],  # The depth of the query mechanism.
+            memory=memories,  # The memory to query; usually the output of an RNN encoder
+            memory_sequence_length=memories_lengths,  # Sequence lengths for the batch
+            # entries in memory. If provided, the memory tensor rows are masked with zeros for values
+            # past the respective sequence lengths.
+            normalize=options['attention_layer_norm'],  # boolean. Whether to normalize the energy term.
+            name='BahdanauAttention')
+    elif options['attention_type'] is "monotonic_bahdanau":
+        attention_mechanism = tf.contrib.seq2seq.BahdanauMonotonicAttention(
+            num_units=options['decoder_num_hidden'],  # The depth of the query mechanism.
+            memory=memories,  # The memory to query; usually the output of an RNN encoder
+            memory_sequence_length=memories_lengths,  # Sequence lengths for the batch
+            # entries in memory. If provided, the memory tensor rows are masked with zeros for values
+            # past the respective sequence lengths.
+            normalize=options['attention_layer_norm'],  # boolean. Whether to normalize the energy term.
+            name='BahdanauMonotonicAttention')
+    elif options['attention_type'] is "luong":
+        attention_mechanism = tf.contrib.seq2seq.LuongAttention(
+            num_units=options['decoder_num_hidden'],  # The depth of the query mechanism.
+            memory=memories,  # The memory to query; usually the output of an Rif self.options['mode'] == 'train':
+            memory_sequence_length=memories_lengths,  # Sequence lengths for the batch
+            scale=options['attention_layer_norm'],  # boolean. Whether to normalize the energy term.
+            name='LuongAttention')
+    elif options['attention_type'] is "monotonic_luong":
+        attention_mechanism = tf.contrib.seq2seq.LuongMonotonicAttention(
+            num_units=options['decoder_num_hidden'],  # The depth of the query mechanism.
+            memory=memories,  # The memory to query; usually the output of an RNN encoder
+            memory_sequence_length=memories_lengths,  # Sequence lengths for the batch
+            scale=options['attention_layer_norm'],  # boolean. Whether to normalize the energy term.
+            sigmoid_noise=0.0,
+            score_bias_init=0.0,
+            mode='parallel',
+            name='LuongMonotonicAttention')
+    else:
+        raise ValueError("attention_type value not understood")
+    attention_cell = tf.contrib.seq2seq.AttentionWrapper(
+        cell=cell,
+        attention_mechanism=attention_mechanism,
+        attention_layer_size=options['attention_layer_size'],
+        alignment_history=options['alignment_history'],
+        output_attention=options['output_attention'])
+    return attention_cell
+
+
+def get_attention_weights(self, sess):
+    assert self.options['alignment_history']
+    input_lengths, label_lengths, alignments = sess.run(
+        [self.encoder_inputs_lengths, self.target_labels_lengths, self.final_state.alignment_history.stack()])
+    return input_lengths, label_lengths, alignments
+
+
+def lengths_mask(inputs, inputs_lengths, options):
+    """
+    makes a boolean mask for an inputs tensor
+    length is assumed at dimension 1
+    """
+    lengths_transposed = tf.expand_dims(inputs_lengths, 1)
+    range_ = tf.range(0, tf.shape(inputs)[1], 1)
+    range_row = tf.expand_dims(range_, 0)
+    # Use the logical operations to create a mask
+    mask = tf.less(range_row, lengths_transposed)
+    mask = tf.expand_dims(mask, -1)
+    multiply = tf.constant([1, 1, options['num_classes']])
+    mask = tf.tile(mask, multiply)
+    return mask
 
 class MultiLayerOutput(base.Layer):
     """2x Densely-connected layers class.

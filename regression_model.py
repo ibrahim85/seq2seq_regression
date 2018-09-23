@@ -9,6 +9,112 @@ from tqdm import tqdm
 from tensorflow.contrib.rnn import LSTMStateTuple
 import numpy as np
 
+class BasicModel:
+    """
+    Model class with basic functionality
+    options: (dict) all  model and training options/parameters
+    """
+
+    def __init__(self, options):
+
+        self.options = options
+        self.is_training = options['is_training']
+        self.split_name = options['split_name']
+        self.batch_size = options['batch_size']
+        self.base_path = options['data_root_dir']
+
+        self.epsilon = tf.constant(1e-10, dtype=tf.float32)
+
+        if self.options['data_split'] == 'split1':
+            _, self.encoder_inputs, \
+            self.target_labels, \
+            self.num_examples, \
+            self.words, \
+            self.decoder_inputs, \
+            self.target_labels_lengths, \
+            self.encoder_inputs_lengths, \
+            self.decoder_inputs_lengths = get_split(options)
+        elif self.options['data_split'] == 'split2':
+            self.encoder_inputs, \
+            self.target_labels, \
+            self.num_examples, \
+            self.words, \
+            self.decoder_inputs, \
+            self.target_labels_lengths, \
+            self.encoder_inputs_lengths, \
+            self.decoder_inputs_lengths = get_split2(options)
+        elif self.options['data_split'] == 'split3':
+            self.encoder_inputs, \
+            self.target_labels, \
+            self.num_examples, \
+            self.words, \
+            self.decoder_inputs, \
+            self.target_labels_lengths, \
+            self.encoder_inputs_lengths, \
+            self.decoder_inputs_lengths = get_split3(options)
+
+        self.number_of_steps_per_epoch = self.num_examples // self.batch_size
+        self.number_of_steps = self.number_of_steps_per_epoch * options['num_epochs']
+
+        if self.options['save_steps'] is None:
+            self.save_steps = self.number_of_steps_per_epoch
+        else:
+            self.save_steps = self.options['save_steps']
+
+        self.init_global_step()
+
+        # if self.options['mode'] not in ['train', 'eval', 'predict']:
+        #     raise ValueError("options.mode must be either 'train', 'eval' or 'predict'")
+
+    def build_train_graph(self):
+        pass
+
+    def train(self, sess, number_of_steps=None, reset_global_step=False):
+        pass
+
+    def build_inference_graph(self):
+        pass
+
+    def predict(self, sess, num_steps=None):
+        pass
+
+    @property
+    def learn_rate_decay_steps(self):
+        if self.options['num_decay_steps'] is None:  # decay every epoch
+            num_decay_steps = self.number_of_steps_per_epoch
+        elif type(self.options['num_decay_steps']) is float:   # decay at a proportion to steps per epoch
+            num_decay_steps = int(self.options['num_decay_steps'] * self.number_of_steps_per_epoch)
+        else:  # explicitly specify decay steps
+            num_decay_steps = self.options['num_decay_steps']
+        return num_decay_steps
+
+    def init_global_step(self, value=0):
+        print("initializing global step at %d" % value)
+        self.global_step = tf.Variable(value, trainable=False)
+        self.increment_global_step = tf.assign(self.global_step, self.global_step + 1)
+
+   def restore_model(self, sess):
+        print("reading model %s ..." % self.options['restore_model'])
+        self.saver.restore(sess, self.options['restore_model'])
+        print("model restored.")
+
+    def save_model(self, sess, save_path):
+        print("saving model %s ..." % save_path)
+        self.saver.save(sess=sess, save_path=save_path)
+        print("model saved.")
+
+    def save_graph(self, sess):
+        # writer = tf.summary.FileWriter(self.options['graph_save_path'])
+        self.writer.add_graph(sess.graph)
+        # writer = tf.summary.FileWriter(logdir='logdir', graph=graph)
+        self.writer.flush()
+        # self.writer.close()
+
+    def save_summaries(self, sess, summaries):
+        s, gs = sess.run([summaries, self.global_step])
+        self.writer.add_summary(s, gs)
+        self.writer.flush()
+
 
 class RegressionModel:
     """
@@ -98,12 +204,12 @@ class RegressionModel:
                     self.encoder_out, self.encoder_hidden = stacked_lstm(
                         num_layers=self.options['encoder_num_layers'],
                         num_hidden=self.options['encoder_num_hidden'],
+                        input_forw=self.encoder_inputs,
                         layer_norm=self.options['encoder_layer_norm'],
                         dropout_keep_prob=self.options['encoder_dropout_keep_prob'],
                         is_training=True,
                         residual=self.options['residual_encoder'],
                         use_peepholes=True,
-                        input_forw=self.encoder_inputs,
                         return_cell=False)
                     print("Encoder hidden:", self.encoder_hidden)
 
