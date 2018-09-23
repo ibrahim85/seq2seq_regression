@@ -383,8 +383,6 @@ def get_split3(options):
         num_threads=1, capacity=1000, dynamic_pad=True, allow_smaller_final_batch=True)
 
     label = tf.reshape(label, (batch_size, -1, num_classes))
-    decoder_inputs = label[:, :-1, :]
-
     #mfcc = tf.reshape(mfcc, (batch_size, -1, 20))
     frame_mfcc = tf.reshape(frame_mfcc, (batch_size, -1, 20))
     #frame_mfcc_overlap = tf.reshape(frame_mfcc_overlap, (batch_size, -1, 20))
@@ -392,11 +390,48 @@ def get_split3(options):
     rmse = tf.reshape(rmse, (batch_size, -1, 1))
     #raw_audio = tf.reshape(raw_audio, (batch_size, -1, 735))
 
+    # standardize data per feature
+    # for now only for frame_mfcc and label
+    if options['standardize_inputs and labels']:
+        eim = tf.convert_to_tensor(
+            [-242.95416, 81.43694, -11.771074, 27.070665,
+             -13.133402, 7.853387, -13.930464, 3.237301,
+             -7.58117, -0.85082525, -1.0349289, -4.017565,
+             1.1383969, -6.5288205, 3.3377466, -6.3484197,
+             0.562516, -4.093935, -0.8670171, -2.6639743], dtype=tf.float32)
+        eivar = tf.convert_to_tensor(
+            [4.73080000e+04, 6.62778369e+03, 7.94231201e+02, 1.01425513e+03,
+             5.15957764e+02, 4.11880280e+02, 3.49256989e+02, 1.65152344e+02,
+             1.58384720e+02, 1.00354126e+02, 7.98662262e+01, 7.84846039e+01,
+             7.00963669e+01, 9.50163040e+01, 7.33705063e+01, 9.03896027e+01,
+             5.94251404e+01, 5.85693321e+01, 4.78590660e+01, 4.46491356e+01], dtype=tf.float32)
+        tlm = tf.convert_to_tensor(
+            [0.7176098, 0.68151546, 0.0083033, -0.03022911, -0.04057616,
+             0.0459165, 0.06272098, 0.12194081, 0.06207254, 0.05955175,
+             -0.02445419, -0.03939912, 0.10773735, 0.00826506, -0.07349265,
+             0.0187189, 0.01024884, 0.00090375, -0.02721515, 0.05460983,
+             -0.00125212, 0.03899597, 0.0419567, 0.03335227, 0.03708933,
+             0.07019752, 0.0656651, 0.00265391], dtype=tf.float32)
+        tlvar = tf.convert_to_tensor(
+            [0.7176098, 0.68151546, 0.0083033, -0.03022911, -0.04057616,
+             0.0459165, 0.06272098, 0.12194081, 0.06207254, 0.05955175,
+             -0.02445419, -0.03939912, 0.10773735, 0.00826506, -0.07349265,
+             0.0187189, 0.01024884, 0.00090375, -0.02721515, 0.05460983,
+             -0.00125212, 0.03899597, 0.0419567, 0.03335227, 0.03708933,
+             0.07019752, 0.0656651, 0.00265391], dtype=tf.float32)
+        frame_mfcc = tf.reshape(frame_mfcc, [-1, mfcc_num_features])
+        frame_mfcc = (frame_mfcc - eim) / tf.sqrt(eivar)
+        frame_mfcc = tf.reshape(frame_mfcc, (batch_size, -1, mfcc_num_features))
+        label = tf.reshape(label, [-1, num_classes])
+        label = (label - tlm) / tf.sqrt(tlvar)
+        label = tf.reshape(label, (batch_size, -1, num_classes))
+
     if options['use_rmse']:
         encoder_inputs = tf.concat([frame_mfcc, rmse], axis=-1)
     else:
         encoder_inputs = frame_mfcc
 
+    decoder_inputs = label[:, :-1, :]
     # sos_token
     sos_token = tf.constant(0, dtype=tf.float32, shape=[batch_size, num_classes])
     sos_slice = tf.expand_dims(sos_token, [1])

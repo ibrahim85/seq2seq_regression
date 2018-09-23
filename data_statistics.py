@@ -5,7 +5,7 @@ from models import RegressionModel
 import numpy as np
 from data_provider import get_split, get_split2, get_split3
 
-set_gpu(5)
+# set_gpu(5)
 
 def get_train_data_stats(options):
     encoder_inputs, target_labels, num_examples, words, decoder_inputs, \
@@ -36,18 +36,19 @@ def get_train_data_stats(options):
     return eim, eistd, tlm, tlstd, eilm
 
 options = {
-    'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
-    'split_name': "train",
+    'data_root_dir': "/home/mat10/Desktop/test_models/example_data",  # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
+    'split_name': "example",
     'use_rmse': False,
-    'batch_size': 1000,   # number of examples in queue either for training or inference
+    'batch_size': 1,   # number of examples in queue either for training or inference
     'reverse_time': False,
     'shuffle': False,
     'random_crop': False,
     'mfcc_num_features': 20,  # 20,
     'raw_audio_num_features': 533,  # 256,
     'num_classes': 28,  # number of output classes 29 = |a-z, " ", <sos>, <eos>|
+    'standardize_inputs and labels': True,
     'mfcc_gaussian_noise_std': 0.0,  # 0.05,
-    'label_gaussian_noise_std':0.0}
+    'label_gaussian_noise_std': 0.0}
 
 if __name__ == "__main__":
-    eim, eistd, tlm, tlstd, eilm = get_train_data_stats(options)
+    eim, eivar, tlm, tlvar, eilm = get_train_data_stats(options)
