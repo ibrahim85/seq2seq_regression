@@ -7,12 +7,12 @@ import numpy as np
 set_gpu(5)
 
 options = {
-    'data_root_dir':  "/home/mat10/Desktop/test_models/example_data",  # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  #
+    'data_root_dir':  "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  #
     'is_training' : True,
-    'split_name': 'example',
+    'split_name': 'train',
     'data_split': "split3",
     'use_rmse': False,
-    'batch_size': 1,   # number of examples in queue either for training or inference
+    'batch_size': 512,   # number of examples in queue either for training or inference
     'reverse_time': False,
     'shuffle': True,
     'random_crop': False,
@@ -68,14 +68,14 @@ options = {
     'restore': False, # boolean. restore model from disk
     'restore_model': "/data/mat10/Projects/audio23d/Models/bahdanau/seq2seq_model1_bahdanau_era1_epoch9_step877",
 
-    'save': False,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/Projects/audio23d/Models/bahdanau/seq2seq_exccc_bahdanau_era1",
+    'save': True,  # boolean. save model to disk during current era
+    'save_model': "/data/mat10/Projects/audio23d/Models/rnnplus/seq2seq_exccc_rnnplus_era1",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
 
     'save_graph': False,
-    'save_dir': "/data/mat10/Projects/audio23d/Models/summaries",
-    'save_summaries': False
+    'save_dir': "/data/mat10/Projects/audio23d/Models/rnnplus/summaries",
+    'save_summaries': True
 
           }
 

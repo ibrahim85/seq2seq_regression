@@ -1,9 +1,7 @@
 import tensorflow as tf
-# from data_provider2 import get_split
 from tf_utils import start_interactive_session, set_gpu
-from models import RegressionModel
 import numpy as np
-from data_provider import get_split, get_split2, get_split3
+from data_provider import get_split3
 
 set_gpu(5)
 
@@ -32,7 +30,7 @@ def get_train_data_stats(options):
     eivar = np.stack(eivar, axis=0)#.mean(axis=0)
     tlm = np.stack(tlm, axis=0)#.mean(axis=0)
     tlvar = np.stack(tlvar, axis=0)#.mean(axis=0)
-    eilm = np.mean(eilm)
+    eilm = np.max(eilm)
     return eim, eivar, tlm, tlvar, eilm
 
 options = {
