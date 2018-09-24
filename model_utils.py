@@ -585,3 +585,77 @@ def temp_conv_network(inputs, options):
     print('input shape after 2nd linear layer %s' % inputs.get_shape().as_list())
     return inputs
 
+
+def bilstm(inputs, options):
+    inputs_reverse = tf.reverse(inputs, axis=[1])
+    # cell_forw = tf.contrib.rnn.LSTMCell(hidden_dim)
+    # cell_back = tf.contrib.rnn.LSTMCell(hidden_dim)
+    with tf.variable_scope('forw_cell'):
+    #     cell_forw = tf.contrib.rnn.LayerNormBasicLSTMCell(
+    #         options['num_hidden'],
+    #         forget_bias=1.0,
+    #         activation=tf.tanh,
+    #         layer_norm=True,
+    #         norm_gain=1.0,
+    #         norm_shift=0.0,
+    #         dropout_keep_prob=options['dropout_keep_prob'])
+        outputs_forw, _ = tf.nn.dynamic_rnn(
+            cell=tf.contrib.rnn.LayerNormBasicLSTMCell(
+                options['num_hidden'],
+                forget_bias=1.0,
+                activation=tf.tanh,
+                layer_norm=True,
+                norm_gain=1.0,
+                norm_shift=0.0,
+                dropout_keep_prob=options['dropout_keep_prob']),
+            inputs=inputs,
+            dtype=tf.float32)
+    with tf.variable_scope('back_cell'):
+    #     cell_back = tf.contrib.rnn.LayerNormBasicLSTMCell(
+    #         options['num_hidden'],
+    #         forget_bias=1.0,
+    #         activation=tf.tanh,
+    #         layer_norm=True,
+    #         norm_gain=1.0,
+    #         norm_shift=0.0,
+    #         dropout_keep_prob=options['dropout_keep_prob'])
+        outputs_back, _ = tf.nn.dynamic_rnn(
+            cell=tf.contrib.rnn.LayerNormBasicLSTMCell(
+                options['num_hidden'],
+                forget_bias=1.0,
+                activation=tf.tanh,
+                layer_norm=True,
+                norm_gain=1.0,
+                norm_shift=0.0,
+                dropout_keep_prob=options['dropout_keep_prob']),
+            inputs=inputs_reverse,
+            dtype=tf.float32)
+    outputs_back = tf.reverse(outputs_back, axis=[1])
+    bilstm_out = tf.concat([outputs_forw, outputs_back], axis=-1)
+    return bilstm_out
+
+
+def RNMTplus_cell(inputs, options):
+    res_inputs = bilstm(inputs, options)
+    res_inputs = tf.layers.dropout(res_inputs,
+                                   rate=1 - options['dropout_keep_prob'],  # drop probability
+                                   training=options['is_training'])
+    return inputs + res_inputs
+
+
+def RNMTplus_net(inputs, options):
+    assert int(inputs.get_shape()[-1]) == 2*options['num_hidden'], \
+    "number of inputs in RNNplus cell must equal numbed of hidden units"
+    inputs = tf.layers.dropout(inputs,
+                               rate=1 - options['dropout_keep_prob'],  # drop probability
+                               training=options['is_training'])
+    for i in range(options['num_blocks']):
+        with tf.variable_scope('layer_%d' % i):
+            inputs = RNMTplus_cell(inputs, options)
+    inputs = tf.layers.dense(inputs=inputs, units=options['num_classes'], activation=None, use_bias=True,
+                             kernel_initializer=tf.keras.initializers.he_normal(seed=None),
+                             bias_initializer=tf.zeros_initializer(),
+                             kernel_regularizer=None, bias_regularizer=None, activity_regularizer=None,
+                             kernel_constraint=None, bias_constraint=None, trainable=True,
+                             name=None, reuse=None)
+    return inputs

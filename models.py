@@ -3,7 +3,7 @@ from __future__ import division
 from __future__ import print_function
 import tensorflow as tf
 from model_utils import stacked_lstm, blstm_encoder, get_attention_cell, get_decoder_init_state, lengths_mask, \
-    temp_conv_network
+    temp_conv_network, RNMTplus_net
 from metrics import char_accuracy, flatten_list
 from losses import batch_masked_concordance_cc, batch_masked_mse, L2loss
 from data_provider import get_split, get_split2, get_split3
@@ -579,6 +579,244 @@ class CNNModel(BasicModel):
         return loss_
 
     def predict(self, sess, mfcc_path, num_steps=None):
+        mfcc = np.loadtxt(mfcc_path)
+        mfcc = np.expand_dims(mfcc, 0)
+        seq_length = mfcc.shape[1]
+        if num_steps is not None:
+            pred = []
+            step_length = int(seq_length/num_steps)
+            rem_length = seq_length - step_length * num_steps
+            for i in range(num_steps+1):
+                start_ = i*step_length
+                print("start_ %d" % start_)
+                if i != num_steps:
+                    end_ = (i+1)*step_length
+                    len_ = step_length
+                else:
+                    end_ = seq_length
+                    len_ = rem_length
+                print("end_ %d" % end_)
+                print("len_ %d" % len_)
+                feed_dict={self.encoder_inputs: mfcc[:, start_:end_, :],
+                           self.decoder_inputs: np.ones((1, len_, self.options['num_classes'])),
+                           self.decoder_inputs_lengths: [len_]}
+                pred.append(sess.run(self.decoder_outputs, feed_dict=feed_dict))
+        else:
+            feed_dict={self.encoder_inputs: mfcc,
+                       self.decoder_inputs: np.ones((1, seq_length, self.options['num_classes'])),
+                       self.decoder_inputs_lengths: [seq_length]}
+            pred = sess.run(self.decoder_outputs, feed_dict=feed_dict)
+        return pred
+
+
+class RNNplusModel(BasicModel):
+    """
+
+    """
+
+    def __init__(self, options):
+        super(RNNplusModel, self).__init__(options=options)
+        if self.is_training:
+            self.train_era_step = self.options['train_era_step']
+            self.build_train_graph()
+        else:
+            self.build_train_graph()
+        self.make_savers()
+
+    def build_train_graph(self):
+        self.encoder_inputs = tf.layers.dense(
+            inputs=self.encoder_inputs,
+            units=2*self.options['num_hidden'], activation=None, use_bias=True,
+            kernel_initializer=tf.keras.initializers.he_normal(seed=None),
+            bias_initializer=tf.zeros_initializer(),
+            kernel_regularizer=None, bias_regularizer=None, activity_regularizer=None,
+            kernel_constraint=None, bias_constraint=None, trainable=True,
+            name=None, reuse=None)
+
+        if self.options['has_encoder']:
+            with tf.variable_scope('encoder'):
+                self.encoder_out = RNMTplus_net(self.encoder_inputs, self.options)
+
+        if self.options['has_decoder']:
+            with tf.variable_scope('decoder_lstm'):
+                ss_prob = self.options['ss_prob']
+                self.sampling_prob = tf.constant(ss_prob, dtype=tf.float32)
+                helper = tf.contrib.seq2seq.ScheduledOutputTrainingHelper(
+                    self.decoder_inputs,
+                    self.decoder_inputs_lengths,
+                    self.sampling_prob)
+                decoder_cell = stacked_lstm(
+                    num_layers=self.options['decoder_num_layers'],
+                    num_hidden=self.options['decoder_num_hidden'],
+                    layer_norm=self.options['decoder_layer_norm'],
+                    dropout_keep_prob=self.options['decoder_dropout_keep_prob'],
+                    is_training=True,
+                    residual=self.options['residual_decoder'],
+                    use_peepholes=True,
+                    input_forw=None,
+                    return_cell=True)
+                attention_cell = get_attention_cell(cell=decoder_cell,
+                                                    options=self.options,
+                                                    memories=self.encoder_out,
+                                                    memories_lengths=self.encoder_inputs_lengths)
+                decoder_init_state = get_decoder_init_state(cell=attention_cell,
+                                                            init_state=self.encoder_hidden,
+                                                            options=self.options)
+                decoder = tf.contrib.seq2seq.BasicDecoder(
+                    cell=attention_cell,
+                    helper=helper,
+                    initial_state=decoder_init_state,
+                    output_layer=tf.layers.Dense(self.options['num_classes']))
+                outputs, self.final_state, final_sequence_lengths = \
+                    tf.contrib.seq2seq.dynamic_decode(
+                        decoder=decoder,
+                        output_time_major=False,
+                        impute_finished=True,
+                        maximum_iterations=self.options['max_out_len'])
+                self.decoder_outputs = outputs.rnn_output
+        else:
+            self.decoder_outputs = tf.layers.dense(
+                self.encoder_out, self.options['num_classes'], activation=None)
+            # the following two lines are for compatability (needs to print)
+            # there is no use for sampling_prob when there is no decoder
+            ss_prob = self.options['ss_prob']
+            self.sampling_prob = tf.constant(ss_prob, dtype=tf.float32)
+
+        with tf.variable_scope('loss_function'):
+            self.mask = lengths_mask(self.target_labels, self.target_labels_lengths, self.options)
+            if self.options['loss_fun'] is "mse":
+                self.train_loss = batch_masked_mse(
+                    (self.decoder_outputs, self.target_labels, self.mask), self.options)
+            elif self.options['loss_fun'] is 'concordance_cc':
+                self.train_loss = batch_masked_concordance_cc(
+                    (self.decoder_outputs, self.target_labels, self.mask), self.options)
+            self.l2_loss = L2loss(self.options['reg_constant'])
+            self.train_loss = self.train_loss + self.l2_loss
+            if self.options['save_summaries']:
+                tf.summary.scalar('train_loss', self.train_loss)
+                tf.summary.scalar('l2_loss', self.l2_loss)
+
+        with tf.variable_scope('training_parameters'):
+            params = tf.trainable_variables()
+            # clip by gradients
+            max_gradient_norm = tf.constant(
+                self.options['max_grad_norm'],
+                dtype=tf.float32,
+                name='max_gradient_norm')
+            self.gradients = tf.gradients(self.train_loss, params)
+            self.clipped_gradients, _ = tf.clip_by_global_norm(
+                self.gradients, max_gradient_norm)
+            # self.clipped_gradients = [(tf.clip_by_value(grad, -1., 1.), var) for grad, var in self.gradients]
+            # Optimization
+            self.global_step = tf.Variable(0, trainable=False)
+            self.increment_global_step = tf.assign(self.global_step, self.global_step + 1)
+            initial_learn_rate = tf.constant(self.options['learn_rate'], tf.float32)
+            if self.options['decay_steps'] is None:
+                decay_steps = self.number_of_steps_per_epoch
+            elif type(self.options['decay_steps']) is float:
+                decay_steps = self.options['decay_steps'] * self.number_of_steps_per_epoch
+            else:
+                decay_steps = self.options['decay_steps']
+            learn_rate = tf.train.exponential_decay(
+                learning_rate=initial_learn_rate,
+                global_step=self.global_step,
+                decay_steps=decay_steps,
+                decay_rate=self.options['learn_rate_decay'],
+                staircase=self.options['staircase_decay'])
+            self.optimizer = tf.train.AdamOptimizer(learn_rate)
+
+            update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+            with tf.control_dependencies(update_ops):
+                self.update_step = self.optimizer.apply_gradients(
+                    zip(self.clipped_gradients, params),
+                    global_step=self.global_step)
+
+    def train(self, sess, number_of_steps=None):
+        # update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+        # with tf.control_dependencies(update_ops):
+        #     train_op = self.optimizer.minimize(self.train_loss)
+        if number_of_steps is not None:
+            assert type(number_of_steps) is int
+            start_epoch = 0
+            num_epochs = 1
+        else:
+            number_of_steps = self.number_of_steps_per_epoch
+            start_epoch = self.options['start_epoch']
+            num_epochs = self.options['num_epochs']
+
+        if self.options['reset_global_step']:
+            initial_global_step = self.global_step.assign(0)
+            sess.run(initial_global_step)
+
+        for epoch in range(start_epoch, start_epoch + num_epochs):
+            for step in range(number_of_steps):
+                _, ei, do, tl, gstep, loss, l2loss, lr, sp = sess.run(
+                    [self.update_step,
+                     self.encoder_inputs,
+                     self.decoder_outputs,
+                     self.target_labels,
+                     self.global_step,
+                     self.train_loss,
+                     self.l2_loss,
+                     self.optimizer._lr,
+                     self.sampling_prob])
+                print("%d,%d,%d,%d,%d,%.4f,%.4f,%.8f,%.4f"
+                      % (gstep, epoch,
+                         self.options['num_epochs'],
+                         step,
+                         self.number_of_steps_per_epoch,
+                         loss, l2loss, lr, sp))
+
+                if np.isinf(loss) or np.isnan(loss):
+                    self.ei = ei
+                    self.do = do
+                    self.tl = tl
+                    return None
+
+                if (self.train_era_step % self.save_steps == 0) \
+                    and self.options['save']:
+                    # print("saving model at global step %d..." % global_step)
+                    self.save_model(
+                        sess=sess,
+                        save_path=self.options['save_model'] + "_epoch%d_step%d" % (epoch, step))
+                    # print("model saved.")
+
+                self.train_era_step += 1
+
+        # save before closing
+        if self.options['save'] and (self.save_steps != self.number_of_steps_per_epoch):
+            self.save_model(sess=sess, save_path=self.options['save_model'] + "_final")
+        if self.options['save_summaries']:
+            self.save_summaries(sess=sess, summaries=self.merged_summaries)
+
+    def build_inference_graph(self):
+        """
+        No differences between train and test graphs
+        """
+        self.build_train_graph()
+
+    # make this into eval
+    def predict(self, sess, num_steps=None, return_words=False):
+        if num_steps is None:
+            num_steps = self.number_of_steps_per_epoch
+        loss_ = []
+        if return_words:
+            assert self.batch_size == 1, "batch_size must be set to 1 for getting loss per word"
+            for i in range(num_steps):
+                l_, w_ = sess.run([self.train_loss, self.words])
+                loss_.append([l_, w_[0].decode("utf-8")])
+                print("%d, %d, %.4f, %s" % (i, num_steps, l_, w_))
+            loss_ = pd.DataFrame(loss_, columns=["loss", "word"])
+            # return results aggregated per word
+            loss_ = loss_.groupby("word").agg({"loss": [np.mean, np.std]}).reset_index(drop=False)
+        else:
+            for i in range(num_steps):
+                l_ = sess.run(self.train_loss)
+                loss_.append(l_)
+                print("%d, %d, %.4f" % (i, num_steps, l_))
+        return loss_
+
+    def predict_from_array(self, sess, mfcc_path, num_steps=None):
         mfcc = np.loadtxt(mfcc_path)
         mfcc = np.expand_dims(mfcc, 0)
         seq_length = mfcc.shape[1]
