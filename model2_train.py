@@ -9,13 +9,13 @@ set_gpu(5)
 options = {
     'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # "/home/mat10/Desktop/seq2seq_regression/example_data",  # enhanced",
 
-    'is_training' : True,
-    'split_name': 'train',
+    'is_training' : False,
+    'split_name': 'devel',
     'data_split': "split3",
     'use_rmse': False,
-    'batch_size': 512,   # number of examples in queue either for training or inference
+    'batch_size': 1,   # number of examples in queue either for training or inference
     'reverse_time': False,
-    'shuffle': True,
+    'shuffle': False,
     'random_crop': False,
     'standardize_inputs and labels': True,
     'mfcc_num_features': 20,  # 20,
@@ -67,8 +67,8 @@ options = {
 
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
    
-    'restore': False, # boolean. restore model from disk
-    'restore_model': "",
+    'restore': True, # boolean. restore model from disk
+    'restore_model': "/data/mat10/Projects/audio23d/Models/no_decoder/seq2seq_model1_nodec_era1_epoch9_step877",
 
     'save': True,  # boolean. save model to disk during current era
     'save_model': "/data/mat10/Projects/audio23d/Models/no_decoder/seq2seq_model1_nodec_era1",
@@ -91,8 +91,8 @@ model = RegressionModel(options)
 
 sess = start_interactive_session()
 
-if options['save_graph']:
-    model.save_graph(sess)
+#if options['save_graph']:
+#    model.save_graph(sess)
 
 if options['restore']:
     model.restore_model(sess)
@@ -100,7 +100,7 @@ if options['restore']:
 if options['is_training']:
     model.train(sess)
 else:
-    loss = model.predict(sess, return_words=False)
+    loss = model.predict(sess, num_steps=None, return_words=True)
 
 #pred = model.predict_from_array(sess, feed_dict)
 

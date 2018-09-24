@@ -9,6 +9,7 @@ from data_provider import get_split, get_split2, get_split3
 from tqdm import tqdm
 from tensorflow.contrib.rnn import LSTMStateTuple
 import numpy as np
+import pandas as pd
 
 
 class BasicModel:
@@ -335,7 +336,7 @@ class RegressionModel(BasicModel):
                 print("%d, %d, %.4f, %s" % (i, num_steps, l_, w_))
             loss_ = pd.DataFrame(loss_, columns=["loss", "word"])
             # return results aggregated per word
-            loss_ = loss_.groupby("word").agg({"loss": [np.mean, np.sum]}).reset_index(drop=False)
+            loss_ = loss_.groupby("word").agg({"loss": [np.mean, np.std]}).reset_index(drop=False)
         else:
             for i in range(num_steps):
                 l_ = sess.run(self.train_loss)

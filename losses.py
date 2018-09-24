@@ -11,14 +11,30 @@ def masked_loss(values_in, loss_fun):
 
 def batch_masked_loss(values_in, loss_fun, options, return_mean=True):
     predictions, ground_truths, mask = values_in
+    max_label_len = tf.shape(ground_truths)[1]
     # mask = tf.expand_dims(mask, -1)
     # multiply = tf.constant([1, 1, options['num_classes']])
     # mask = tf.tile(mask, multiply)
-    train_losses = [loss_fun(
-        (tf.reshape(predictions[:, :, i], (-1,)),
-         tf.reshape(ground_truths[:, :, i], (-1,)),
-         tf.reshape(mask[:, :, i], (-1,))))
-        for i in range(options['num_classes'])]
+    if options['ccc_loss_per_batch']:
+        train_losses = [loss_fun(
+            (tf.reshape(predictions[:, :, i], (-1,)),
+             tf.reshape(ground_truths[:, :, i], (-1,)),
+             tf.reshape(mask[:, :, i], (-1,))))
+            for i in range(options['num_classes'])]
+    else:  # CCC loss per example per component over time
+        #train_losses = [[loss_fun(
+        #    (tf.reshape(predictions[n, :, i], (-1,)),
+        #     tf.reshape(ground_truths[n, :, i], (-1,)),
+        #     tf.reshape(mask[n, :, i], (-1,))))
+        #    for i in range(options['num_classes'])]
+        #    for n in range(options['batch_size'])]
+        train_losses = tf.map_fn(
+            fn=loss_fun, 
+            elems=(tf.reshape(predictions, (-1, max_label_len)),
+                   tf.reshape(ground_truths, (-1, max_label_len)),
+                   tf.reshape(mask, (-1, max_label_len))),
+            dtype=tf.float32,
+            parallel_iterations=10)
     if return_mean:
         return tf.reduce_mean(train_losses)
     return train_losses

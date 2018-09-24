@@ -52,10 +52,10 @@ options = {
     'max_out_len': None,  # maximum number of characters in output text
 
     'loss_fun': "concordance_cc",  # "mse", "cos", "concordance_cc"
-    'ccc_loss_per_batch': True,  # set True for PT loss (mean per component/batch), False (mean per component per sample)
+    'ccc_loss_per_batch': False,  # set True for PT loss (mean per component/batch), False (mean per component per sample)
     'reg_constant': 0.00,
     'max_grad_norm': 5.0, 
-    'num_epochs': 10,  # number of epochs over dataset for training
+    'num_epochs': 5,  # number of epochs over dataset for training
     'start_epoch': 1,  # epoch to start
     'reset_global_step': False,
     'train_era_step': 1,  # start train step during current era, value of 0 saves the current model
@@ -68,14 +68,14 @@ options = {
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
    
     'restore': False, # boolean. restore model from disk
-    'restore_model': "",
+    'restore_model': "/data/mat10/Projects/audio23d/Models/bahdanau/seq2seq_model1_bahdanau_era1_epoch9_step877",
 
     'save': True,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/Projects/audio23d/Models/bahdanau/seq2seq_model1_bahdanau_era1",
+    'save_model': "/data/mat10/Projects/audio23d/Models/bahdanau/seq2seq_exccc_bahdanau_era1",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
 
-    'save_graph': True,
+    'save_graph': False,
     'save_dir': "/data/mat10/Projects/audio23d/Models/summaries",
     'save_summaries': True
 
@@ -100,7 +100,7 @@ if options['restore']:
 if options['is_training']:
     model.train(sess)
 else:
-    loss = model.predict(sess, return_words=False)
+    loss = model.predict(sess, return_words=True)
 
 #pred = model.predict_from_array(sess, feed_dict)
 
