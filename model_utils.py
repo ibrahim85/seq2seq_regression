@@ -249,19 +249,16 @@ def get_decoder_init_state(cell, init_state, options):
     and a fully connected layer is defined for each lastm parameter (c, h) mapping from encoder to
     decoder hidden size state
     """
-    if options['bidir_encoder']:
-        raise NotImplemented
-    else:
-        if options['encoder_state_as_decoder_init']:  # use encoder state for decoder init
-            decoder_init_state = init_state
-            #    decoder_init_state = cell.zero_state(
-            #        dtype=tf.float32,
-            #        batch_size=self.options['batch_size'] * self.options['beam_width']).clone(
-            #                cell_state=tf.contrib.seq2seq.tile_batch(init_state, self.options['beam_width']))
-        else:  # use zero state
-            decoder_init_state = cell.zero_state(
-                    dtype=tf.float32,
-                    batch_size=options['batch_size'])
+    if options['encoder_state_as_decoder_init']:  # use encoder state for decoder init
+        decoder_init_state = init_state
+        #    decoder_init_state = cell.zero_state(
+        #        dtype=tf.float32,
+        #        batch_size=self.options['batch_size'] * self.options['beam_width']).clone(
+        #                cell_state=tf.contrib.seq2seq.tile_batch(init_state, self.options['beam_width']))
+    else:  # use zero state
+        decoder_init_state = cell.zero_state(
+                dtype=tf.float32,
+                batch_size=options['batch_size'])
     return decoder_init_state
 
 
@@ -542,11 +539,9 @@ def temp_conv_block(inputs, out_dim, training):
 def temp_conv_network(inputs, options):
     training = options['is_training']
     input_dim = int(inputs.get_shape()[-1])  # .as_list()
-    features_dims = options['1dcnn_features_dims']
     print('Temporal convolution')
     print('input shape %s' % inputs.get_shape())
-    layer_dims = [i*input_dim for i in features_dims]
-    for i, layer_dim in enumerate(layer_dims):
+    for i, layer_dim in enumerate(options['1dcnn_features_dims']):
         inputs = temp_conv_block(inputs, layer_dim, training)
         print('input shape after %d temp conv layer %s' % (i, inputs.get_shape().as_list()))
     # print(inputs.get_shape())

@@ -1,19 +1,19 @@
 import tensorflow as tf
 # from data_provider2 import get_split
 from tf_utils import start_interactive_session, set_gpu
-from models import RegressionModel
+from models import RNNModel
 import numpy as np
 
 set_gpu(5)
 
 options = {
-    'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # "/home/mat10/Desktop/seq2seq_regression/example_data",  # enhanced",
+    'data_root_dir': "/home/mat10/Desktop/test_models/example_data",  # enhanced",
 
     'is_training' : True,
-    'split_name': 'train',
+    'split_name': 'example',
     'data_split': "split3",
     'use_rmse': False,
-    'batch_size': 512,   # number of examples in queue either for training or inference
+    'batch_size': 1,   # number of examples in queue either for training or inference
     'reverse_time': False,
     'shuffle': True,
     'random_crop': False,
@@ -70,14 +70,14 @@ options = {
     'restore': False, # boolean. restore model from disk
     'restore_model': "/data/mat10/Projects/audio23d/Models/no_decoder/seq2seq_model1_nodec_era1_epoch9_step877",
 
-    'save': True,  # boolean. save model to disk during current era
+    'save': False,  # boolean. save model to disk during current era
     'save_model': "/data/mat10/Projects/audio23d/Models/no_decoder/seq2seq_exccc_nodec_era1",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
 
-    'save_graph': True,
+    'save_graph': False,
     'save_dir': "/data/mat10/Projects/audio23d/Models/no_decoder/summaries",
-    'save_summaries': True
+    'save_summaries': False
 
           }
 
@@ -87,7 +87,7 @@ options = {
 #label_lengths, mfcc_lengths, decoder_inputs_lengths = get_split(options)
 #raw_audio, mfcc, label, num_examples, word = get_split()
 
-model = RegressionModel(options)
+model = RNNModel(options)
 
 sess = start_interactive_session()
 
