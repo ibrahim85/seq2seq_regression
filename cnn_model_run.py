@@ -19,7 +19,7 @@ options = {
     'reverse_time': False,
     'shuffle': True,
     'random_crop': False,
-    'standardize_inputs and labels': True,
+    'standardize_inputs_and_labels': True,
     'mfcc_num_features': 20,  # 20,
     'raw_audio_num_features': 533,  # 256,
     'num_classes': 28,  # number of output classes 29 = |a-z, " ", <sos>, <eos>|
