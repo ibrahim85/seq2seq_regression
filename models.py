@@ -27,6 +27,8 @@ class BasicModel:
         self.batch_size = options['batch_size']
         self.base_path = options['data_root_dir']
 
+        self.train_era_step = self.options['train_era_step']
+
         self.epsilon = tf.constant(1e-10, dtype=tf.float32)
 
         if self.options['data_split'] == 'split1':
@@ -624,6 +626,7 @@ class RNNplusModel(BasicModel):
         self.make_savers()
 
     def build_train_graph(self):
+        # with tf.variable_scope('input_linear_projection'):
         self.encoder_inputs = tf.layers.dense(
             inputs=self.encoder_inputs,
             units=2*self.options['num_hidden'], activation=None, use_bias=True,

@@ -392,7 +392,7 @@ def get_split3(options):
 
     # standardize data per feature
     # for now only for frame_mfcc and label
-    if options['standardize_inputs and labels']:
+    if options['standardize_inputs_and_labels']:
         eim = tf.convert_to_tensor(
             [-242.95416, 81.43694, -11.771074, 27.070665,
              -13.133402, 7.853387, -13.930464, 3.237301,
