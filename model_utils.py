@@ -501,3 +501,92 @@ class MultiLayerOutput(base.Layer):
                 'The innermost dimension of input_shape must be defined, but saw: %s'
                 % input_shape)
         return input_shape[:-1].concatenate(self.units[1])
+
+
+def temp_conv_block(inputs, out_dim, training):
+    inputs = tf.layers.conv1d(inputs=inputs, filters=out_dim, kernel_size=3, strides=1,
+                              padding='same',  # 'same'
+                              data_format='channels_last', dilation_rate=1, activation=None,
+                              use_bias=True, kernel_initializer=tf.keras.initializers.he_normal(seed=None),
+                              bias_initializer=None,
+                              kernel_regularizer=None, bias_regularizer=None, activity_regularizer=None,
+                              kernel_constraint=None, bias_constraint=None, trainable=True,
+                              name=None, reuse=None)
+    # print(inputs.get_shape())
+    inputs = tf.layers.batch_normalization(inputs,
+                              axis=-1,
+                              momentum=0.99,
+                              epsilon=0.001,
+                              center=True,
+                              scale=True,
+                              beta_initializer=tf.zeros_initializer(),
+                              gamma_initializer=tf.ones_initializer(),
+                              moving_mean_initializer=tf.zeros_initializer(),
+                              moving_variance_initializer=tf.ones_initializer(),
+                              beta_regularizer=None,
+                              gamma_regularizer=None,
+                              beta_constraint=None,
+                              gamma_constraint=None,
+                              training=training,
+                              trainable=True,
+                              name=None,
+                              reuse=None,
+                              renorm=False,
+                              renorm_clipping=None,
+                              renorm_momentum=0.99,
+                              fused=None)
+    inputs = tf.nn.relu(inputs)
+    return inputs
+
+
+def temp_conv_network(inputs, options):
+    training = options['is_training']
+    input_dim = int(inputs.get_shape()[-1])  # .as_list()
+    features_dims = options['1dcnn_features_dims']
+    print('Temporal convolution')
+    print('input shape %s' % inputs.get_shape())
+    layer_dims = [i*input_dim for i in features_dims]
+    for i, layer_dim in enumerate(layer_dims):
+        inputs = temp_conv_block(inputs, layer_dim, training)
+        print('input shape after %d temp conv layer %s' % (i, inputs.get_shape().as_list()))
+    # print(inputs.get_shape())
+    inputs = tf.layers.dense(inputs=inputs, units=128, activation=None, use_bias=True,  # shape[-1]
+                             kernel_initializer=tf.keras.initializers.he_normal(seed=None),
+                             bias_initializer=tf.zeros_initializer(),
+                             kernel_regularizer=None, bias_regularizer=None, activity_regularizer=None,
+                             kernel_constraint=None, bias_constraint=None, trainable=True,
+                             name=None, reuse=None)
+    #inputs = tf.layers.batch_normalization(inputs)
+    inputs = tf.layers.batch_normalization(inputs,
+                              axis=-1,
+                              momentum=0.99,
+                              epsilon=0.001,
+                              center=True,
+                              scale=True,
+                              beta_initializer=tf.zeros_initializer(),
+                              gamma_initializer=tf.ones_initializer(),
+                              moving_mean_initializer=tf.zeros_initializer(),
+                              moving_variance_initializer=tf.ones_initializer(),
+                              beta_regularizer=None,
+                              gamma_regularizer=None,
+                              beta_constraint=None,
+                              gamma_constraint=None,
+                              training=training,
+                              trainable=True,
+                              name=None,
+                              reuse=None,
+                              renorm=False,
+                              renorm_clipping=None,
+                              renorm_momentum=0.99,
+                              fused=None)
+    inputs = tf.nn.relu(inputs)
+    print('input shape after 1st linear layer %s' % inputs.get_shape().as_list())
+    inputs = tf.layers.dense(inputs=inputs, units=options['num_classes'], activation=None, use_bias=True,
+                             kernel_initializer=tf.keras.initializers.he_normal(seed=None),
+                             bias_initializer=tf.zeros_initializer(),
+                             kernel_regularizer=None, bias_regularizer=None, activity_regularizer=None,
+                             kernel_constraint=None, bias_constraint=None, trainable=True,
+                             name=None, reuse=None)
+    print('input shape after 2nd linear layer %s' % inputs.get_shape().as_list())
+    return inputs
+

@@ -1,7 +1,8 @@
 import tensorflow as tf
 # from data_provider2 import get_split
 from tf_utils import start_interactive_session, set_gpu
-from models import RegressionModel
+from model_utils import temp_conv_network
+from losses import batch_masked_concordance_cc
 import numpy as np
 
 set_gpu(5)
@@ -27,15 +28,15 @@ options = {
     'label_gaussian_noise_std':0.0,
     
     'has_encoder': True,
-    'encoder_num_layers': 3,  # number of hidden layers in encoder lstm
+    'encoder_num_layers': 1,  # number of hidden layers in encoder lstm
     'residual_encoder': False,  # 
     'encoder_num_hidden': 256,  # number of hidden units in encoder lstm
     'encoder_dropout_keep_prob' : 1.0,  # probability of keeping neuron, deprecated
     'encoder_layer_norm': True,
     'bidir_encoder': False,
     
-    'has_decoder': False,
-    'decoder_num_layers': 3,  # number of hidden layers in decoder lstm
+    'has_decoder': True,
+    'decoder_num_layers': 1,  # number of hidden layers in decoder lstm
     'residual_decoder': False,  # 
     'decoder_num_hidden': 256,  # number of hidden units in decoder lstm
     'encoder_state_as_decoder_init' : False,  # bool. encoder state is used for decoder init state, else zero state
@@ -55,7 +56,7 @@ options = {
     'ccc_loss_per_batch': False,  # set True for PT loss (mean per component/batch), False (mean per component per sample)
     'reg_constant': 0.00,
     'max_grad_norm': 5.0, 
-    'num_epochs': 10,  # number of epochs over dataset for training
+    'num_epochs': 5,  # number of epochs over dataset for training
     'start_epoch': 1,  # epoch to start
     'reset_global_step': False,
     'train_era_step': 1,  # start train step during current era, value of 0 saves the current model
@@ -68,15 +69,15 @@ options = {
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
    
     'restore': False, # boolean. restore model from disk
-    'restore_model': "/data/mat10/Projects/audio23d/Models/no_decoder/seq2seq_model1_nodec_era1_epoch9_step877",
+    'restore_model': "/data/mat10/Projects/audio23d/Models/bahdanau/seq2seq_model1_bahdanau_era1_epoch9_step877",
 
     'save': True,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/Projects/audio23d/Models/no_decoder/seq2seq_exccc_nodec_era1",
+    'save_model': "/data/mat10/Projects/audio23d/Models/bahdanau/seq2seq_exccc_bahdanau_era1",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
 
-    'save_graph': True,
-    'save_dir': "/data/mat10/Projects/audio23d/Models/no_decoder/summaries",
+    'save_graph': False,
+    'save_dir': "/data/mat10/Projects/audio23d/Models/summaries",
     'save_summaries': True
 
           }
@@ -87,12 +88,12 @@ options = {
 #label_lengths, mfcc_lengths, decoder_inputs_lengths = get_split(options)
 #raw_audio, mfcc, label, num_examples, word = get_split()
 
-model = RegressionModel(options)
+#model = RegressionModel(options)
 
 sess = start_interactive_session()
 
-#if options['save_graph']:
-#    model.save_graph(sess)
+if options['save_graph']:
+    model.save_graph(sess)
 
 if options['restore']:
     model.restore_model(sess)
@@ -100,7 +101,7 @@ if options['restore']:
 if options['is_training']:
     model.train(sess)
 else:
-    loss = model.predict(sess, num_steps=None, return_words=True)
+    loss = model.predict(sess, return_words=True)
 
 #pred = model.predict_from_array(sess, feed_dict)
 
