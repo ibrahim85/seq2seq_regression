@@ -15,9 +15,9 @@ options = {
     'split_name': 'devel',
     'data_split': "split3",
     'use_rmse': False,
-    'batch_size': 1,   # number of examples in queue either for training or inference
+    'batch_size': 100,   # number of examples in queue either for training or inference
     'reverse_time': False,
-    'shuffle': False,
+    'shuffle': True,
     'random_crop': False,
     'standardize_inputs_and_labels': True,
     'mfcc_num_features': 20,  # 20,
@@ -98,5 +98,5 @@ if options['restore']:
 
 if options['is_training']:
     model.train(sess)
-else:
-    loss = model.eval(sess, return_words=True)
+#else:
+    #loss = model.eval(sess)#, return_words=True)

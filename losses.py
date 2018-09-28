@@ -11,7 +11,8 @@ def masked_loss(values_in, loss_fun):
 
 def batch_masked_loss(values_in, loss_fun, options, return_mean=True):
     predictions, ground_truths, mask = values_in
-    max_label_len, label_dim = tf.shape(ground_truths)[1:]
+    max_label_len = tf.shape(ground_truths)[1]
+    label_dim = tf.shape(ground_truths)[-1]
     # mask = tf.expand_dims(mask, -1)
     # multiply = tf.constant([1, 1, options['num_classes']])
     # mask = tf.tile(mask, multiply)
