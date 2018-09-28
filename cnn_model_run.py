@@ -6,7 +6,7 @@ from model_utils import temp_conv_network
 from losses import batch_masked_concordance_cc
 import numpy as np
 
-set_gpu(8)
+set_gpu(7)
 
 options = {
     'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
@@ -15,7 +15,7 @@ options = {
     'split_name': 'train',
     'data_split': "split3",
     'use_rmse': False,
-    'batch_size': 1,   # number of examples in queue either for training or inference
+    'batch_size': 22,   # number of examples in queue either for training or inference
     'reverse_time': False,
     'shuffle': True,
     'random_crop': False,
@@ -54,11 +54,11 @@ options = {
     'max_in_len': None,  # maximum number of frames in input videos
     'max_out_len': None,  # maximum number of characters in output text
 
-    'loss_fun': "concordance_cc",
+    'loss_fun': "mse",  # "concordance_cc",
     #'ccc_loss_per_batch': False,  # set True for PT loss (mean per component/batch), False (mean per component per sample)
     'reg_constant': 0.00,
     'max_grad_norm': 10.0, 
-    'num_epochs': 3,  # number of epochs over dataset for training
+    'num_epochs': 5,  # number of epochs over dataset for training
     'start_epoch': 1,  # epoch to start
     'reset_global_step': False,
     'train_era_step': 1,  # start train step during current era, value of 0 saves the current model
@@ -74,9 +74,9 @@ options = {
     'restore_model': "/data/mat10/Projects/audio23d/Models/1dconv/seq2seq_exccc_1dconv_model2_era1",
 
     'save': True,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/Projects/audio23d/Models/1dconv/seq2seq_exmse_1dconv_model2_era1",
+    'save_model': "/data/mat10/Projects/audio23d/Models/1dconv/seq2seq_exccc_1dconv_model2_era1",
     'num_models_saved': 100,  # total number of models saved
-    'save_steps': 200,  # every how many steps to save model
+    'save_steps': 1500,  # every how many steps to save model
 
     'save_graph': False,
     'save_dir': "/data/mat10/Projects/audio23d/Models/1dconv/summaries",

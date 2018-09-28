@@ -48,6 +48,7 @@ def batch_masked_loss(values_in, loss_fun, options, return_mean=True):
                    tf.reshape(mask, (-1, label_dim))),
             dtype=tf.float32,
             parallel_iterations=10)
+        train_losses = tf.boolean_mask(train_losses, tf.logical_not(tf.is_nan(train_losses)))
     if return_mean:
         return tf.reduce_mean(train_losses)
     return train_losses
