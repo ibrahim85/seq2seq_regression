@@ -3,7 +3,7 @@ from __future__ import division
 from __future__ import print_function
 import tensorflow as tf
 from model_utils import stacked_lstm, blstm_encoder, get_attention_cell, get_decoder_init_state, lengths_mask, \
-    temp_conv_network, RNMTplus_net
+    temp_conv_network, temp_conv_network2, RNMTplus_net
 from metrics import char_accuracy, flatten_list
 from losses import batch_masked_concordance_cc, batch_masked_mse, L2loss
 from data_provider import get_split, get_split2, get_split3
@@ -395,7 +395,7 @@ class CNNModel(BasicModel):
     def build_train_graph(self):
         if self.options['has_encoder']:
             with tf.variable_scope('encoder'):
-                self.encoder_out = temp_conv_network(self.encoder_inputs, self.options)
+                self.encoder_out = temp_conv_network2(self.encoder_inputs, self.options)
                 print("Encoder out:", self.encoder_out)
         else:
             self.encoder_out = self.encoder_inputs

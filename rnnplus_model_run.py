@@ -8,15 +8,15 @@ set_gpu(5)
 
 options = {
     'data_root_dir':  "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  #
-    'is_training' : True,
-    'split_name': 'train',
+    'is_training' : False,
+    'split_name': 'devel',
     'data_split': "split3",
     'use_rmse': False,
-    'batch_size': 512,   # number of examples in queue either for training or inference
+    'batch_size': 1,   # number of examples in queue either for training or inference
     'reverse_time': False,
-    'shuffle': True,
+    'shuffle': False,
     'random_crop': False,
-    'standardize_inputs and labels': True,
+    'standardize_inputs_and_labels': True,
     'mfcc_num_features': 20,  # 20,
     'raw_audio_num_features': 533,  # 256,
     'num_classes': 28,  # number of output classes 29 = |a-z, " ", <sos>, <eos>|
@@ -59,17 +59,17 @@ options = {
     'train_era_step': 1,  # start train step during current era, value of 0 saves the current model
     
     'learn_rate': 0.001,  # initial learn rate corresponing top global step 0, or max lr for Adam
-    'learn_rate_decay': 0.9,
+    'learn_rate_decay': 0.95,
     'staircase_decay': True,
-    'decay_steps': 0.75,
+    'decay_steps': 0.5,
 
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
    
-    'restore': False, # boolean. restore model from disk
-    'restore_model': "/data/mat10/Projects/audio23d/Models/bahdanau/seq2seq_model1_bahdanau_era1_epoch9_step877",
+    'restore': True, # boolean. restore model from disk
+    'restore_model': "/data/mat10/Projects/audio23d/Models/rnnplus/seq2seq_exccc_rnnplus_era2_epoch1_step877",
 
     'save': True,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/Projects/audio23d/Models/rnnplus/seq2seq_exccc_rnnplus_era1",
+    'save_model': "/data/mat10/Projects/audio23d/Models/rnnplus/seq2seq_exccc_rnnplus_era3",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
 

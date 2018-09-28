@@ -340,7 +340,7 @@ def lengths_mask(inputs, inputs_lengths, options):
     return mask
 
 
-def temp_conv_block(inputs, out_dim, training):
+def temp_conv_block(inputs, out_dim, training, final_layer=False):
     inputs = tf.layers.conv1d(inputs=inputs, filters=out_dim, kernel_size=3, strides=1,
                               padding='same',  # 'same'
                               data_format='channels_last', dilation_rate=1, activation=None,
@@ -350,7 +350,8 @@ def temp_conv_block(inputs, out_dim, training):
                               kernel_constraint=None, bias_constraint=None, trainable=True,
                               name=None, reuse=None)
     # print(inputs.get_shape())
-    inputs = tf.layers.batch_normalization(inputs,
+    if not final_layer:
+        inputs = tf.layers.batch_normalization(inputs,
                               axis=-1,
                               momentum=0.99,
                               epsilon=0.001,
@@ -372,7 +373,7 @@ def temp_conv_block(inputs, out_dim, training):
                               renorm_clipping=None,
                               renorm_momentum=0.99,
                               fused=None)
-    inputs = tf.nn.relu(inputs)
+        inputs = tf.nn.relu(inputs)
     return inputs
 
 
@@ -424,6 +425,21 @@ def temp_conv_network(inputs, options):
     print('input shape after 2nd linear layer %s' % inputs.get_shape().as_list())
     return inputs
 
+
+def temp_conv_network2(inputs, options):
+    """
+    does not include dense output network but instead has a 1dconv final layer with
+    no normalization or nonlinearity   
+    """
+    training = options['is_training']
+    input_dim = int(inputs.get_shape()[-1])  # .as_list()
+    print('Temporal convolution')
+    print('input shape %s' % inputs.get_shape())
+    for i, layer_dim in enumerate(options['1dcnn_features_dims']):
+        inputs = temp_conv_block(inputs, layer_dim, training)
+        print('input shape after %d temp conv layer %s' % (i, inputs.get_shape().as_list()))
+    inputs = temp_conv_block(inputs, options['num_classes'], training, final_layer=True)
+    return inputs
 
 def bilstm(inputs, options):
     inputs_reverse = tf.reverse(inputs, axis=[1])
