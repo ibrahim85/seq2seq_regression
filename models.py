@@ -452,25 +452,31 @@ class CNNModel(BasicModel):
                 self.train_loss = batch_masked_mse(
                     (self.decoder_outputs, self.target_labels, self.mask), self.options)
             elif self.options['loss_fun'] is 'concordance_cc':
-                # self.train_loss = batch_masked_concordance_cc(
-                #     (self.decoder_outputs, self.target_labels, self.mask), self.options)
+                #self.predictions = tf.reshape(
+                #    tf.transpose(self.decoder_outputs, (0, 2, 1)), (-1, self.max_label_len))
+                #self.ground_truth = tf.reshape(
+                #    tf.transpose(self.target_labels, (0, 2, 1)), (-1, self.max_label_len))
+                #self.mask = tf.reshape(
+                #    tf.transpose(self.mask, (0, 2, 1)), (-1, self.max_label_len))
+                self.train_loss = batch_masked_concordance_cc(
+                     (self.decoder_outputs, self.target_labels, self.mask), self.options)
                 ###
-                self.max_label_len = tf.shape(self.target_labels)[1]
-                self.label_dim = tf.shape(self.target_labels)[-1]
-                self.predictions = tf.reshape(
-                    tf.transpose(self.decoder_outputs, (0, 2, 1)), (-1, self.max_label_len))
-                self.ground_truth = tf.reshape(
-                    tf.transpose(self.target_labels, (0, 2, 1)), (-1, self.max_label_len))
-                self.mask = tf.reshape(
-                    tf.transpose(self.mask, (0, 2, 1)), (-1, self.max_label_len))
-                self.train_losses = tf.map_fn(
-                    fn=masked_concordance_cc,
-                    elems=(self.predictions,
-                           self.ground_truth,
-                           self.mask),
-                    dtype=tf.float32,
-                    parallel_iterations=10)
-                self.train_loss = tf.reduce_mean(self.train_losses)
+                #self.max_label_len = tf.shape(self.target_labels)[1]
+                #self.label_dim = tf.shape(self.target_labels)[-1]
+                #self.predictions = tf.reshape(
+                #    tf.transpose(self.decoder_outputs, (0, 2, 1)), (-1, self.max_label_len))
+                #self.ground_truth = tf.reshape(
+                #    tf.transpose(self.target_labels, (0, 2, 1)), (-1, self.max_label_len))
+                #self.mask = tf.reshape(
+                #    tf.transpose(self.mask, (0, 2, 1)), (-1, self.max_label_len))
+                #self.train_losses = tf.map_fn(
+                #    fn=masked_concordance_cc,
+                #    elems=(self.predictions,
+                #           self.ground_truth,
+                #           self.mask),
+                #    dtype=tf.float32,
+                #    parallel_iterations=10)
+                #self.train_loss = tf.reduce_mean(self.train_losses)
                 ###
             self.l2_loss = L2loss(self.options['reg_constant'])
             self.train_loss = self.train_loss + self.l2_loss

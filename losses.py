@@ -31,6 +31,8 @@ def batch_masked_loss(values_in, loss_fun, options, return_mean=True):
         #    for n in range(options['batch_size'])]
     if options['loss_fun'] == "concordance_cc":
         predictions = tf.transpose(predictions, (0, 2, 1))
+        ground_truths = tf.transpose(ground_truths, (0, 2, 1))
+        mask = tf.transpose(mask, (0, 2, 1))
         train_losses = tf.map_fn(
             fn=loss_fun,
             elems=(tf.reshape(predictions, (-1, max_label_len)),

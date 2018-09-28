@@ -6,7 +6,7 @@ from model_utils import temp_conv_network
 from losses import batch_masked_concordance_cc
 import numpy as np
 
-set_gpu(7)
+set_gpu(0)
 
 options = {
     'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
