@@ -6,7 +6,7 @@ from model_utils import temp_conv_network
 from losses import batch_masked_concordance_cc
 import numpy as np
 
-set_gpu(0)
+set_gpu(8)
 
 options = {
     'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
@@ -15,7 +15,7 @@ options = {
     'split_name': 'train',
     'data_split': "split3",
     'use_rmse': False,
-    'batch_size': 512,   # number of examples in queue either for training or inference
+    'batch_size': 1,   # number of examples in queue either for training or inference
     'reverse_time': False,
     'shuffle': True,
     'random_crop': False,
@@ -74,7 +74,7 @@ options = {
     'restore_model': "/data/mat10/Projects/audio23d/Models/1dconv/seq2seq_exccc_1dconv_model2_era1",
 
     'save': True,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/Projects/audio23d/Models/1dconv/seq2seq_exccc_1dconv_model2_era1",
+    'save_model': "/data/mat10/Projects/audio23d/Models/1dconv/seq2seq_exmse_1dconv_model2_era1",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': 200,  # every how many steps to save model
 
