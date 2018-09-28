@@ -457,12 +457,17 @@ class CNNModel(BasicModel):
                 ###
                 self.max_label_len = tf.shape(self.target_labels)[1]
                 self.label_dim = tf.shape(self.target_labels)[-1]
-                self.predictions = tf.transpose(self.decoder_outputs, (0, 2, 1))
+                self.predictions = tf.reshape(
+                    tf.transpose(self.decoder_outputs, (0, 2, 1)), (-1, self.max_label_len))
+                self.ground_truth = tf.reshape(
+                    tf.transpose(self.target_labels, (0, 2, 1)), (-1, self.max_label_len))
+                self.mask = tf.reshape(
+                    tf.transpose(self.mask, (0, 2, 1)), (-1, self.max_label_len))
                 self.train_losses = tf.map_fn(
                     fn=masked_concordance_cc,
-                    elems=(tf.reshape(self.predictions, (-1, self.max_label_len)),
-                           tf.reshape(self.target_labels, (-1, self.max_label_len)),
-                           tf.reshape(self.mask, (-1, self.max_label_len))),
+                    elems=(self.predictions,
+                           self.ground_truth,
+                           self.mask),
                     dtype=tf.float32,
                     parallel_iterations=10)
                 self.train_loss = tf.reduce_mean(self.train_losses)
