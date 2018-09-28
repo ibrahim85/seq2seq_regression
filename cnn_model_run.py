@@ -55,7 +55,7 @@ options = {
     'max_out_len': None,  # maximum number of characters in output text
 
     'loss_fun': "concordance_cc",
-    'ccc_loss_per_batch': False,  # set True for PT loss (mean per component/batch), False (mean per component per sample)
+    #'ccc_loss_per_batch': False,  # set True for PT loss (mean per component/batch), False (mean per component per sample)
     'reg_constant': 0.00,
     'max_grad_norm': 10.0, 
     'num_epochs': 3,  # number of epochs over dataset for training
@@ -71,7 +71,7 @@ options = {
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
    
     'restore': True, # boolean. restore model from disk
-    'restore_model': "/data/mat10/Projects/audio23d/Models/1dconv/seq2seq_exmse_1dconv_model2_era1_final",
+    'restore_model': "/data/mat10/Projects/audio23d/Models/1dconv/seq2seq_exccc_1dconv_model2_era1_epoch2_step721",
 
     'save': True,  # boolean. save model to disk during current era
     'save_model': "/data/mat10/Projects/audio23d/Models/1dconv/seq2seq_exccc_1dconv_model2_era1",
