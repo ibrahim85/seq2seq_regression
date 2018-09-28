@@ -11,11 +11,11 @@ set_gpu(7)
 options = {
     'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
 
-    'is_training' : False,
-    'split_name': 'devel',
+    'is_training' : True,
+    'split_name': 'train',
     'data_split': "split3",
     'use_rmse': False,
-    'batch_size': 100,   # number of examples in queue either for training or inference
+    'batch_size': 512,   # number of examples in queue either for training or inference
     'reverse_time': False,
     'shuffle': True,
     'random_crop': False,
@@ -29,7 +29,7 @@ options = {
     'label_gaussian_noise_std':0.0,
     
     'has_encoder': True,
-    '1dcnn_features_dims': [64, 128, 256, 256],
+    '1dcnn_features_dims': [64, 128, 256],
     # 'encoder_num_layers': 1,  # number of hidden layers in encoder lstm
     # 'residual_encoder': False,  #
     # 'encoder_num_hidden': 256,  # number of hidden units in encoder lstm
@@ -70,8 +70,8 @@ options = {
 
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
    
-    'restore': True, # boolean. restore model from disk
-    'restore_model': "/data/mat10/Projects/audio23d/Models/1dconv/seq2seq_exccc_1dconv_model2_era1_epoch2_step721",
+    'restore': False, # boolean. restore model from disk
+    'restore_model': "/data/mat10/Projects/audio23d/Models/1dconv/seq2seq_exccc_1dconv_model2_era1",
 
     'save': True,  # boolean. save model to disk during current era
     'save_model': "/data/mat10/Projects/audio23d/Models/1dconv/seq2seq_exccc_1dconv_model2_era1",
@@ -98,5 +98,5 @@ if options['restore']:
 
 if options['is_training']:
     model.train(sess)
-#else:
-    #loss = model.eval(sess)#, return_words=True)
+else:
+    loss = model.eval(sess)#, return_words=True)
