@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import tensorflow as tf
 import numpy as np
+import pandas as pd
 
 import attention_layer
 import ffn_layer
@@ -29,8 +30,8 @@ class LayerNormalization(tf.layers.Layer):
 
   def __call__(self, x, epsilon=1e-6):
     self.build()
-    mean = tf.reduce_mean(x, axis=[-1], keepdims=True)
-    variance = tf.reduce_mean(tf.square(x - mean), axis=[-1], keepdims=True)
+    mean = tf.reduce_mean(x, axis=[-1], keep_dims=True)
+    variance = tf.reduce_mean(tf.square(x - mean), axis=[-1], keep_dims=True)
     norm_x = (x - mean) * tf.rsqrt(variance + epsilon)
     return norm_x * self.scale + self.bias
 

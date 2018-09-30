@@ -12,29 +12,43 @@ def masked_loss(values_in, loss_fun):
 def batch_masked_loss(values_in, loss_fun, options, return_mean=True):
     predictions, ground_truths, mask = values_in
     max_label_len = tf.shape(ground_truths)[1]
+    label_dim = tf.shape(ground_truths)[-1]
     # mask = tf.expand_dims(mask, -1)
     # multiply = tf.constant([1, 1, options['num_classes']])
     # mask = tf.tile(mask, multiply)
-    if options['ccc_loss_per_batch']:
-        train_losses = [loss_fun(
-            (tf.reshape(predictions[:, :, i], (-1,)),
-             tf.reshape(ground_truths[:, :, i], (-1,)),
-             tf.reshape(mask[:, :, i], (-1,))))
-            for i in range(options['num_classes'])]
-    else:  # CCC loss per example per component over time
+    #if options['ccc_loss_per_batch']:
+    #    train_losses = [loss_fun(
+    #        (tf.reshape(predictions[:, :, i], (-1,)),
+    #         tf.reshape(ground_truths[:, :, i], (-1,)),
+    #         tf.reshape(mask[:, :, i], (-1,))))
+    #        for i in range(options['num_classes'])]
+    #else:  # CCC loss per example per component over time
         #train_losses = [[loss_fun(
         #    (tf.reshape(predictions[n, :, i], (-1,)),
         #     tf.reshape(ground_truths[n, :, i], (-1,)),
         #     tf.reshape(mask[n, :, i], (-1,))))
         #    for i in range(options['num_classes'])]
         #    for n in range(options['batch_size'])]
+    if options['loss_fun'] == "concordance_cc":
+        predictions = tf.transpose(predictions, (0, 2, 1))
+        ground_truths = tf.transpose(ground_truths, (0, 2, 1))
+        mask = tf.transpose(mask, (0, 2, 1))
         train_losses = tf.map_fn(
-            fn=loss_fun, 
+            fn=loss_fun,
             elems=(tf.reshape(predictions, (-1, max_label_len)),
                    tf.reshape(ground_truths, (-1, max_label_len)),
                    tf.reshape(mask, (-1, max_label_len))),
             dtype=tf.float32,
             parallel_iterations=10)
+    elif options['loss_fun'] == "mse":
+        train_losses = tf.map_fn(
+            fn=loss_fun,
+            elems=(tf.reshape(predictions, (-1, label_dim)),
+                   tf.reshape(ground_truths, (-1, label_dim)),
+                   tf.reshape(mask, (-1, label_dim))),
+            dtype=tf.float32,
+            parallel_iterations=10)
+        train_losses = tf.boolean_mask(train_losses, tf.logical_not(tf.is_nan(train_losses)))
     if return_mean:
         return tf.reduce_mean(train_losses)
     return train_losses
@@ -80,4 +94,3 @@ def batch_masked_mse(values_in, options, return_mean=True):
 def L2loss(reg_constant):
     return reg_constant * \
            tf.add_n([tf.nn.l2_loss(tf.cast(v, tf.float32)) for v in tf.trainable_variables()])
-

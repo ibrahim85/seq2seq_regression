@@ -27,14 +27,14 @@ options = {
     'label_gaussian_noise_std':0.0,
     
     'has_encoder': True,
-    'encoder_num_layers': 1,  # number of hidden layers in encoder lstm
+    'encoder_num_layers': 3,  # number of hidden layers in encoder lstm
     'residual_encoder': False,  # 
     'encoder_num_hidden': 256,  # number of hidden units in encoder lstm
     'encoder_dropout_keep_prob' : 1.0,  # probability of keeping neuron, deprecated
     'encoder_layer_norm': True,
     'bidir_encoder': False,
     
-    'has_decoder': True,
+    'has_decoder': False,
     'decoder_num_layers': 1,  # number of hidden layers in decoder lstm
     'residual_decoder': False,  # 
     'decoder_num_hidden': 256,  # number of hidden units in decoder lstm
@@ -61,17 +61,17 @@ options = {
     'train_era_step': 1,  # start train step during current era, value of 0 saves the current model
     
     'learn_rate': 0.001,  # initial learn rate corresponing top global step 0, or max lr for Adam
-    'learn_rate_decay': 0.95,
+    'learn_rate_decay': 0.9,
     'staircase_decay': True,
     'decay_steps': 0.5,
 
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
    
     'restore': True, # boolean. restore model from disk
-    'restore_model': "/data/mat10/Projects/audio23d/Models/bahdanau/seq2seq_exccc_bahdanau_era1_epoch2_step877",
+    'restore_model': "/data/mat10/Projects/audio23d/Models/no_decoder/seq2seq_exccc_nodec_era1",
 
     'save': True,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/Projects/audio23d/Models/bahdanau/seq2seq_exccc_bahdanau_era2",
+    'save_model': "/data/mat10/Projects/audio23d/Models/no_decoder/seq2seq_exccc_nodec_era2",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
 

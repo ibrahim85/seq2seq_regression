@@ -390,6 +390,10 @@ def get_split3(options):
     rmse = tf.reshape(rmse, (batch_size, -1, 1))
     #raw_audio = tf.reshape(raw_audio, (batch_size, -1, 735))
 
+    label_lengths = length(label)
+    mfcc_lengths = length(frame_mfcc)
+    decoder_inputs_lengths = label_lengths
+
     # standardize data per feature
     # for now only for frame_mfcc and label
     if options['standardize_inputs_and_labels']:
@@ -439,9 +443,9 @@ def get_split3(options):
 
     target_labels = label
 
-    label_lengths = length(target_labels)
-    mfcc_lengths = length(frame_mfcc)
-    decoder_inputs_lengths = length(decoder_inputs) + 1
+    # label_lengths = length(target_labels)
+    # mfcc_lengths = length(frame_mfcc)
+    # decoder_inputs_lengths = length(decoder_inputs) + 1
     #rmse_lengths = length(rmse)
 
     return encoder_inputs, target_labels, num_examples, word, decoder_inputs,\
