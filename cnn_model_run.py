@@ -15,7 +15,7 @@ options = {
     'split_name': 'devel',
     'data_split': "split3",
     'use_rmse': False,
-    'batch_size': 100,   # number of examples in queue either for training or inference
+    'batch_size': 1,   # number of examples in queue either for training or inference
     'reverse_time': False,
     'shuffle': False,
     'random_crop': False,
