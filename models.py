@@ -395,6 +395,7 @@ class CNNModel(BasicModel):
     def build_train_graph(self):
         if self.options['has_encoder']:
             with tf.variable_scope('encoder'):
+                #self.encoder_out = temp_conv_network(self.encoder_inputs, self.options)
                 self.encoder_out = temp_conv_network2(self.encoder_inputs, self.options)
                 print("Encoder out:", self.encoder_out)
         else:
