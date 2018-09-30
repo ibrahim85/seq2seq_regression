@@ -376,6 +376,15 @@ def temp_conv_block(inputs, out_dim, training, final_layer=False):
         inputs = tf.nn.relu(inputs)
     return inputs
 
+def temp_res_conv_block(inputs, out_dim, training):
+    """
+    2x conv layers of size out_dim, batch norm and relu followed by adding initial input
+    """
+    inputs0 = tf.identity(inputs)
+    inputs = temp_conv_block(inputs, out_dim, training, final_layer=False)
+    inputs = temp_conv_block(inputs, out_dim, training, final_layer=False)
+    return inputs + inputs0
+
 
 def temp_conv_network(inputs, options):
     training = options['is_training']
@@ -439,6 +448,28 @@ def temp_conv_network2(inputs, options):
         inputs = temp_conv_block(inputs, layer_dim, training)
         print('input shape after %d temp conv layer %s' % (i, inputs.get_shape().as_list()))
     inputs = temp_conv_block(inputs, options['num_classes'], training, final_layer=True)
+    return inputs
+
+def temp_res_conv_network(inputs, options):
+    """
+    does not include dense output network but instead has a 1dconv final layer with
+    no normalization or nonlinearity
+    """
+    training = options['is_training']
+    input_dim = int(inputs.get_shape()[-1])  # .as_list()
+    print('Temporal convolution')
+    print('input shape %s' % inputs.get_shape())
+    for i, layer_dim in enumerate(options['1dcnn_features_dims']):
+        inputs = temp_conv_block(inputs, layer_dim, training)
+        inputs = temp_res_conv_block(inputs, layer_dim, training)
+        print('input shape after %d temp conv layer %s' % (i, inputs.get_shape().as_list()))
+    #inputs = temp_conv_block(inputs, options['num_classes'], training, final_layer=True)
+    inputs = tf.layers.dense(inputs=inputs, units=options['num_classes'], activation=None, use_bias=True,
+                             kernel_initializer=tf.keras.initializers.he_normal(seed=None),
+                             bias_initializer=tf.zeros_initializer(),
+                             kernel_regularizer=None, bias_regularizer=None, activity_regularizer=None,
+                             kernel_constraint=None, bias_constraint=None, trainable=True,
+                             name=None, reuse=None)
     return inputs
 
 def bilstm(inputs, options):

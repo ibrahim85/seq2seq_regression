@@ -9,10 +9,10 @@ import numpy as np
 set_gpu(7)
 
 options = {
-    'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
+    'data_root_dir': "/home/mat10/Documents/Projects/audio23d/test_models/example_data",  # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
 
-    'is_training' : False,
-    'split_name': 'devel',
+    'is_training' : True,
+    'split_name': "example",  # 'devel',
     'data_split': "split3",
     'use_rmse': False,
     'batch_size': 1,   # number of examples in queue either for training or inference
@@ -24,10 +24,10 @@ options = {
     'raw_audio_num_features': 533,  # 256,
     'num_classes': 28,  # number of output classes 29 = |a-z, " ", <sos>, <eos>|
     'max_out_len_multiplier': 1.0,  # max_out_len = max_out_len_multiplier * max_in_len
-    
+
     'mfcc_gaussian_noise_std': 0.0,  # 0.05,
     'label_gaussian_noise_std':0.0,
-    
+
     'has_encoder': True,
     '1dcnn_features_dims': [64, 128, 256],
     # 'encoder_num_layers': 1,  # number of hidden layers in encoder lstm
@@ -36,10 +36,10 @@ options = {
     # 'encoder_dropout_keep_prob' : 1.0,  # probability of keeping neuron, deprecated
     # 'encoder_layer_norm': True,
     # 'bidir_encoder': False,
-    
+
     'has_decoder': False,
     'decoder_num_layers': 1,  # number of hidden layers in decoder lstm
-    'residual_decoder': False,  # 
+    'residual_decoder': False,  #
     'decoder_num_hidden': 256,  # number of hidden units in decoder lstm
     'encoder_state_as_decoder_init' : False,  # bool. encoder state is used for decoder init state, else zero state
     'decoder_layer_norm': True,
@@ -57,30 +57,30 @@ options = {
     'loss_fun': "concordance_cc",
     #'ccc_loss_per_batch': False,  # set True for PT loss (mean per component/batch), False (mean per component per sample)
     'reg_constant': 0.00,
-    'max_grad_norm': 10.0, 
-    'num_epochs': 5,  # number of epochs over dataset for training
+    'max_grad_norm': 10.0,
+    'num_epochs': 500,  # number of epochs over dataset for training
     'start_epoch': 1,  # epoch to start
     'reset_global_step': False,
     'train_era_step': 1,  # start train step during current era, value of 0 saves the current model
-    
+
     'learn_rate': 0.001,  # initial learn rate corresponing top global step 0, or max lr for Adam
-    'learn_rate_decay': 0.95,
+    'learn_rate_decay': 0.99,
     'staircase_decay': True,
-    'decay_steps': 0.5,
+    'decay_steps': 10.,
 
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
-   
-    'restore': True, # boolean. restore model from disk
-    'restore_model': "/data/mat10/Projects/audio23d/Models/1dconv/seq2seq_exccc_1dconv_model2_era1_final",
 
-    'save': True,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/Projects/audio23d/Models/1dconv/seq2seq_exccc_1dconv_model4_era1",
+    'restore': False, # boolean. restore model from disk
+    'restore_model': "/home/mat10/Documents/Projects/audio23d/test_models/models/model1_test_epoch1_step4",  # "/data/mat10/Projects/audio23d/Models/1dconv/seq2seq_exccc_1dconv_model2_era1_final",
+
+    'save': False,  # boolean. save model to disk during current era
+    'save_model': "/home/mat10/Documents/Projects/audio23d/test_models/models/model1_test",  # ""/data/mat10/Projects/audio23d/Models/1dconv/seq2seq_exccc_1dconv_model4_era1",
     'num_models_saved': 100,  # total number of models saved
-    'save_steps': 1500,  # every how many steps to save model
+    'save_steps': None,  # every how many steps to save model
 
     'save_graph': False,
     'save_dir': "/data/mat10/Projects/audio23d/Models/1dconv/summaries",
-    'save_summaries': True
+    'save_summaries': False
 
           }
 
@@ -100,3 +100,6 @@ if options['is_training']:
     model.train(sess)
 else:
     loss = model.eval(sess)#, return_words=True)
+
+
+
