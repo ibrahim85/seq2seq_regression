@@ -1,15 +1,15 @@
 import tensorflow as tf
 # from data_provider2 import get_split
 from tf_utils import start_interactive_session, set_gpu
-from models import RNNplusModel
+from rnn_models import RNNplusModel
 import numpy as np
 
 set_gpu(7)
 
 options = {
-    'data_root_dir':  "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  #
-    'is_training' : False,
-    'split_name': 'devel',
+    'data_root_dir':  "/home/mat10/Documents/Projects/audio23d/test_models/example_data",  #"/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  #
+    'is_training' : True,
+    'split_name': 'example',
     'data_split': "split3",
     'use_rmse': False,
     'batch_size': 1,   # number of examples in queue either for training or inference
@@ -65,17 +65,17 @@ options = {
 
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
    
-    'restore': True, # boolean. restore model from disk
+    'restore': False, # boolean. restore model from disk
     'restore_model': "/data/mat10/Projects/audio23d/Models/rnnplus/seq2seq_exccc_rnnplus_era2_epoch1_step877",
 
-    'save': True,  # boolean. save model to disk during current era
+    'save': False,  # boolean. save model to disk during current era
     'save_model': "/data/mat10/Projects/audio23d/Models/rnnplus/seq2seq_exccc_rnnplus_era3",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
 
     'save_graph': False,
     'save_dir': "/data/mat10/Projects/audio23d/Models/rnnplus/summaries",
-    'save_summaries': True
+    'save_summaries': False
 
           }
 
@@ -98,7 +98,7 @@ if options['restore']:
 if options['is_training']:
     model.train(sess)
 else:
-    loss = model.predict(sess, return_words=True)
+    loss = model.eval(sess, return_words=True)
 
 #pred = model.predict_from_array(sess, feed_dict)
 

@@ -1,13 +1,13 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-import tensorflow as tf
-from model_utils import stacked_lstm, blstm_encoder
-from metrics import char_accuracy, flatten_list
-from data_provider import get_split, get_split2, get_split3
-from tqdm import tqdm
-from tensorflow.contrib.rnn import LSTMStateTuple
+
 import numpy as np
+import tensorflow as tf
+
+from data_provider import get_split, get_split2, get_split3
+from model.model_utils import stacked_lstm, blstm_encoder
+
 
 class BasicModel:
     """

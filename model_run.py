@@ -1,13 +1,13 @@
 import tensorflow as tf
 # from data_provider2 import get_split
 from tf_utils import start_interactive_session, set_gpu
-from models import RNNModel
+from rnn_models import RNNModel
 import numpy as np
 
 set_gpu(5)
 
 options = {
-    'data_root_dir': "/home/mat10/Desktop/test_models/example_data",  # enhanced",
+    'data_root_dir': "/home/mat10/Documents/Projects/audio23d/test_models/example_data",
 
     'is_training' : True,
     'split_name': 'example',
@@ -17,7 +17,7 @@ options = {
     'reverse_time': False,
     'shuffle': True,
     'random_crop': False,
-    'standardize_inputs and labels': True,
+    'standardize_inputs_and_labels': True,
     'mfcc_num_features': 20,  # 20,
     'raw_audio_num_features': 533,  # 256,
     'num_classes': 28,  # number of output classes 29 = |a-z, " ", <sos>, <eos>|

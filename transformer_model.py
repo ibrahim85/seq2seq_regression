@@ -2,16 +2,17 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import tensorflow as tf
+import attention_layer
 import numpy as np
 import pandas as pd
-
-import attention_layer
-import ffn_layer
+import tensorflow as tf
 import transformer_model_utils
-from models import BasicModel
+from basic_models import BasicModel
 from model_utils import lengths_mask
+
+import ffn_layer
 from losses import batch_masked_concordance_cc, batch_masked_mse, L2loss
+
 
 class LayerNormalization(tf.layers.Layer):
   """Applies layer normalization."""

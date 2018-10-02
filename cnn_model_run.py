@@ -1,21 +1,19 @@
-import tensorflow as tf
 # from data_provider2 import get_split
+# from models import CNNModel
+from cnn_models import CNNModel
+
 from tf_utils import start_interactive_session, set_gpu
-from models import CNNModel
-from model_utils import temp_conv_network
-from losses import batch_masked_concordance_cc
-import numpy as np
 
 set_gpu(7)
 
 options = {
-    'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
+    'data_root_dir': "/home/mat10/Documents/Projects/audio23d/test_models/example_data",  # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
 
-    'is_training' : False,
-    'split_name': "devel",  # 'devel',
+    'is_training' : True,
+    'split_name': "example",  # 'devel',
     'data_split': "split3",
     'use_rmse': False,
-    'batch_size': 1,   # number of examples in queue either for training or inference
+    'batch_size': 2,   # number of examples in queue either for training or inference
     'reverse_time': False,
     'shuffle': False,
     'random_crop': False,
@@ -70,10 +68,10 @@ options = {
 
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
 
-    'restore': True, # boolean. restore model from disk
+    'restore': False, # boolean. restore model from disk
     'restore_model': "/data/mat10/Projects/audio23d/Models/1dconv/seq2seq_exccc_1dconv_res1_batchloss_era1_epoch1_step7026",
 
-    'save': True,  # boolean. save model to disk during current era
+    'save': False,  # boolean. save model to disk during current era
     'save_model': "/data/mat10/Projects/audio23d/Models/1dconv/seq2seq_exccc_1dconv_res1_batchloss_era2",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model

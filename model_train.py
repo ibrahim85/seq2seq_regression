@@ -1,8 +1,6 @@
-import tensorflow as tf
 # from data_provider2 import get_split
+from model.basic_models import RNNModel
 from tf_utils import start_interactive_session, set_gpu
-from models import RNNModel
-import numpy as np
 
 set_gpu(5)
 
