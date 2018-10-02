@@ -4,7 +4,7 @@ from tf_utils import start_interactive_session, set_gpu
 from models import RNNplusModel
 import numpy as np
 
-set_gpu(5)
+set_gpu(7)
 
 options = {
     'data_root_dir':  "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  #

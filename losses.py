@@ -75,7 +75,27 @@ def masked_concordance_cc(values_in):
 
 
 def batch_masked_concordance_cc(values_in, options, return_mean=True):
-    return batch_masked_loss(values_in, masked_concordance_cc, options, return_mean)
+    predictions, ground_truths, mask = values_in
+    max_label_len = tf.shape(ground_truths)[1]
+    label_dim = tf.shape(ground_truths)[-1]
+    #predictions = tf.transpose(predictions, (0, 2, 1))
+    #ground_truths = tf.transpose(ground_truths, (0, 2, 1))
+    #mask = tf.transpose(mask, (0, 2, 1))
+    #train_losses = tf.map_fn(
+    #    fn=masked_concordance_cc,
+    #    elems=(tf.reshape(predictions, (-1, max_label_len)),
+    #           tf.reshape(ground_truths, (-1, max_label_len)),
+    #           tf.reshape(mask, (-1, max_label_len))),
+    #    dtype=tf.float32,
+    #    parallel_iterations=10)
+    train_losses = [masked_concordance_cc(
+        (tf.reshape(predictions[:, :, i], (-1,)), 
+         tf.reshape(ground_truths[:, :, i], (-1,)), 
+         tf.reshape(mask[:, :, i], (-1,))))
+        for i in range(options['num_classes'])] 
+    if return_mean:
+        return tf.reduce_mean(train_losses)
+    return train_losses
 
 
 def mse(prediction, ground_truth):
@@ -88,7 +108,20 @@ def masked_mse(values_in):
 
 
 def batch_masked_mse(values_in, options, return_mean=True):
-    return batch_masked_loss(values_in, masked_mse, options, return_mean)
+    predictions, ground_truths, mask = values_in
+    #max_label_len = tf.shape(ground_truths)[1]
+    label_dim = tf.shape(ground_truths)[-1]
+    train_losses = tf.map_fn(
+            fn=masked_mse,
+            elems=(tf.reshape(predictions, (-1, label_dim)),
+                   tf.reshape(ground_truths, (-1, label_dim)),
+                   tf.reshape(mask, (-1, label_dim))),
+            dtype=tf.float32,
+            parallel_iterations=10)
+    train_losses = tf.boolean_mask(train_losses, tf.logical_not(tf.is_nan(train_losses)))
+    if return_mean:
+        return tf.reduce_mean(train_losses)
+    return train_losses  # batch_masked_loss(values_in, masked_mse, options, return_mean)
 
 
 def L2loss(reg_constant):

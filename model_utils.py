@@ -464,12 +464,12 @@ def temp_res_conv_network(inputs, options):
         inputs = temp_res_conv_block(inputs, layer_dim, training)
         print('input shape after %d temp conv layer %s' % (i, inputs.get_shape().as_list()))
     #inputs = temp_conv_block(inputs, options['num_classes'], training, final_layer=True)
-    inputs = tf.layers.dense(inputs=inputs, units=options['num_classes'], activation=None, use_bias=True,
-                             kernel_initializer=tf.keras.initializers.he_normal(seed=None),
-                             bias_initializer=tf.zeros_initializer(),
-                             kernel_regularizer=None, bias_regularizer=None, activity_regularizer=None,
-                             kernel_constraint=None, bias_constraint=None, trainable=True,
-                             name=None, reuse=None)
+    #inputs = tf.layers.dense(inputs=inputs, units=options['num_classes'], activation=None, use_bias=True,
+    #                         kernel_initializer=tf.keras.initializers.he_normal(seed=None),
+    #                         bias_initializer=tf.zeros_initializer(),
+    #                         kernel_regularizer=None, bias_regularizer=None, activity_regularizer=None,
+    #                         kernel_constraint=None, bias_constraint=None, trainable=True,
+    #                         name=None, reuse=None)
     return inputs
 
 def bilstm(inputs, options):
