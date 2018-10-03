@@ -339,9 +339,9 @@ def get_split3(options):
     # delta2_frame_mfcc = tf.reshape(delta2_frame_mfcc, (20, -1))
     # delta2_frame_mfcc = tf.cast(tf.transpose(delta2_frame_mfcc, (1, 0)), tf.float32)
     #
-    # frame_melspectrogram = tf.decode_raw(features['frame_melspectrogram'], tf.float32)
-    # frame_melspectrogram = tf.reshape(frame_melspectrogram, (128, -1))
-    # frame_melspectrogram = tf.cast(tf.transpose(frame_melspectrogram, (1, 0)), tf.float32)
+    frame_melspectrogram = tf.decode_raw(features['frame_melspectrogram'], tf.float32)
+    frame_melspectrogram = tf.reshape(frame_melspectrogram, (128, -1))
+    frame_melspectrogram = tf.cast(tf.transpose(frame_melspectrogram, (1, 0)), tf.float32)
     #
     # frame_melspectrogram_overlap = tf.decode_raw(features['frame_melspectrogram_overlap'], tf.float32)
     # frame_melspectrogram_overlap = tf.reshape(frame_melspectrogram_overlap, (128, -1))
@@ -378,13 +378,14 @@ def get_split3(options):
         rmse = tf.slice(rmse, [s, 0], [e, 1])
     ##########
 
-    frame_mfcc, rmse, label, subject_id, word = tf.train.batch(
-        [frame_mfcc, rmse, label, subject_id, word], batch_size,
+    frame_mfcc, frame_melspectrogram, rmse, label, subject_id, word = tf.train.batch(
+        [frame_mfcc, frame_melspectrogram, rmse, label, subject_id, word], batch_size,
         num_threads=1, capacity=1000, dynamic_pad=True, allow_smaller_final_batch=True)
 
     label = tf.reshape(label, (batch_size, -1, num_classes))
     #mfcc = tf.reshape(mfcc, (batch_size, -1, 20))
     frame_mfcc = tf.reshape(frame_mfcc, (batch_size, -1, 20))
+    frame_melspectrogram = tf.reshape(frame_melspectrogram, (batch_size, -1, 128))
     #frame_mfcc_overlap = tf.reshape(frame_mfcc_overlap, (batch_size, -1, 20))
     #delta_frame_mfcc = tf.reshape(delta_frame_mfcc, (batch_size, -1, 20))
     rmse = tf.reshape(rmse, (batch_size, -1, 1))
@@ -433,7 +434,7 @@ def get_split3(options):
     if options['use_rmse']:
         encoder_inputs = tf.concat([frame_mfcc, rmse], axis=-1)
     else:
-        encoder_inputs = frame_mfcc
+        encoder_inputs = frame_melspectrogram  # frame_mfcc
 
     decoder_inputs = label[:, :-1, :]
     # sos_token

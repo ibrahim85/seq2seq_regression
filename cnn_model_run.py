@@ -17,7 +17,7 @@ options = {
     'reverse_time': False,
     'shuffle': False,
     'random_crop': False,
-    'standardize_inputs_and_labels': True,
+    'standardize_inputs_and_labels': False,
     'mfcc_num_features': 20,  # 20,
     'raw_audio_num_features': 533,  # 256,
     'num_classes': 28,  # number of output classes 29 = |a-z, " ", <sos>, <eos>|
@@ -27,7 +27,7 @@ options = {
     'label_gaussian_noise_std':0.0,
 
     'has_encoder': True,
-    '1dcnn_features_dims': [64, 128, 256],
+    '1dcnn_features_dims': [256, 256, 256],
     # 'encoder_num_layers': 1,  # number of hidden layers in encoder lstm
     # 'residual_encoder': False,  #
     # 'encoder_num_hidden': 256,  # number of hidden units in encoder lstm

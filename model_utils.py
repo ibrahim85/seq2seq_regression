@@ -4,20 +4,20 @@ from __future__ import print_function
 
 import tensorflow as tf
 # from helper_functions import *
-import numpy as np
-
-# import six
-# from six.moves import xrange  # pylint: disable=redefined-builtin
-from tensorflow.python.eager import context
-from tensorflow.python.framework import ops
-from tensorflow.python.framework import tensor_shape
-from tensorflow.python.layers import base
-# from tensorflow.python.layers import utils
-# from tensorflow.python.ops import array_ops
-from tensorflow.python.ops import init_ops
-# from tensorflow.python.ops import math_ops
-from tensorflow.python.ops import nn
-from tensorflow.python.ops import standard_ops
+# import numpy as np
+#
+# # import six
+# # from six.moves import xrange  # pylint: disable=redefined-builtin
+# from tensorflow.python.eager import context
+# from tensorflow.python.framework import ops
+# from tensorflow.python.framework import tensor_shape
+# from tensorflow.python.layers import base
+# # from tensorflow.python.layers import utils
+# # from tensorflow.python.ops import array_ops
+# from tensorflow.python.ops import init_ops
+# # from tensorflow.python.ops import math_ops
+# from tensorflow.python.ops import nn
+# from tensorflow.python.ops import standard_ops
 
 
 def stacked_lstm(num_layers, num_hidden, is_training, input_forw=None,
