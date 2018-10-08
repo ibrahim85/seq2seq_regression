@@ -434,7 +434,7 @@ def get_split3(options):
     if options['use_rmse']:
         encoder_inputs = tf.concat([frame_mfcc, rmse], axis=-1)
     else:
-        encoder_inputs = frame_melspectrogram  # frame_mfcc
+        encoder_inputs = frame_mfcc  # frame_melspectrogram
 
     decoder_inputs = label[:, :-1, :]
     # sos_token

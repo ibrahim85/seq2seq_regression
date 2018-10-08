@@ -1,5 +1,5 @@
 # from data_provider2 import get_split
-from model.basic_models import RNNModel
+from rnn_models import RNNModel
 from tf_utils import start_interactive_session, set_gpu
 
 set_gpu(5)
@@ -10,29 +10,29 @@ options = {
     'is_training' : True,
     'split_name': 'train',
     'data_split': "split3",
-    'use_rmse': False,
-    'batch_size': 512,   # number of examples in queue either for training or inference
+    'use_rmse': True,
+    'batch_size': 50,   # number of examples in queue either for training or inference
     'reverse_time': False,
     'shuffle': True,
     'random_crop': False,
-    'standardize_inputs_and_labels': True,
+    'standardize_inputs_and_labels': False,
     'mfcc_num_features': 20,  # 20,
     'raw_audio_num_features': 533,  # 256,
     'num_classes': 28,  # number of output classes 29 = |a-z, " ", <sos>, <eos>|
     'max_out_len_multiplier': 1.0,  # max_out_len = max_out_len_multiplier * max_in_len
     
-    'mfcc_gaussian_noise_std': 0.0,  # 0.05,
-    'label_gaussian_noise_std':0.0,
+    'mfcc_gaussian_noise_std': 0.05,
+    'label_gaussian_noise_std':0.05,
     
     'has_encoder': True,
-    'encoder_num_layers': 1,  # number of hidden layers in encoder lstm
+    'encoder_num_layers': 3,  # number of hidden layers in encoder lstm
     'residual_encoder': False,  # 
     'encoder_num_hidden': 256,  # number of hidden units in encoder lstm
     'encoder_dropout_keep_prob' : 1.0,  # probability of keeping neuron, deprecated
     'encoder_layer_norm': True,
     'bidir_encoder': False,
     
-    'has_decoder': True,
+    'has_decoder': False,
     'decoder_num_layers': 1,  # number of hidden layers in decoder lstm
     'residual_decoder': False,  # 
     'decoder_num_hidden': 256,  # number of hidden units in decoder lstm
@@ -59,19 +59,19 @@ options = {
     'train_era_step': 1,  # start train step during current era, value of 0 saves the current model
     
     'learn_rate': 0.001,  # initial learn rate corresponing top global step 0, or max lr for Adam
-    'learn_rate_decay': 0.95,
+    'learn_rate_decay': 0.97,
     'staircase_decay': True,
-    'decay_steps': 0.5,
+    'decay_steps': 5.0,
 
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
    
-    'restore': True, # boolean. restore model from disk
+    'restore': False, # boolean. restore model from disk
     'restore_model': "/data/mat10/Projects/audio23d/Models/bahdanau/seq2seq_exccc_bahdanau_era1_epoch2_step877",
 
     'save': True,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/Projects/audio23d/Models/bahdanau/seq2seq_exccc_bahdanau_era2",
-    'num_models_saved': 100,  # total number of models saved
-    'save_steps': None,  # every how many steps to save model
+    'save_model': "/data/mat10/Projects/audio23d/Models/lstm/seq_exccc_lstm_era1",
+    'num_models_saved': 200,  # total number of models saved
+    'save_steps': 500,  # every how many steps to save model
 
     'save_graph': False,
     'save_dir': "/data/mat10/Projects/audio23d/Models/summaries",

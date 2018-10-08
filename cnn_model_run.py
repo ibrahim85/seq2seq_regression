@@ -7,13 +7,13 @@ from tf_utils import start_interactive_session, set_gpu
 set_gpu(7)
 
 options = {
-    'data_root_dir': "/home/mat10/Documents/Projects/audio23d/test_models/example_data",  # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
+    'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
 
-    'is_training' : True,
-    'split_name': "example",  # 'devel',
+    'is_training' : False,
+    'split_name': "devel",  # 'devel',
     'data_split': "split3",
     'use_rmse': False,
-    'batch_size': 2,   # number of examples in queue either for training or inference
+    'batch_size': 1,   # number of examples in queue either for training or inference
     'reverse_time': False,
     'shuffle': False,
     'random_crop': False,
@@ -27,7 +27,7 @@ options = {
     'label_gaussian_noise_std':0.0,
 
     'has_encoder': True,
-    '1dcnn_features_dims': [256, 256, 256],
+    '1dcnn_features_dims': [128, 256, 512],
     # 'encoder_num_layers': 1,  # number of hidden layers in encoder lstm
     # 'residual_encoder': False,  #
     # 'encoder_num_hidden': 256,  # number of hidden units in encoder lstm
@@ -56,8 +56,8 @@ options = {
     #'ccc_loss_per_batch': False,  # set True for PT loss (mean per component/batch), False (mean per component per sample)
     'reg_constant': 0.000,
     'max_grad_norm': 10.0,
-    'num_epochs': 5,  # number of epochs over dataset for training
-    'start_epoch': 6,  # epoch to start
+    'num_epochs': 3,  # number of epochs over dataset for training
+    'start_epoch': 1,  # epoch to start
     'reset_global_step': False,
     'train_era_step': 1,  # start train step during current era, value of 0 saves the current model
 
@@ -68,11 +68,11 @@ options = {
 
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
 
-    'restore': False, # boolean. restore model from disk
-    'restore_model': "/data/mat10/Projects/audio23d/Models/1dconv/seq2seq_exccc_1dconv_res1_batchloss_era1_epoch1_step7026",
+    'restore': True, # boolean. restore model from disk
+    'restore_model': "/data/mat10/Projects/audio23d/Models/1dconv_melspectr/seq2seq_exccc_1dconv_res1_batchloss_era1_epoch3_step7026",
 
-    'save': False,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/Projects/audio23d/Models/1dconv/seq2seq_exccc_1dconv_res1_batchloss_era2",
+    'save': True,  # boolean. save model to disk during current era
+    'save_model': "/data/mat10/Projects/audio23d/Models/1dconv_melspectr/seq2seq_exccc_1dconv_res1_batchloss_era1",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
 

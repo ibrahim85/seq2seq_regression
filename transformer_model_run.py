@@ -7,7 +7,7 @@ from collections import defaultdict
 from transformer_model import SelfAttentionEncoder
 from tf_utils import start_interactive_session, set_gpu
 
-set_gpu(5)
+set_gpu(7)
 
 options = defaultdict(
     lambda: None,  # Set default value to None.
@@ -20,7 +20,7 @@ options = defaultdict(
     hidden_size=128,  # Model dimension in the hidden layers.
     num_hidden_layers=3,  # Number of layers in the encoder and decoder stacks.
     num_heads=4,  # Number of heads to use in multi-headed attention.
-    filter_size=128,  # Inner layer dimension in the feedforward network.
+    filter_size=256,  # Inner layer dimension in the feedforward network.
     # Dropout values (only used when training)
     layer_postprocess_dropout=0.1,
     attention_dropout=0.1,
@@ -28,15 +28,15 @@ options = defaultdict(
 
     ##################################################
 
-    data_root_dir="/home/mat10/Documents/Projects/audio23d/test_models/example_data",  # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
+    data_root_dir= "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
 
-    is_training=True,
-    split_name='example',
+    is_training=False,
+    split_name='devel',
     data_split="split3",
     use_rmse=False,
-    batch_size=512,  # number of examples in queue either for training or inference
+    batch_size=1,  # number of examples in queue either for training or inference
     reverse_time=False,
-    shuffle=True,
+    shuffle=False,
     random_crop=False,
     standardize_inputs_and_labels=True,
     mfcc_num_features=20,  # 20,
@@ -57,15 +57,15 @@ options = defaultdict(
     train_era_step=1,  # start train step during current era, value of 0 saves the current model
 
     learn_rate=0.001,  # initial learn rate corresponing top global step 0, or max lr for Adam
-    learn_rate_decay=0.95,
+    learn_rate_decay=0.975,
     staircase_decay=True,
-    decay_steps=0.5,
+    decay_steps=1.0,
 
-    restore=False,  # boolean. restore model from disk
-    restore_model="/data/mat10/Projects/audio23d/Models/transformer/seq2seq_exccc_transformer_era1_final",
+    restore=True,  # boolean. restore model from disk
+    restore_model="/data/mat10/Projects/audio23d/Models/transformer_melscpectr/seq2seq_exccc_transformer_era1_epoch3_step7026",
 
-    save=False,  # boolean. save model to disk during current era
-    save_model="/data/mat10/Projects/audio23d/Models/transformer/seq2seq_exccc_transformer_era2",
+    save=True,  # boolean. save model to disk during current era
+    save_model="/data/mat10/Projects/audio23d/Models/transformer_melscpectr/seq2seq_exccc_transformer_era1",
     num_models_saved=100,  # total number of models saved
     save_steps=None,  # every how many steps to save model
 

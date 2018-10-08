@@ -53,14 +53,18 @@ def stacked_lstm(num_layers, num_hidden, is_training, input_forw=None,
     #                     activation=tf.tanh, reuse=None)
     #                  for _, layer_size_ in enumerate(num_hidden)]
     def cellfn(layer_size):
-        return tf.contrib.rnn.LayerNormBasicLSTMCell(
-                         num_units=layer_size,
-                         forget_bias=1.0,
-                         activation=tf.tanh,
-                         layer_norm=layer_norm, 
-                         norm_gain=1.0,
-                         norm_shift=0.0,
-                         dropout_keep_prob=dropout_keep_prob)
+        return tf.nn.rnn_cell.LSTMCell(layer_size,
+                               use_peepholes=True,
+                               cell_clip=100,
+                               state_is_tuple=True)
+        #return tf.contrib.rnn.LayerNormBasicLSTMCell(
+        #                 num_units=layer_size,
+        #                 forget_bias=1.0,
+        #                 activation=tf.tanh,
+        #                 layer_norm=layer_norm, 
+        #                 norm_gain=1.0,
+        #                 norm_shift=0.0,
+        #                 dropout_keep_prob=dropout_keep_prob)
     if residual:
         rnn_layers = [tf.contrib.rnn.ResidualWrapper(cellfn(layer_size))
                       for _, layer_size in enumerate(num_hidden)]
