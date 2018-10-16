@@ -7,7 +7,7 @@ import pandas as pd
 import tensorflow as tf
 from model_utils import lengths_mask
 
-from data_provider import get_split, get_split2, get_split3
+from data_provider import get_split#, get_split2, get_split3
 from losses import batch_masked_concordance_cc, batch_masked_mse, L2loss
 
 
@@ -29,33 +29,28 @@ class BasicModel:
 
         self.epsilon = tf.constant(1e-10, dtype=tf.float32)
 
-        if self.options['data_split'] == 'split1':
-            _, self.encoder_inputs, \
-            self.target_labels, \
-            self.num_examples, \
-            self.words, \
-            self.decoder_inputs, \
-            self.target_labels_lengths, \
-            self.encoder_inputs_lengths, \
-            self.decoder_inputs_lengths = get_split(options)
-        elif self.options['data_split'] == 'split2':
-            self.encoder_inputs, \
-            self.target_labels, \
-            self.num_examples, \
-            self.words, \
-            self.decoder_inputs, \
-            self.target_labels_lengths, \
-            self.encoder_inputs_lengths, \
-            self.decoder_inputs_lengths = get_split2(options)
-        elif self.options['data_split'] == 'split3':
-            self.encoder_inputs, \
-            self.target_labels, \
-            self.num_examples, \
-            self.words, \
-            self.decoder_inputs, \
-            self.target_labels_lengths, \
-            self.encoder_inputs_lengths, \
-            self.decoder_inputs_lengths = get_split3(options)
+        #if self.options['data_split'] == 'split1':
+        self.encoder_inputs, self.target_labels, \
+        self.encoder_inputs_lengths, self.target_labels_lengths, \
+        self.words, self.num_examples = get_split(options)
+        #elif self.options['data_split'] == 'split2':
+        #    self.encoder_inputs, \
+        #    self.target_labels, \
+        #    self.num_examples, \
+        #    self.words, \
+        #    self.decoder_inputs, \
+        #    self.target_labels_lengths, \
+        #    self.encoder_inputs_lengths, \
+        #    self.decoder_inputs_lengths = get_split2(options)
+        #elif self.options['data_split'] == 'split3':
+        #    self.encoder_inputs, \
+        #    self.target_labels, \
+        #    self.num_examples, \
+        #    self.words, \
+        #    self.decoder_inputs, \
+        #    self.target_labels_lengths, \
+        #    self.encoder_inputs_lengths, \
+        #    self.decoder_inputs_lengths = get_split3(options)
 
         self.number_of_steps_per_epoch = self.num_examples // self.batch_size + 1
         self.number_of_steps = self.number_of_steps_per_epoch * options['num_epochs']

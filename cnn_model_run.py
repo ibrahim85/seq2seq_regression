@@ -1,10 +1,8 @@
-# from data_provider2 import get_split
-# from models import CNNModel
 from cnn_models import CNNModel
-
 from tf_utils import start_interactive_session, set_gpu
+import numpy as np
 
-set_gpu(7)
+set_gpu(-1)
 
 options = {
     'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
@@ -15,7 +13,7 @@ options = {
     'use_rmse': False,
     'batch_size': 1,   # number of examples in queue either for training or inference
     'reverse_time': False,
-    'shuffle': False,
+    'shuffle': True,
     'random_crop': False,
     'standardize_inputs_and_labels': False,
     'mfcc_num_features': 20,  # 20,
@@ -56,7 +54,7 @@ options = {
     #'ccc_loss_per_batch': False,  # set True for PT loss (mean per component/batch), False (mean per component per sample)
     'reg_constant': 0.000,
     'max_grad_norm': 10.0,
-    'num_epochs': 3,  # number of epochs over dataset for training
+    'num_epochs': 2,  # number of epochs over dataset for training
     'start_epoch': 1,  # epoch to start
     'reset_global_step': False,
     'train_era_step': 1,  # start train step during current era, value of 0 saves the current model
@@ -64,15 +62,20 @@ options = {
     'learn_rate': 0.001,  # initial learn rate corresponing top global step 0, or max lr for Adam
     'learn_rate_decay': 0.975,
     'staircase_decay': True,
-    'decay_steps': 1.,
+    'decay_steps': 0.5,
 
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
 
     'restore': True, # boolean. restore model from disk
-    'restore_model': "/data/mat10/Projects/audio23d/Models/1dconv_melspectr/seq2seq_exccc_1dconv_res1_batchloss_era1_epoch3_step7026",
+    'restore_model': 
+    #"/data/mat10/Projects/audio23d/Models/1dconv/conv1d_40words_ccloss_era4_epoch1_step770",
+    "/data/mat10/Projects/audio23d/Models/1dconv/conv1d_20words_ccloss_era3_epoch1_step386",
+    #"/data/mat10/Projects/audio23d/Models/1dconv/conv1d_5words_ccloss_era1_epoch1_step98",
+    #"/data/mat10/Projects/audio23d/Models/1dconv/conv1d_100words_ccloss_era5_epoch2_step1853",
+    #"/data/mat10/Projects/audio23d/Models/1dconv/conv1d_40words_ccloss_era4_epoch2_step770",
 
-    'save': True,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/Projects/audio23d/Models/1dconv_melspectr/seq2seq_exccc_1dconv_res1_batchloss_era1",
+    'save': False,  # boolean. save model to disk during current era
+    'save_model': "/data/mat10/Projects/audio23d/Models/1dconv/conv1d_100words_ccloss_era5",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
 
@@ -97,7 +100,7 @@ if options['restore']:
 if options['is_training']:
     model.train(sess)
 else:
-    loss = model.eval(sess, return_words=True)
+    loss = model.eval(sess, return_words=False)
 
 
 
