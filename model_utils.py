@@ -3,21 +3,29 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
-# from helper_functions import *
-# import numpy as np
-#
-# # import six
-# # from six.moves import xrange  # pylint: disable=redefined-builtin
-# from tensorflow.python.eager import context
-# from tensorflow.python.framework import ops
-# from tensorflow.python.framework import tensor_shape
-# from tensorflow.python.layers import base
-# # from tensorflow.python.layers import utils
-# # from tensorflow.python.ops import array_ops
-# from tensorflow.python.ops import init_ops
-# # from tensorflow.python.ops import math_ops
-# from tensorflow.python.ops import nn
-# from tensorflow.python.ops import standard_ops
+from resnet_model_utils import ResNet, get_block_sizes
+
+
+def backend_resnet(x_input, resnet_size=34, final_size=512, num_classes=None, frontend_3d=False, training=True, name="resnet"):
+
+    with tf.name_scope(name):
+        BATCH_SIZE, NUM_FRAMES, HEIGHT, WIDTH, NUM_CHANNELS = x_input.get_shape().as_list()
+
+        # RESNET
+        video_input = tf.reshape(x_input, (-1, HEIGHT, WIDTH, NUM_CHANNELS))  # BATCH_SIZE*NUM_FRAMES
+
+        #  = tf.cast(video_input, tf.float32)
+        resnet = ResNet(resnet_size=resnet_size, bottleneck=False, num_classes=num_classes, num_filters=64,
+                        kernel_size=7, conv_stride=2, first_pool_size=3, first_pool_stride=2,
+                        second_pool_size=7, second_pool_stride=1, block_sizes=get_block_sizes(resnet_size),
+                        block_strides=[1, 2, 2, 2], final_size=final_size, frontend_3d=frontend_3d)
+        features = resnet.__call__(video_input, training=training)
+        # features, end_points = resnet_v2.resnet_v1_50(video_input, None)
+        features = tf.reshape(features, (BATCH_SIZE, -1, int(features.get_shape()[1])))  # NUM_FRAMES
+
+        print("shape after resnet is %s" % features.get_shape())
+
+    return features
 
 
 def stacked_lstm(num_layers, num_hidden, is_training, input_forw=None,

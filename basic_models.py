@@ -61,6 +61,7 @@ class BasicModel:
             self.save_steps = self.options['save_steps']
 
         self.init_global_step()
+        self.sampling_prob = tf.constant(0)
 
     def build_train_graph(self):
         pass
