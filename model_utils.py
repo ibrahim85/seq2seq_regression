@@ -464,7 +464,8 @@ def temp_res_conv_network(inputs, options):
     print('Temporal convolution')
     print('input shape %s' % inputs.get_shape())
     for i, layer_dim in enumerate(options['1dcnn_features_dims']):
-        inputs = temp_conv_block(inputs, layer_dim, training)
+        if tf.shape(inputs)[-1] != layer_dim:
+            inputs = temp_conv_block(inputs, layer_dim, training)
         inputs = temp_res_conv_block(inputs, layer_dim, training)
         print('input shape after %d temp conv layer %s' % (i, inputs.get_shape().as_list()))
     #inputs = temp_conv_block(inputs, options['num_classes'], training, final_layer=True)

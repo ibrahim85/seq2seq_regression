@@ -5,7 +5,6 @@ from __future__ import print_function
 import tensorflow as tf
 import os
 import numpy as np
-import random
 
 from pathlib import Path
 
@@ -20,29 +19,23 @@ dim_spec_centr = 1
 
 num_fms = 21
     
-
-def decode_and_reshape(features, name, num_features):  
+def decode_and_reshape(features, name, num_features):
+    
     dec_var = tf.decode_raw(features[name], tf.float32)
     dec_var = tf.reshape(dec_var, (num_features, -1))
     dec_var = tf.cast(tf.transpose(dec_var, (1,0)), tf.float32)
+    
     return dec_var
 
-
 def noisy_decode_and_reshape(features, name, dim_features, seq_length,squeeze=False):
+    
     dec_var = tf.decode_raw(features[name], tf.float32)
     dec_var = tf.reshape(dec_var, (seq_length, dim_features, num_fms))
     dec_var = tf.cast(tf.transpose(dec_var, (0,2,1)), tf.float32)
+    
     return dec_var
     
-
-def length(sequence):
-  used = tf.abs(tf.sign(tf.reduce_max(tf.abs(sequence), 2)))
-  length = tf.reduce_sum(used, 1)
-  length = tf.cast(length, tf.int32)
-  return length
-
-
-def get_split(options):
+def get_split(batch_size=32, is_training=True, split_name='train'):
     """Returns a data split of the BBC dataset.
     
     Args:
@@ -56,76 +49,14 @@ def get_split(options):
         num_examples: the number of audio samples in the set.
         word: the current word.
     """
-    batch_size = options['batch_size']
-    is_training = options['is_training']
-    split_name = options['split_name']
-
     num_classes = 28
     base_path = Path('/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean/')
     if split_name == 'train':
         paths = np.loadtxt(str(base_path / 'train_set.csv'), dtype='<U150').tolist()
-        # MT - train with limited number of words
-        words = np.asarray(list(map(lambda x: x.split("/")[-1].split("_")[0], paths)))
-        set_words = ['ABUSE', 'CONTINUE', 'FORWARD', 'POLICY', 'SUPPORT',  #]
-                     'ABSOLUTELY', 'EUROPEAN', 'PROVIDE', 'SIGNIFICANT', 'WORKING',  #]
-                     'GERMANY', 'RECENT', 'ANNOUNCED', 'CHANGE', 'ACCUSED',
-                     'SEVEN', 'FIGHTING', 'FAMILIES', 'AGREEMENT', 'OFTEN',  #]
-                     'ANOTHER', 'POINT', 'PROBLEM', 'AMONG', 'RESULT',
-                     'BENEFITS', 'PROTECT', 'BEHIND', 'SERIOUS', 'AMERICA',
-                     'EVERYONE', 'IMPORTANT', 'THERE', 'ECONOMY', 'JUDGE',
-                     'GREECE', 'THINGS', 'CRIME', 'LEADER', 'MOVING',  #]
-                     'WITHIN', 'MEANS', 'FURTHER', 'REALLY', 'PRICE',
-                     'DESCRIBED', 'STATES', 'BILLION', 'FORMER', 'RETURN',
-                     'RIGHT', 'COUNCIL', 'ENERGY', 'NIGHT', 'EVERYTHING',
-                     'DECIDED', 'PLACES', 'NOTHING', 'ENOUGH', 'PAYING',
- 'DEFICIT',
- 'HEALTH',
- 'CHILDREN',
- 'RECORD',
- 'BEFORE',
- 'MILLION',
- 'ASKING',
- 'RUSSIAN',
- 'SIMPLY',
- 'DIFFERENCE',
- 'MINISTER',
- 'PEOPLE',
- 'VIOLENCE',
- 'ANNOUNCED',
- 'PERHAPS',
- 'MEETING',
- 'BECOME',
- 'SOCIAL',
- 'ISSUES',
- 'SOMEONE',
- 'EXPECT',
- 'CONSERVATIVE',
- 'WELFARE',
- 'LEADER',
- 'FINANCIAL',
- 'PROBLEM',
- 'ANYTHING',
- 'ALLEGATIONS',
- 'COURT',
- 'SOUTHERN',
- 'VICTIMS',
- 'THEMSELVES',
- 'SPEND',
- 'COMPANIES',
- 'DETAILS',
- 'RECENT',
- 'LATER',
- 'AFRICA',
- 'CLOSE',
- 'ANSWER']
-
-        idx = np.asarray([w in set_words for w in words])
-        paths = [p for i, p in enumerate(paths) if idx[i]]
-        # 
         print('Training examples : ', len(paths))
     elif split_name == 'devel':
         paths = np.loadtxt(str(base_path / 'valid_set.csv'), dtype='<U150').tolist()
-        paths = random.sample(paths, 1000)
+        paths = paths[:10000]
         print('Evaluating examples : ', len(paths))
     elif split_name == 'test':
         paths = np.loadtxt(str(base_path / 'test_set.csv'), dtype='<U150').tolist()
@@ -184,107 +115,102 @@ def get_split(options):
     label = tf.decode_raw(features['labels'], tf.float32)
     label = tf.reshape(label, (-1, num_classes))
     
-    #raw_audio = tf.decode_raw(features['raw_audio'], tf.float32)
-    #raw_audio = tf.reshape(raw_audio, ([1, -1]))
+    raw_audio = tf.decode_raw(features['raw_audio'], tf.float32)
+    raw_audio = tf.reshape(raw_audio, ([1, -1]))
     
     frame_mfcc = decode_and_reshape(features, 'frame_mfcc', dim_mfcc) 
     
     # frame mfcc overlap
-    #frame_mfcc_overlap = decode_and_reshape(features, 'frame_mfcc_overlap', dim_mfcc)
-    #delta_frame_mfcc = decode_and_reshape(features, 'delta_frame_mfcc', dim_mfcc)
-    #delta2_frame_mfcc = decode_and_reshape(features, 'delta2_frame_mfcc', dim_mfcc)
+    frame_mfcc_overlap = decode_and_reshape(features, 'frame_mfcc_overlap', dim_mfcc)
+    delta_frame_mfcc = decode_and_reshape(features, 'delta_frame_mfcc', dim_mfcc)
+    delta2_frame_mfcc = decode_and_reshape(features, 'delta2_frame_mfcc', dim_mfcc)
     
     # frame melspectrogram
-    #frame_melspectrogram = decode_and_reshape(features, 'frame_melspectrogram', dim_melspecs)
-    #delta_frame_melspectrogram = decode_and_reshape(features, 'delta_frame_melspectrogram', dim_melspecs)
-    #delta2_frame_melspectrogram = decode_and_reshape(features, 'delta2_frame_melspectrogram', dim_melspecs)
+    frame_melspectrogram = decode_and_reshape(features, 'frame_melspectrogram', dim_melspecs)
+    delta_frame_melspectrogram = decode_and_reshape(features, 'delta_frame_melspectrogram', dim_melspecs)
+    delta2_frame_melspectrogram = decode_and_reshape(features, 'delta2_frame_melspectrogram', dim_melspecs)
     
-    #frame_melspectrogram_overlap = decode_and_reshape(features, 'frame_melspectrogram_overlap', dim_melspecs)
+    frame_melspectrogram_overlap = decode_and_reshape(features, 'frame_melspectrogram_overlap', dim_melspecs)
     
     # frame spectral centroid
-    #frame_spectral_centroid = decode_and_reshape(features, 'frame_spectral_centroid', dim_spec_centr)
-    #delta_frame_spectral_centroid = decode_and_reshape(features, 'delta_frame_spectral_centroid', dim_spec_centr)
-    #delta2_frame_spectral_centroid = decode_and_reshape(features, 'delta2_frame_spectral_centroid', dim_spec_centr)
+    frame_spectral_centroid = decode_and_reshape(features, 'frame_spectral_centroid', dim_spec_centr)
+    delta_frame_spectral_centroid = decode_and_reshape(features, 'delta_frame_spectral_centroid', dim_spec_centr)
+    delta2_frame_spectral_centroid = decode_and_reshape(features, 'delta2_frame_spectral_centroid', dim_spec_centr)
     
     seq_length = -1#tf.shape(frame_mfcc)[0]
     # noisy frame mfcc
-    #noisy_frame_mfcc = noisy_decode_and_reshape(features, 'noisy_frame_mfcc', dim_mfcc, seq_length)
-    #delta_noisy_frame_mfcc = noisy_decode_and_reshape(features, 'delta_noisy_frame_mfcc', dim_mfcc, seq_length)
-    #delta2_noisy_frame_mfcc = noisy_decode_and_reshape(features, 'delta2_noisy_frame_mfcc', dim_mfcc, seq_length)
-    #seq_len = tf.shape(frame_melspectrogram)[0]
+    noisy_frame_mfcc = noisy_decode_and_reshape(features, 'noisy_frame_mfcc', dim_mfcc, seq_length)
+    delta_noisy_frame_mfcc = noisy_decode_and_reshape(features, 'delta_noisy_frame_mfcc', dim_mfcc, seq_length)
+    delta2_noisy_frame_mfcc = noisy_decode_and_reshape(features, 'delta2_noisy_frame_mfcc', dim_mfcc, seq_length)
+    seq_len = tf.shape(frame_melspectrogram)[0]
     
     # noisy spectral centroid
-    #noisy_frame_spectral_centroid = noisy_decode_and_reshape(features, 'noisy_frame_spectral_centroid', dim_spec_centr, seq_length) 
-    #delta_noisy_frame_spectral_centroid = noisy_decode_and_reshape(features, 'delta_noisy_frame_spectral_centroid', dim_spec_centr, seq_length)
-    #delta2_noisy_frame_spectral_centroid = noisy_decode_and_reshape(features, 'delta2_noisy_frame_spectral_centroid', dim_spec_centr, seq_length)
+    noisy_frame_spectral_centroid = noisy_decode_and_reshape(features, 'noisy_frame_spectral_centroid', dim_spec_centr, seq_length) 
+    delta_noisy_frame_spectral_centroid = noisy_decode_and_reshape(features, 'delta_noisy_frame_spectral_centroid', dim_spec_centr, seq_length)
+    delta2_noisy_frame_spectral_centroid = noisy_decode_and_reshape(features, 'delta2_noisy_frame_spectral_centroid', dim_spec_centr, seq_length)
     
     # noisy mel-spectrogram
-    #noisy_frame_melspectrogram = noisy_decode_and_reshape(features, 'noisy_frame_melspectrogram', dim_melspecs, seq_length) 
-    #delta_noisy_frame_melspectrogram = noisy_decode_and_reshape(features, 'delta_noisy_frame_melspectrogram', dim_melspecs, seq_length)
-    #delta2_noisy_frame_melspectrogram = noisy_decode_and_reshape(features, 'delta2_noisy_frame_melspectrogram', dim_melspecs, seq_length)
+    noisy_frame_melspectrogram = noisy_decode_and_reshape(features, 'noisy_frame_melspectrogram', dim_melspecs, seq_length) 
+    delta_noisy_frame_melspectrogram = noisy_decode_and_reshape(features, 'delta_noisy_frame_melspectrogram', dim_melspecs, seq_length)
+    delta2_noisy_frame_melspectrogram = noisy_decode_and_reshape(features, 'delta2_noisy_frame_melspectrogram', dim_melspecs, seq_length)
     
     # noisy rmse
-    #noisy_frame_rmse = noisy_decode_and_reshape(features, 'noisy_frame_rmse', 1, seq_length)
-    #delta_noisy_frame_rmse = noisy_decode_and_reshape(features, 'delta_noisy_frame_rmse', 1, seq_length)
-    #delta2_noisy_frame_rmse = noisy_decode_and_reshape(features, 'delta2_noisy_frame_rmse', 1, seq_length)
+    noisy_frame_rmse = noisy_decode_and_reshape(features, 'noisy_frame_rmse', 1, seq_length)
+    delta_noisy_frame_rmse = noisy_decode_and_reshape(features, 'delta_noisy_frame_rmse', 1, seq_length)
+    delta2_noisy_frame_rmse = noisy_decode_and_reshape(features, 'delta2_noisy_frame_rmse', 1, seq_length)
     
-    #rmse = tf.decode_raw(features['rmse'], tf.float32)
-    #rmse = tf.reshape(rmse, (-1, 1))
+    rmse = tf.decode_raw(features['rmse'], tf.float32)
+    rmse = tf.reshape(rmse, (-1, 1))
     word = features['word']
     
     dec_features = []
     batch_features = []
     
-    #subject_id, label, raw_audio, frame_mfcc, frame_mfcc_overlap, delta_frame_mfcc, delta2_frame_mfcc, frame_melspectrogram, delta_frame_melspectrogram, delta2_frame_melspectrogram, frame_melspectrogram_overlap, frame_spectral_centroid, delta_frame_spectral_centroid, delta2_frame_spectral_centroid, noisy_frame_mfcc, delta_noisy_frame_mfcc, delta2_noisy_frame_mfcc, noisy_frame_spectral_centroid, delta_noisy_frame_spectral_centroid, delta2_noisy_frame_spectral_centroid, noisy_frame_melspectrogram, delta_noisy_frame_melspectrogram, delta2_noisy_frame_melspectrogram, noisy_frame_rmse, delta_noisy_frame_rmse, delta2_noisy_frame_rmse, seq_len = tf.train.batch([subject_id, label, raw_audio, frame_mfcc, frame_mfcc_overlap, delta_frame_mfcc, delta2_frame_mfcc, frame_melspectrogram, delta_frame_melspectrogram, delta2_frame_melspectrogram, frame_melspectrogram_overlap, frame_spectral_centroid, delta_frame_spectral_centroid, delta2_frame_spectral_centroid, noisy_frame_mfcc, delta_noisy_frame_mfcc, delta2_noisy_frame_mfcc, noisy_frame_spectral_centroid, delta_noisy_frame_spectral_centroid, delta2_noisy_frame_spectral_centroid, noisy_frame_melspectrogram, delta_noisy_frame_melspectrogram, delta2_noisy_frame_melspectrogram, noisy_frame_rmse, delta_noisy_frame_rmse, delta2_noisy_frame_rmse, seq_len], batch_size, num_threads=1, capacity=1000, dynamic_pad=True)
-    subject_id, label, frame_mfcc = tf.train.batch([subject_id, label, frame_mfcc], 
+    subject_id, label, raw_audio, frame_mfcc, frame_mfcc_overlap, delta_frame_mfcc, delta2_frame_mfcc, frame_melspectrogram, delta_frame_melspectrogram, delta2_frame_melspectrogram, frame_melspectrogram_overlap, frame_spectral_centroid, delta_frame_spectral_centroid, delta2_frame_spectral_centroid, noisy_frame_mfcc, delta_noisy_frame_mfcc, delta2_noisy_frame_mfcc, noisy_frame_spectral_centroid, delta_noisy_frame_spectral_centroid, delta2_noisy_frame_spectral_centroid, noisy_frame_melspectrogram, delta_noisy_frame_melspectrogram, delta2_noisy_frame_melspectrogram, noisy_frame_rmse, delta_noisy_frame_rmse, delta2_noisy_frame_rmse, seq_len = tf.train.batch([subject_id, label, raw_audio, frame_mfcc, frame_mfcc_overlap, delta_frame_mfcc, delta2_frame_mfcc, frame_melspectrogram, delta_frame_melspectrogram, delta2_frame_melspectrogram, frame_melspectrogram_overlap, frame_spectral_centroid, delta_frame_spectral_centroid, delta2_frame_spectral_centroid, noisy_frame_mfcc, delta_noisy_frame_mfcc, delta2_noisy_frame_mfcc, noisy_frame_spectral_centroid, delta_noisy_frame_spectral_centroid, delta2_noisy_frame_spectral_centroid, noisy_frame_melspectrogram, delta_noisy_frame_melspectrogram, delta2_noisy_frame_melspectrogram, noisy_frame_rmse, delta_noisy_frame_rmse, delta2_noisy_frame_rmse, seq_len], 
         batch_size, num_threads=1, capacity=1000, dynamic_pad=True)
 
     subject_id = tf.reshape(subject_id, (batch_size, -1))
     seq_length = -1
     label = tf.reshape(label, (batch_size, -1, dim_label))
-    #raw_audio = tf.reshape(raw_audio, (batch_size, -1, dim_raw_audio))
+    raw_audio = tf.reshape(raw_audio, (batch_size, -1, dim_raw_audio))
     
     # frame mfcc
     frame_mfcc = tf.reshape(frame_mfcc, (batch_size, -1, dim_mfcc))
-    #delta_frame_mfcc = tf.reshape(delta_frame_mfcc, (batch_size, -1, dim_mfcc))
-    #delta2_frame_mfcc = tf.reshape(delta2_frame_mfcc, (batch_size, -1, dim_mfcc))
+    delta_frame_mfcc = tf.reshape(delta_frame_mfcc, (batch_size, -1, dim_mfcc))
+    delta2_frame_mfcc = tf.reshape(delta2_frame_mfcc, (batch_size, -1, dim_mfcc))
     
-    #frame_mfcc_overlap = tf.reshape(frame_mfcc_overlap, (batch_size, -1, dim_mfcc))
+    frame_mfcc_overlap = tf.reshape(frame_mfcc_overlap, (batch_size, -1, dim_mfcc))
     
     # frame mel-spectrogram
-    #frame_melspectrogram = tf.reshape(frame_melspectrogram, (batch_size, -1, dim_melspecs))
-    #delta_frame_melspectrogram = tf.reshape(delta_frame_melspectrogram, (batch_size, -1, dim_melspecs))
-    #delta2_frame_melspectrogram = tf.reshape(delta2_frame_melspectrogram, (batch_size, -1, dim_melspecs))
+    frame_melspectrogram = tf.reshape(frame_melspectrogram, (batch_size, -1, dim_melspecs))
+    delta_frame_melspectrogram = tf.reshape(delta_frame_melspectrogram, (batch_size, -1, dim_melspecs))
+    delta2_frame_melspectrogram = tf.reshape(delta2_frame_melspectrogram, (batch_size, -1, dim_melspecs))
     
-    #frame_melspectrogram_overlap = tf.reshape(frame_melspectrogram_overlap, (batch_size, -1, dim_melspecs))
+    frame_melspectrogram_overlap = tf.reshape(frame_melspectrogram_overlap, (batch_size, -1, dim_melspecs))
     
     # frame spectral centroid
-    #frame_spectral_centroid = tf.reshape(frame_spectral_centroid, (batch_size, seq_length, dim_spec_centr))
-    #delta_frame_spectral_centroid = tf.reshape(delta_frame_spectral_centroid, (batch_size, seq_length, dim_spec_centr))
-    #delta2_frame_spectral_centroid = tf.reshape(delta2_frame_spectral_centroid, (batch_size, seq_length, dim_spec_centr))
+    frame_spectral_centroid = tf.reshape(frame_spectral_centroid, (batch_size, seq_length, dim_spec_centr))
+    delta_frame_spectral_centroid = tf.reshape(delta_frame_spectral_centroid, (batch_size, seq_length, dim_spec_centr))
+    delta2_frame_spectral_centroid = tf.reshape(delta2_frame_spectral_centroid, (batch_size, seq_length, dim_spec_centr))
     
     # noisy spectral centroid
-    #noisy_frame_spectral_centroid = tf.reshape(noisy_frame_spectral_centroid, (batch_size, seq_length, num_fms, dim_spec_centr))
-    #delta_noisy_frame_spectral_centroid = tf.reshape(delta_noisy_frame_spectral_centroid, (batch_size, seq_length, num_fms, dim_spec_centr))
-    #delta2_noisy_frame_spectral_centroid = tf.reshape(delta2_noisy_frame_spectral_centroid, (batch_size, seq_length, num_fms, dim_spec_centr))
+    noisy_frame_spectral_centroid = tf.reshape(noisy_frame_spectral_centroid, (batch_size, seq_length, num_fms, dim_spec_centr))
+    delta_noisy_frame_spectral_centroid = tf.reshape(delta_noisy_frame_spectral_centroid, (batch_size, seq_length, num_fms, dim_spec_centr))
+    delta2_noisy_frame_spectral_centroid = tf.reshape(delta2_noisy_frame_spectral_centroid, (batch_size, seq_length, num_fms, dim_spec_centr))
     
     # noisy frame mfcc
-    #noisy_frame_mfcc = tf.reshape(noisy_frame_mfcc, (batch_size, seq_length, num_fms, dim_mfcc))
-    #delta_noisy_frame_mfcc = tf.reshape(delta_noisy_frame_mfcc, (batch_size, seq_length, num_fms, dim_mfcc))
-    #delta2_noisy_frame_mfcc = tf.reshape(delta2_noisy_frame_mfcc, (batch_size, seq_length, num_fms, dim_mfcc))
+    noisy_frame_mfcc = tf.reshape(noisy_frame_mfcc, (batch_size, seq_length, num_fms, dim_mfcc))
+    delta_noisy_frame_mfcc = tf.reshape(delta_noisy_frame_mfcc, (batch_size, seq_length, num_fms, dim_mfcc))
+    delta2_noisy_frame_mfcc = tf.reshape(delta2_noisy_frame_mfcc, (batch_size, seq_length, num_fms, dim_mfcc))
     
     # noisy frame melspectrogram
-    #noisy_frame_melspectrogram = tf.reshape(noisy_frame_melspectrogram, (batch_size, seq_length, num_fms, dim_melspecs))
-    #delta_noisy_frame_melspectrogram = tf.reshape(delta_noisy_frame_melspectrogram, (batch_size, seq_length, num_fms, dim_melspecs))
-    #delta2_noisy_frame_melspectrogram = tf.reshape(delta2_noisy_frame_melspectrogram, (batch_size, seq_length, num_fms, dim_melspecs))
+    noisy_frame_melspectrogram = tf.reshape(noisy_frame_melspectrogram, (batch_size, seq_length, num_fms, dim_melspecs))
+    delta_noisy_frame_melspectrogram = tf.reshape(delta_noisy_frame_melspectrogram, (batch_size, seq_length, num_fms, dim_melspecs))
+    delta2_noisy_frame_melspectrogram = tf.reshape(delta2_noisy_frame_melspectrogram, (batch_size, seq_length, num_fms, dim_melspecs))
     
     # noisy spectral centroid
-    #noisy_frame_rmse = tf.reshape(noisy_frame_rmse, (batch_size, seq_length, num_fms, 1))
-    #delta_noisy_frame_rmse = tf.reshape(delta_noisy_frame_rmse, (batch_size, seq_length, num_fms, 1))
-    #delta2_noisy_frame_rmse = tf.reshape(delta2_noisy_frame_rmse, (batch_size, seq_length, num_fms, 1))
+    noisy_frame_rmse = tf.reshape(noisy_frame_rmse, (batch_size, seq_length, num_fms, 1))
+    delta_noisy_frame_rmse = tf.reshape(delta_noisy_frame_rmse, (batch_size, seq_length, num_fms, 1))
+    delta2_noisy_frame_rmse = tf.reshape(delta2_noisy_frame_rmse, (batch_size, seq_length, num_fms, 1))
     
-    frame_mfcc_lengths = length(frame_mfcc)
-    label_lengths = length(label)
-
-    return frame_mfcc, label, frame_mfcc_lengths, label_lengths, word, num_examples
-#subject_id, label, raw_audio, frame_mfcc, frame_mfcc_overlap, delta_frame_mfcc, delta2_frame_mfcc, frame_melspectrogram, delta_frame_melspectrogram, delta2_frame_melspectrogram, frame_melspectrogram_overlap, frame_spectral_centroid, delta_frame_spectral_centroid, delta2_frame_spectral_centroid, noisy_frame_mfcc, delta_noisy_frame_mfcc, delta2_noisy_frame_mfcc, noisy_frame_spectral_centroid, delta_noisy_frame_spectral_centroid, delta2_noisy_frame_spectral_centroid, noisy_frame_melspectrogram, delta_noisy_frame_melspectrogram, delta2_noisy_frame_melspectrogram, noisy_frame_rmse, delta_noisy_frame_rmse, delta2_noisy_frame_rmse, seq_len
+    return subject_id, label, raw_audio, frame_mfcc, frame_mfcc_overlap, delta_frame_mfcc, delta2_frame_mfcc, frame_melspectrogram, delta_frame_melspectrogram, delta2_frame_melspectrogram, frame_melspectrogram_overlap, frame_spectral_centroid, delta_frame_spectral_centroid, delta2_frame_spectral_centroid, noisy_frame_mfcc, delta_noisy_frame_mfcc, delta2_noisy_frame_mfcc, noisy_frame_spectral_centroid, delta_noisy_frame_spectral_centroid, delta2_noisy_frame_spectral_centroid, noisy_frame_melspectrogram, delta_noisy_frame_melspectrogram, delta2_noisy_frame_melspectrogram, noisy_frame_rmse, delta_noisy_frame_rmse, delta2_noisy_frame_rmse, seq_len
