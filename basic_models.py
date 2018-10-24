@@ -136,6 +136,7 @@ class BasicModel:
             sess.run(initial_global_step)
 
         for epoch in range(start_epoch, start_epoch + num_epochs):
+            # self.options['current_epoch'] = epoch
             for step in range(number_of_steps):
                 _, ei, do, tl, gstep, loss, l2loss, lr, sp = sess.run(
                     [self.update_step,

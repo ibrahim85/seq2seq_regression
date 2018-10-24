@@ -57,6 +57,7 @@ def get_split(options):
         num_examples: the number of audio samples in the set.
         word: the current word.
     """
+    # print("current epoch is %d" % options['current_epoch'])
     batch_size = options['batch_size']
     is_training = options['is_training']
     split_name = options['split_name']
@@ -180,7 +181,7 @@ def get_split(options):
     
     dec_features = []
     batch_features = []
-    
+
     # subject_id, label, raw_audio, frame_mfcc, frame_mfcc_overlap, delta_frame_mfcc, delta2_frame_mfcc, frame_melspectrogram, delta_frame_melspectrogram, delta2_frame_melspectrogram, frame_melspectrogram_overlap, frame_spectral_centroid, delta_frame_spectral_centroid, delta2_frame_spectral_centroid, noisy_frame_mfcc, delta_noisy_frame_mfcc, delta2_noisy_frame_mfcc, noisy_frame_spectral_centroid, delta_noisy_frame_spectral_centroid, delta2_noisy_frame_spectral_centroid, noisy_frame_melspectrogram, delta_noisy_frame_melspectrogram, delta2_noisy_frame_melspectrogram, noisy_frame_rmse, delta_noisy_frame_rmse, delta2_noisy_frame_rmse, seq_len = tf.train.batch([subject_id, label, raw_audio, frame_mfcc, frame_mfcc_overlap, delta_frame_mfcc, delta2_frame_mfcc, frame_melspectrogram, delta_frame_melspectrogram, delta2_frame_melspectrogram, frame_melspectrogram_overlap, frame_spectral_centroid, delta_frame_spectral_centroid, delta2_frame_spectral_centroid, noisy_frame_mfcc, delta_noisy_frame_mfcc, delta2_noisy_frame_mfcc, noisy_frame_spectral_centroid, delta_noisy_frame_spectral_centroid, delta2_noisy_frame_spectral_centroid, noisy_frame_melspectrogram, delta_noisy_frame_melspectrogram, delta2_noisy_frame_melspectrogram, noisy_frame_rmse, delta_noisy_frame_rmse, delta2_noisy_frame_rmse, seq_len],
     #     batch_size, num_threads=1, capacity=1000, dynamic_pad=True)
     label, frame_mfcc = \
@@ -241,6 +242,18 @@ def get_split(options):
     # delta2_noisy_frame_rmse = tf.reshape(delta2_noisy_frame_rmse, (batch_size, seq_length, num_fms, 1))
     audio_frames = frame_mfcc
     audio_frames_lengths = length(audio_frames)
+
+    # curicullum learning
+    #min_len = tf.reduce_min(audio_frames_lengths)
+    #start_id = np.random.randint(0, min_len-options['max_seq_len'], 1)[0]
+    start_id = 0
+    label = tf.slice(
+        label, begin=[0, start_id, 0], size=[batch_size, start_id+options['max_seq_len'], dim_label])
+    label_lengths = tf.constant(value=options['max_seq_len'], shape=[batch_size])
+    audio_frames = tf.slice(
+        audio_frames, begin=[0, start_id, 0], size=[batch_size, start_id+options['max_seq_len'], dim_mfcc])
+    audio_frames_lengths = tf.constant(value=options['max_seq_len'], shape=[batch_size])
+
     return audio_frames, label, audio_frames_lengths, label_lengths, word, num_examples
         # subject_id, label, raw_audio, frame_mfcc, frame_mfcc_overlap, delta_frame_mfcc, delta2_frame_mfcc, \
         #    frame_melspectrogram, delta_frame_melspectrogram, delta2_frame_melspectrogram, frame_melspectrogram_overlap, \

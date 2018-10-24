@@ -5,12 +5,14 @@ import numpy as np
 set_gpu(1)
 
 options = {
-    'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_lrs",
-# "/home/michaeltrs/Projects/audio23d/data",  # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
+    'data_root_dir': "/home/michaeltrs/Projects/audio23d/data",
+# "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_lrs",
+# ,  # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
 
     'is_training' : True,
-    'split_name': "train",  # 'devel',
+    'split_name': "example",  # ""train",  # 'devel',
     'data_in': 'mfcc',  # mfcc, melf, melf_2d
+    'max_seq_len': 10,
     # 'use_rmse': False,
     'batch_size': 32,   # number of examples in queue either for training or inference
     # 'reverse_time': False,
@@ -31,6 +33,7 @@ options = {
     'max_grad_norm': 10.0,
     'num_epochs': 50,  # number of epochs over dataset for training
     'start_epoch': 1,  # epoch to start
+    'current_epoch': 1,
     'reset_global_step': True,
     'train_era_step': 1,  # start train step during current era, value of 0 saves the current model
 
