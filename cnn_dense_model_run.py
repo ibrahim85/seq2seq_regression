@@ -25,8 +25,8 @@ options = {
     'num_classes': 28,  # number of output classes 29 = |a-z, " ", <sos>, <eos>|
     # 'max_out_len_multiplier': 1.0,  # max_out_len = max_out_len_multiplier * max_in_len
     'growth_rate': 20,
-    'num_layers' : 7,
-    'final_layer_dim': 128,
+    'num_layers' : 6,
+    'final_layer_dim': 64,
 
     'loss_fun': "concordance_cc",
     #'ccc_loss_per_batch': False,  # set True for PT loss (mean per component/batch), False (mean per component per sample)

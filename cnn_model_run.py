@@ -5,11 +5,13 @@ import numpy as np
 set_gpu(1)
 
 options = {
-    'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
-
+    'data_root_dir': "/home/michaeltrs/Projects/audio23d/data",
+# "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_lrs",
+# "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
+    'split_name': "example",  # ""train",  # 'devel',
     'is_training' : True,
     'data_in': 'mfcc',  # mfcc, melf, melf_2d
-    'data_split': "split3",
+    'max_seq_len': 10,
     'use_rmse': False,
     'batch_size': 32,   # number of examples in queue either for training or inference
     'reverse_time': False,
@@ -25,13 +27,7 @@ options = {
     'label_gaussian_noise_std':0.0,
 
     'has_encoder': True,
-    '1dcnn_features_dims': [384, 384, 256, 256, 128, 128],
-    # 'encoder_num_layers': 1,  # number of hidden layers in encoder lstm
-    # 'residual_encoder': False,  #
-    # 'encoder_num_hidden': 256,  # number of hidden units in encoder lstm
-    # 'encoder_dropout_keep_prob' : 1.0,  # probability of keeping neuron, deprecated
-    # 'encoder_layer_norm': True,
-    # 'bidir_encoder': False,
+    '1dcnn_features_dims': [256, 256, 256],
 
     'has_decoder': False,
     'decoder_num_layers': 1,  # number of hidden layers in decoder lstm
@@ -69,14 +65,14 @@ options = {
     'restore': False, # boolean. restore model from disk
     'restore_model':"/data/mat10/Projects/audio23d/Models/1dconv/conv1d_100words_ccloss_era1_epoch1_step1478",
 
-    'save': True,  # boolean. save model to disk during current era
+    'save': False,  # boolean. save model to disk during current era
     'save_model': "/data/mat10/Projects/audio23d/Models/1dconv/conv1d_ccloss_era1",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
 
     'save_graph': False,
     'save_dir': "/data/mat10/Projects/audio23d/Models/1dconv/summaries",
-    'save_summaries': True
+    'save_summaries': False
 
           }
 

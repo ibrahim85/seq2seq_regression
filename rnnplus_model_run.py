@@ -4,13 +4,15 @@ from tf_utils import start_interactive_session, set_gpu
 from rnn_models import RNNplusModel
 import numpy as np
 
-set_gpu(7)
+set_gpu(1)
 
 options = {
-    'data_root_dir':  "/home/mat10/Documents/Projects/audio23d/test_models/example_data",  #"/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  #
+    'data_root_dir':  "/home/michaeltrs/Projects/audio23d/data",
+#"/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  #
+    'split_name': "example",  # ""train",  # 'devel',
     'is_training' : True,
     'data_in': 'mfcc',  # mfcc, melf, melf_2d
-    'data_split': "split3",
+    'max_seq_len': 10,
     'use_rmse': False,
     'batch_size': 1,   # number of examples in queue either for training or inference
     'reverse_time': False,
