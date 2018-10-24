@@ -244,15 +244,14 @@ def get_split(options):
     audio_frames_lengths = length(audio_frames)
 
     # curicullum learning
-    #min_len = tf.reduce_min(audio_frames_lengths)
-    #start_id = np.random.randint(0, min_len-options['max_seq_len'], 1)[0]
-    start_id = 0
-    label = tf.slice(
-        label, begin=[0, start_id, 0], size=[batch_size, start_id+options['max_seq_len'], dim_label])
-    label_lengths = tf.constant(value=options['max_seq_len'], shape=[batch_size])
-    audio_frames = tf.slice(
-        audio_frames, begin=[0, start_id, 0], size=[batch_size, start_id+options['max_seq_len'], dim_mfcc])
-    audio_frames_lengths = tf.constant(value=options['max_seq_len'], shape=[batch_size])
+    if  options['max_seq_len'] is not None:
+        start_id = 0  # np.random.randint(0, 30, 1)[0]
+        label = tf.slice(
+            label, begin=[0, start_id, 0], size=[batch_size, start_id+options['max_seq_len'], dim_label])
+        label_lengths = tf.constant(value=options['max_seq_len'], shape=[batch_size])
+        audio_frames = tf.slice(
+            audio_frames, begin=[0, start_id, 0], size=[batch_size, start_id+options['max_seq_len'], dim_mfcc])
+        audio_frames_lengths = tf.constant(value=options['max_seq_len'], shape=[batch_size])
 
     return audio_frames, label, audio_frames_lengths, label_lengths, word, num_examples
         # subject_id, label, raw_audio, frame_mfcc, frame_mfcc_overlap, delta_frame_mfcc, delta2_frame_mfcc, \

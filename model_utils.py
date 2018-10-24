@@ -536,13 +536,12 @@ def dense_1d_conv_network(inputs_0, options):
     inputs_next = tf.concat([inputs_0, outputs], axis=-1)
     print('output shape after 1 temp conv layer %s' % (outputs.get_shape().as_list()))
     print('next feature map shape after 1 temp conv layer %s' % (inputs_next.get_shape().as_list()))
-    for i in range(num_layers-2):
+    for i in range(2, num_layers):
         outputs, inputs_next = dense_1d_block(inputs_next, training, growth_rate, bottleneck=False)
         print('output shape after %d temp conv layer %s' % (i, outputs.get_shape().as_list()))
         print('next feature map shape after %d temp conv layer %s' % (i, inputs_next.get_shape().as_list()))
     outputs, inputs_next = dense_1d_block(inputs_next, training, final_layer_dim, bottleneck=False)
-    print('output shape after %d temp conv layer %s' % (i, outputs.get_shape().as_list()))
-    print('next feature map shape after %d temp conv layer %s' % (i, inputs_next.get_shape().as_list()))
+    print('output shape after %d temp conv layer %s' % (i+1, outputs.get_shape().as_list()))
     return outputs
 
 
