@@ -5,12 +5,13 @@ import numpy as np
 set_gpu(1)
 
 options = {
-    'data_root_dir': "/home/michaeltrs/Projects/audio23d/data",
+    'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_lrs",
+# "/home/michaeltrs/Projects/audio23d/data",
 # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_lrs",
 # ,  # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
 
     'is_training' : True,
-    'split_name': "example",  # ""train",  # 'devel',
+    'split_name': "train",  # ""train",  # 'devel',
     'data_in': 'mfcc',  # mfcc, melf, melf_2d
     'max_seq_len': 10,
     # 'use_rmse': False,
@@ -37,7 +38,7 @@ options = {
     'reset_global_step': True,
     'train_era_step': 1,  # start train step during current era, value of 0 saves the current model
 
-    'learn_rate': 0.0005,  # initial learn rate corresponing top global step 0, or max lr for Adam
+    'learn_rate': 0.0001,  # initial learn rate corresponing top global step 0, or max lr for Adam
     'learn_rate_decay': 0.975,
     'staircase_decay': True,
     'decay_steps': 0.75,
