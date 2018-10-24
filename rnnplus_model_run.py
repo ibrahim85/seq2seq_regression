@@ -9,7 +9,7 @@ set_gpu(7)
 options = {
     'data_root_dir':  "/home/mat10/Documents/Projects/audio23d/test_models/example_data",  #"/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  #
     'is_training' : True,
-    'split_name': 'example',
+    'data_in': 'mfcc',  # mfcc, melf, melf_2d
     'data_split': "split3",
     'use_rmse': False,
     'batch_size': 1,   # number of examples in queue either for training or inference

@@ -11,7 +11,7 @@ options = {
 
     'is_training' : True,
     'split_name': 'example',
-    'data_split': "split3",
+    'data_in': 'mfcc',  # mfcc, melf, melf_2d
     'use_rmse': False,
     'batch_size': 1,   # number of examples in queue either for training or inference
     'reverse_time': False,

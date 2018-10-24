@@ -9,7 +9,7 @@ options = {
 
     'is_training' : True,
     'split_name': "example",  # 'devel',
-    #'data_split': "split3",
+    'data_in': 'melf_2d',  # mfcc, melf, melf_2d
     #'use_rmse': False,
     'batch_size': 32,   # number of examples in queue either for training or inference
     #'reverse_time': False,

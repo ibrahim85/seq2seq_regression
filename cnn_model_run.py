@@ -8,7 +8,7 @@ options = {
     'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
 
     'is_training' : True,
-    'split_name': "train",  # 'devel',
+    'data_in': 'mfcc',  # mfcc, melf, melf_2d
     'data_split': "split3",
     'use_rmse': False,
     'batch_size': 32,   # number of examples in queue either for training or inference
