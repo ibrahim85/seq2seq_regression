@@ -1,7 +1,7 @@
 import tensorflow as tf
 from tf_utils import start_interactive_session, set_gpu
 import numpy as np
-from data_provider import get_split3
+from data_provider_2d import get_split3
 
 set_gpu(5)
 

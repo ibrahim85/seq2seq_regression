@@ -7,7 +7,7 @@ import pandas as pd
 import tensorflow as tf
 from model_utils import lengths_mask
 
-from data_provider import get_split#, get_split2, get_split3
+from data_provider_fmfcc import get_split#, get_split2, get_split3
 from losses import batch_masked_concordance_cc, batch_masked_mse, L2loss
 
 

@@ -462,6 +462,7 @@ def temp_conv_network2(inputs, options):
     inputs = temp_conv_block(inputs, options['num_classes'], training, final_layer=True)
     return inputs
 
+
 def temp_res_conv_network(inputs, options):
     """
     does not include dense output network but instead has a 1dconv final layer with
@@ -476,14 +477,74 @@ def temp_res_conv_network(inputs, options):
             inputs = temp_conv_block(inputs, layer_dim, training)
         inputs = temp_res_conv_block(inputs, layer_dim, training)
         print('input shape after %d temp conv layer %s' % (i, inputs.get_shape().as_list()))
-    #inputs = temp_conv_block(inputs, options['num_classes'], training, final_layer=True)
-    #inputs = tf.layers.dense(inputs=inputs, units=options['num_classes'], activation=None, use_bias=True,
-    #                         kernel_initializer=tf.keras.initializers.he_normal(seed=None),
-    #                         bias_initializer=tf.zeros_initializer(),
-    #                         kernel_regularizer=None, bias_regularizer=None, activity_regularizer=None,
-    #                         kernel_constraint=None, bias_constraint=None, trainable=True,
-    #                         name=None, reuse=None)
     return inputs
+
+
+def dense_1d_block(inputs, training, out_dim, bottleneck=False):
+    """
+    https://arxiv.org/pdf/1608.06993.pdf
+    """
+    inputs_l = tf.layers.batch_normalization(inputs, axis=-1, momentum=0.99, epsilon=0.001,
+        center=True, scale=True, beta_initializer=tf.zeros_initializer(),
+        gamma_initializer=tf.ones_initializer(),
+        moving_mean_initializer=tf.zeros_initializer(),
+        moving_variance_initializer=tf.ones_initializer(),
+        beta_regularizer=None, gamma_regularizer=None, beta_constraint=None,
+        gamma_constraint=None,
+        training=training, trainable=True, renorm=False, renorm_clipping=None,
+        renorm_momentum=0.99)
+    inputs_ = tf.nn.relu(inputs_l)
+    if bottleneck:
+        inputs_l = tf.layers.conv1d(inputs=inputs_l, filters=4*out_dim, kernel_size=1, strides=1,
+                                  padding='same',  # 'same'
+                                  data_format='channels_last', dilation_rate=1, activation=None,
+                                  use_bias=True, kernel_initializer=tf.keras.initializers.he_normal(seed=None),
+                                  bias_initializer=None,
+                                  kernel_regularizer=None, bias_regularizer=None, activity_regularizer=None,
+                                  kernel_constraint=None, bias_constraint=None, trainable=True,
+                                  name=None, reuse=None)
+    outputs = tf.layers.conv1d(inputs=inputs_l, filters=out_dim, kernel_size=3, strides=1,
+        padding='same',  # 'same'
+        data_format='channels_last', dilation_rate=1, activation=None,
+        use_bias=True, kernel_initializer=tf.keras.initializers.he_normal(seed=None),
+        bias_initializer=None,
+        kernel_regularizer=None, bias_regularizer=None, activity_regularizer=None,
+        kernel_constraint=None, bias_constraint=None, trainable=True,
+        name=None, reuse=None)
+    inputs_next = tf.concat([inputs, outputs], axis=-1)
+    return outputs, inputs_next
+
+
+def dense_1d_conv_network(inputs_0, options):
+    """
+    https://arxiv.org/pdf/1608.06993.pdf
+    """
+    training = options['is_training']
+    growth_rate = options['growth_rate']
+    num_layers = options['num_layers']
+    final_layer_dim = options['final_layer_dim']
+    print('Dense Temporal Convolution')
+    print('input shape %s' % inputs_0.get_shape())
+    outputs = tf.layers.conv1d(inputs=inputs_0, filters=growth_rate, kernel_size=3, strides=1,
+        padding='same',  # 'same'
+        data_format='channels_last', dilation_rate=1, activation=None,
+        use_bias=True, kernel_initializer=tf.keras.initializers.he_normal(seed=None),
+        bias_initializer=None,
+        kernel_regularizer=None, bias_regularizer=None, activity_regularizer=None,
+        kernel_constraint=None, bias_constraint=None, trainable=True,
+        name=None, reuse=None)
+    inputs_next = tf.concat([inputs_0, outputs], axis=-1)
+    print('output shape after 1 temp conv layer %s' % (outputs.get_shape().as_list()))
+    print('next feature map shape after 1 temp conv layer %s' % (inputs_next.get_shape().as_list()))
+    for i in range(num_layers-2):
+        outputs, inputs_next = dense_1d_block(inputs_next, training, growth_rate, bottleneck=False)
+        print('output shape after %d temp conv layer %s' % (i, outputs.get_shape().as_list()))
+        print('next feature map shape after %d temp conv layer %s' % (i, inputs_next.get_shape().as_list()))
+    outputs, inputs_next = dense_1d_block(inputs_next, training, final_layer_dim, bottleneck=False)
+    print('output shape after %d temp conv layer %s' % (i, outputs.get_shape().as_list()))
+    print('next feature map shape after %d temp conv layer %s' % (i, inputs_next.get_shape().as_list()))
+    return outputs
+
 
 def bilstm(inputs, options):
     inputs_reverse = tf.reverse(inputs, axis=[1])

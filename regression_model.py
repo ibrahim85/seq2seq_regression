@@ -5,7 +5,7 @@ from __future__ import print_function
 import numpy as np
 import tensorflow as tf
 
-from data_provider import get_split, get_split2, get_split3
+from data_provider_2d import get_split, get_split2, get_split3
 from model.model_utils import stacked_lstm, blstm_encoder
 
 

@@ -7,7 +7,7 @@ from basic_models import BasicModel
 
 from model_utils import stacked_lstm, backend_resnet
 # from resnet_model_utils import ResNet
-from data_provider import get_split
+from data_provider_2d import get_split
 
 class ResNetModel(BasicModel):
     """
