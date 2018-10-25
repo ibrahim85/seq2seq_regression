@@ -32,13 +32,13 @@ options = {
     #'ccc_loss_per_batch': False,  # set True for PT loss (mean per component/batch), False (mean per component per sample)
     'reg_constant': 0.000,
     'max_grad_norm': 10.0,
-    'num_epochs': 50,  # number of epochs over dataset for training
+    'num_epochs': 2,  # number of epochs over dataset for training
     'start_epoch': 1,  # epoch to start
     'current_epoch': 1,
     'reset_global_step': True,
     'train_era_step': 1,  # start train step during current era, value of 0 saves the current model
 
-    'learn_rate': 0.0001,  # initial learn rate corresponing top global step 0, or max lr for Adam
+    'learn_rate': 0.00005,  # initial learn rate corresponing top global step 0, or max lr for Adam
     'learn_rate_decay': 0.975,
     'staircase_decay': True,
     'decay_steps': 0.75,
@@ -48,13 +48,13 @@ options = {
     'restore': False, # boolean. restore model from disk
     'restore_model': "/data/mat10/Projects/audio23d/Models/1dconv/conv1d_100words_ccloss_era1_epoch1_step1478",
 
-    'save': False,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/Projects/audio23d/Models/1dconv/conv1d_ccloss_era1",
+    'save': True,  # boolean. save model to disk during current era
+    'save_model': "/data/mat10/Projects/audio23d/Models/1dconv_dense/1dconv_dense_seq10_era1",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
 
     'save_graph': False,
-    'save_dir': "/data/mat10/Projects/audio23d/Models/1dconv/summaries",
+    'save_dir': "/data/mat10/Projects/audio23d/Models/1dconv_dense/summaries",
     'save_summaries': False
 
           }

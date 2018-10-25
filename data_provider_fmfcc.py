@@ -245,7 +245,7 @@ def get_split(options):
 
     # curicullum learning
     if  options['max_seq_len'] is not None:
-        start_id = 0  # np.random.randint(0, 30, 1)[0]
+        start_id = np.random.randint(0, 30, 1)[0]
         label = tf.slice(
             label, begin=[0, start_id, 0], size=[batch_size, start_id+options['max_seq_len'], dim_label])
         label_lengths = tf.constant(value=options['max_seq_len'], shape=[batch_size])

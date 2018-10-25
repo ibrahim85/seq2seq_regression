@@ -5,10 +5,10 @@ import numpy as np
 set_gpu(1)
 
 options = {
-    'data_root_dir': "/home/michaeltrs/Projects/audio23d/data",
-# "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_lrs",
+    'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_lrs", 
+# "/home/michaeltrs/Projects/audio23d/data",
 # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
-    'split_name': "example",  # ""train",  # 'devel',
+    'split_name': "train",  # 'devel',
     'is_training' : True,
     'data_in': 'mfcc',  # mfcc, melf, melf_2d
     'max_seq_len': 10,
@@ -55,7 +55,7 @@ options = {
     'reset_global_step': True,
     'train_era_step': 1,  # start train step during current era, value of 0 saves the current model
 
-    'learn_rate': 0.001,  # initial learn rate corresponing top global step 0, or max lr for Adam
+    'learn_rate': 0.0001,  # initial learn rate corresponing top global step 0, or max lr for Adam
     'learn_rate_decay': 0.99,
     'staircase_decay': True,
     'decay_steps': 100,
@@ -65,14 +65,14 @@ options = {
     'restore': False, # boolean. restore model from disk
     'restore_model':"/data/mat10/Projects/audio23d/Models/1dconv/conv1d_100words_ccloss_era1_epoch1_step1478",
 
-    'save': False,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/Projects/audio23d/Models/1dconv/conv1d_ccloss_era1",
+    'save': True,  # boolean. save model to disk during current era
+    'save_model': "/data/mat10/Projects/audio23d/Models/1dconv_res/1dconv_res_seq10_era1",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
 
     'save_graph': False,
-    'save_dir': "/data/mat10/Projects/audio23d/Models/1dconv/summaries",
-    'save_summaries': False
+    'save_dir': "/data/mat10/Projects/audio23d/Models/1dconv_res/summaries",
+    'save_summaries': True
 
           }
 

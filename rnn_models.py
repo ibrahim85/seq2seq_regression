@@ -122,6 +122,14 @@ class RNNplusModel(BasicModel):
             kernel_regularizer=None, bias_regularizer=None, activity_regularizer=None,
             kernel_constraint=None, bias_constraint=None, trainable=True,
             name=None, reuse=None)
+        self.encoder_inputs = tf.layers.batch_normalization(self.encoder_inputs,
+            axis=-1, momentum=0.99, epsilon=0.001, center=True, scale=True,
+            beta_initializer=tf.zeros_initializer(),
+            gamma_initializer=tf.ones_initializer(),
+            moving_mean_initializer=tf.zeros_initializer(),
+            moving_variance_initializer=tf.ones_initializer(),
+            training=self.is_training)
+        self.encoder_inputs = tf.nn.relu(self.encoder_inputs)
 
         if self.options['has_encoder']:
             with tf.variable_scope('encoder'):
