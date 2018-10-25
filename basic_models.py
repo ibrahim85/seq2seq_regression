@@ -56,6 +56,11 @@ class BasicModel:
         self.init_global_step()
         self.sampling_prob = tf.constant(0)
 
+        # the following two lines are for compatability (needs to print)
+        # there is no use for sampling_prob when there is no decoder
+        ss_prob = self.options['ss_prob']
+        self.sampling_prob = tf.constant(ss_prob, dtype=tf.float32)
+
     def build_train_graph(self):
         pass
 
