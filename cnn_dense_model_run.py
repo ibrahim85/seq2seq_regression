@@ -15,7 +15,7 @@ options = {
     'data_in': 'mfcc',  # mfcc, melf, melf_2d
     'max_seq_len': 10,
     # 'use_rmse': False,
-    'batch_size': 32,   # number of examples in queue either for training or inference
+    'batch_size': 64,   # number of examples in queue either for training or inference
     # 'reverse_time': False,
     # 'shuffle': True,
     # 'random_crop': False,
@@ -32,13 +32,13 @@ options = {
     #'ccc_loss_per_batch': False,  # set True for PT loss (mean per component/batch), False (mean per component per sample)
     'reg_constant': 0.000,
     'max_grad_norm': 10.0,
-    'num_epochs': 2,  # number of epochs over dataset for training
+    'num_epochs': 10,  # number of epochs over dataset for training
     'start_epoch': 1,  # epoch to start
     'current_epoch': 1,
     'reset_global_step': True,
     'train_era_step': 1,  # start train step during current era, value of 0 saves the current model
 
-    'learn_rate': 0.00005,  # initial learn rate corresponing top global step 0, or max lr for Adam
+    'learn_rate': 0.0001,  # initial learn rate corresponing top global step 0, or max lr for Adam
     'learn_rate_decay': 0.975,
     'staircase_decay': True,
     'decay_steps': 0.75,
@@ -75,6 +75,4 @@ if options['is_training']:
     model.train(sess)
 else:
     loss = model.eval(sess, return_words=False)
-
-
 
