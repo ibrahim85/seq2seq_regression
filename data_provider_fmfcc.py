@@ -250,11 +250,11 @@ def get_split(options):
         print("CHANGE start_id FROM 0 TO rand(0, 30)")
         print("################################################################")
         label = tf.slice(
-            label, begin=[0, start_id, 0], size=[batch_size, start_id+options['max_seq_len'], dim_label])
-        label_lengths = tf.constant(value=options['max_seq_len'], shape=[batch_size])
+            label, begin=[0, start_id, 0], size=[batch_size, options['max_seq_len'], dim_label])
+        label_lengths = length(label)
         audio_frames = tf.slice(
-            audio_frames, begin=[0, start_id, 0], size=[batch_size, start_id+options['max_seq_len'], dim_mfcc])
-        audio_frames_lengths = tf.constant(value=options['max_seq_len'], shape=[batch_size])
+            audio_frames, begin=[0, start_id, 0], size=[batch_size, options['max_seq_len'], dim_mfcc])
+        audio_frames_lengths = length(audio_frames)
 
     return audio_frames, label, audio_frames_lengths, label_lengths, word, num_examples
         # subject_id, label, raw_audio, frame_mfcc, frame_mfcc_overlap, delta_frame_mfcc, delta2_frame_mfcc, \
