@@ -2,7 +2,7 @@ from cnn_models import CNNModel
 from tf_utils import start_interactive_session, set_gpu
 import numpy as np
 
-set_gpu(1)
+set_gpu(7)
 
 options = {
     'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_lrs",
@@ -11,7 +11,7 @@ options = {
     'split_name': "train",  # 'devel',
     'is_training' : True,
     'data_in': 'mfcc',  # mfcc, melf, melf_2d
-    'max_seq_len': 10,
+    'max_seq_len': -20,
     'use_rmse': False,
     'batch_size': 64,   # number of examples in queue either for training or inference
     'reverse_time': False,
@@ -56,17 +56,17 @@ options = {
     'train_era_step': 1,  # start train step during current era, value of 0 saves the current model
 
     'learn_rate': 0.0001,  # initial learn rate corresponing top global step 0, or max lr for Adam
-    'learn_rate_decay': 0.99,
+    'learn_rate_decay': 0.975,
     'staircase_decay': True,
     'decay_steps': 0.75,
 
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
 
-    'restore': False, # boolean. restore model from disk
-    'restore_model':"/data/mat10/Projects/audio23d/Models/1dconv_res/1dconv_res_seq10_era1_epoch2_step1208",
+    'restore': True, # boolean. restore model from disk
+    'restore_model':"/data/mat10/Projects/audio23d/Models/1dconv_res/1dconv_res_seq10_era1_epoch10_step604",
 
     'save': True,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/Projects/audio23d/Models/1dconv_res/1dconv_res_seq10_era1",
+    'save_model': "/data/mat10/Projects/audio23d/Models/1dconv_res/1dconv_res_all_era1",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
 

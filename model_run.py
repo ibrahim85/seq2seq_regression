@@ -4,7 +4,7 @@ from tf_utils import start_interactive_session, set_gpu
 from rnn_models import RNNModel
 import numpy as np
 
-set_gpu(1)
+set_gpu(5)
 
 options = {
     'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_lrs",
@@ -12,7 +12,7 @@ options = {
 
     'is_training' : True,
     'data_in': 'mfcc',  # mfcc, melf, melf_2d
-    'max_seq_len': 10,
+    'max_seq_len': None,
     'split_name': 'train',
     'data_in': 'mfcc',  # mfcc, melf, melf_2d
     'use_rmse': False,
@@ -58,9 +58,9 @@ options = {
     'ccc_loss_per_batch': False,  # set True for PT loss (mean per component/batch), False (mean per component per sample)
     'reg_constant': 0.00,
     'max_grad_norm': 5.0,
-    'num_epochs': 10,  # number of epochs over dataset for training
+    'num_epochs': 30,  # number of epochs over dataset for training
     'start_epoch': 1,  # epoch to start
-    'reset_global_step': False,
+    'reset_global_step': True,
     'train_era_step': 1,  # start train step during current era, value of 0 saves the current model
 
     'learn_rate': 0.0001,  # initial learn rate corresponing top global step 0, or max lr for Adam
@@ -71,10 +71,10 @@ options = {
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
 
     'restore': False, # boolean. restore model from disk
-    'restore_model': "/data/mat10/Projects/audio23d/Models/lstm/lstm_seq10_era1_epoch2_step1208",
+    'restore_model': "/data/mat10/Projects/audio23d/Models/lstm/lstm_seq10_era1_epoch10_step604",
 
     'save': True,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/Projects/audio23d/Models/lstm/lstm_seq10_era1",
+    'save_model': "/data/mat10/Projects/audio23d/Models/lstm/lstm_all_era1",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
 
