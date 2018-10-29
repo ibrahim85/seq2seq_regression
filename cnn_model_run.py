@@ -2,18 +2,19 @@ from cnn_models import CNNModel
 from tf_utils import start_interactive_session, set_gpu
 import numpy as np
 
-set_gpu(7)
+set_gpu(1)
 
 options = {
-    'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_lrs",
-# "/home/michaeltrs/Projects/audio23d/data",
+    'data_root_dir': "/home/michaeltrs/Projects/audio23d/data",
+# "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_lrs",
+
 # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
-    'split_name': "train",  # 'devel',
+    'split_name': "example",  # 'devel',
     'is_training' : True,
     'data_in': 'mfcc',  # mfcc, melf, melf_2d
-    'max_seq_len': -20,
+    'max_seq_len': None, # -20,
     'use_rmse': False,
-    'batch_size': 64,   # number of examples in queue either for training or inference
+    'batch_size': 2,   # number of examples in queue either for training or inference
     'reverse_time': False,
     'shuffle': True,
     'random_crop': False,
@@ -46,11 +47,11 @@ options = {
     'max_in_len': None,  # maximum number of frames in input videos
     'max_out_len': None,  # maximum number of characters in output text
 
-    'loss_fun': "concordance_cc",
+    'loss_fun': "mse",  # ""concordance_cc",
     #'ccc_loss_per_batch': False,  # set True for PT loss (mean per component/batch), False (mean per component per sample)
     'reg_constant': 0.000,
     'max_grad_norm': 10.0,
-    'num_epochs': 10,  # number of epochs over dataset for training
+    'num_epochs': 1000,  # number of epochs over dataset for training
     'start_epoch': 1,  # epoch to start
     'reset_global_step': True,
     'train_era_step': 1,  # start train step during current era, value of 0 saves the current model
@@ -62,17 +63,17 @@ options = {
 
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
 
-    'restore': True, # boolean. restore model from disk
+    'restore': False, # boolean. restore model from disk
     'restore_model':"/data/mat10/Projects/audio23d/Models/1dconv_res/1dconv_res_seq10_era1_epoch10_step604",
 
-    'save': True,  # boolean. save model to disk during current era
+    'save': False,  # boolean. save model to disk during current era
     'save_model': "/data/mat10/Projects/audio23d/Models/1dconv_res/1dconv_res_all_era1",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
 
     'save_graph': False,
     'save_dir': "/data/mat10/Projects/audio23d/Models/1dconv_res/summaries",
-    'save_summaries': True
+    'save_summaries': False
 
           }
 

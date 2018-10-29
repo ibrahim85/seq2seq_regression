@@ -190,7 +190,6 @@ def get_split(options):
     # subject_id = tf.reshape(subject_id, (batch_size, -1))
     # seq_length = -1
     label = tf.reshape(label, (batch_size, -1, dim_label))
-    label_lengths = length(label)
     # raw_audio = tf.reshape(raw_audio, (batch_size, -1, dim_raw_audio))
     
     # # frame mfcc
@@ -241,35 +240,19 @@ def get_split(options):
     # delta_noisy_frame_rmse = tf.reshape(delta_noisy_frame_rmse, (batch_size, seq_length, num_fms, 1))
     # delta2_noisy_frame_rmse = tf.reshape(delta2_noisy_frame_rmse, (batch_size, seq_length, num_fms, 1))
     audio_frames = frame_mfcc
+
+    # curicullum learning and random start
+    if options['max_seq_len'] is not None:
+        if options['max_seq_len'] < 0:
+            start_id = np.random.randint(0, -options['max_seq_len'], 1)[0]
+            label = label[:, start_id:, :]
+            audio_frames = audio_frames[:, start_id:, :]
+        else:
+            start_id = np.random.randint(0, 30, 1)[0]   # start among the first 30 frames
+            label = label[:, start_id:start_id+options['max_seq_len'], :]
+            audio_frames = audio_frames[:, start_id:start_id+options['max_seq_len'], :]
+    label_lengths = length(label)
     audio_frames_lengths = length(audio_frames)
-
-    # curicullum learning
-    if  options['max_seq_len'] < 0:
-        start_id = np.random.randint(0, -options['max_seq_len'], 1)[0]
-        print("################################################################")
-        #print("CHANGE start_id FROM 0 TO rand(0, 30)")
-        print("################################################################")
-        label = label[:, start_id:, :]
-            #tf.slice(
-            #label, begin=[0, start_id, 0], size=[batch_size, :, dim_label])
-        label_lengths = length(label)
-        audio_frames = audio_frames[:, start_id:, :]
-            #tf.slice(
-            #audio_frames, begin=[0, start_id, 0], size=[batch_size, :, dim_mfcc])
-        audio_frames_lengths = length(audio_frames)
-
-    elif  options['max_seq_len'] is not None:
-        start_id = np.random.randint(0, 30, 1)[0]
-        print("################################################################")
-        print("CHANGE start_id FROM 0 TO rand(0, 30)")
-        print("################################################################")
-        label = tf.slice(
-            label, begin=[0, start_id, 0], size=[batch_size, options['max_seq_len'], dim_label])
-        label_lengths = length(label)
-        audio_frames = tf.slice(
-            audio_frames, begin=[0, start_id, 0], size=[batch_size, options['max_seq_len'], dim_mfcc])
-        audio_frames_lengths = length(audio_frames)
-
     return audio_frames, label, audio_frames_lengths, label_lengths, word, num_examples
         # subject_id, label, raw_audio, frame_mfcc, frame_mfcc_overlap, delta_frame_mfcc, delta2_frame_mfcc, \
         #    frame_melspectrogram, delta_frame_melspectrogram, delta2_frame_melspectrogram, frame_melspectrogram_overlap, \

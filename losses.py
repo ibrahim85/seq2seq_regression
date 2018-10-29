@@ -9,49 +9,49 @@ def masked_loss(values_in, loss_fun):
     return loss_fun(prediction, ground_truth)
 
 
-def batch_masked_loss(values_in, loss_fun, options, return_mean=True):
-    predictions, ground_truths, mask = values_in
-    max_label_len = tf.shape(ground_truths)[1]
-    label_dim = tf.shape(ground_truths)[-1]
-    # mask = tf.expand_dims(mask, -1)
-    # multiply = tf.constant([1, 1, options['num_classes']])
-    # mask = tf.tile(mask, multiply)
-    #if options['ccc_loss_per_batch']:
-    #    train_losses = [loss_fun(
-    #        (tf.reshape(predictions[:, :, i], (-1,)),
-    #         tf.reshape(ground_truths[:, :, i], (-1,)),
-    #         tf.reshape(mask[:, :, i], (-1,))))
-    #        for i in range(options['num_classes'])]
-    #else:  # CCC loss per example per component over time
-        #train_losses = [[loss_fun(
-        #    (tf.reshape(predictions[n, :, i], (-1,)),
-        #     tf.reshape(ground_truths[n, :, i], (-1,)),
-        #     tf.reshape(mask[n, :, i], (-1,))))
-        #    for i in range(options['num_classes'])]
-        #    for n in range(options['batch_size'])]
-    if options['loss_fun'] == "concordance_cc":
-        predictions = tf.transpose(predictions, (0, 2, 1))
-        ground_truths = tf.transpose(ground_truths, (0, 2, 1))
-        mask = tf.transpose(mask, (0, 2, 1))
-        train_losses = tf.map_fn(
-            fn=loss_fun,
-            elems=(tf.reshape(predictions, (-1, max_label_len)),
-                   tf.reshape(ground_truths, (-1, max_label_len)),
-                   tf.reshape(mask, (-1, max_label_len))),
-            dtype=tf.float32,
-            parallel_iterations=10)
-    elif options['loss_fun'] == "mse":
-        train_losses = tf.map_fn(
-            fn=loss_fun,
-            elems=(tf.reshape(predictions, (-1, label_dim)),
-                   tf.reshape(ground_truths, (-1, label_dim)),
-                   tf.reshape(mask, (-1, label_dim))),
-            dtype=tf.float32,
-            parallel_iterations=10)
-        train_losses = tf.boolean_mask(train_losses, tf.logical_not(tf.is_nan(train_losses)))
-    if return_mean:
-        return tf.reduce_mean(train_losses)
-    return train_losses
+# def batch_masked_loss(values_in, loss_fun, options, return_mean=True):
+#     predictions, ground_truths, mask = values_in
+#     max_label_len = tf.shape(ground_truths)[1]
+#     label_dim = tf.shape(ground_truths)[-1]
+#     # mask = tf.expand_dims(mask, -1)
+#     # multiply = tf.constant([1, 1, options['num_classes']])
+#     # mask = tf.tile(mask, multiply)
+#     #if options['ccc_loss_per_batch']:
+#     #    train_losses = [loss_fun(
+#     #        (tf.reshape(predictions[:, :, i], (-1,)),
+#     #         tf.reshape(ground_truths[:, :, i], (-1,)),
+#     #         tf.reshape(mask[:, :, i], (-1,))))
+#     #        for i in range(options['num_classes'])]
+#     #else:  # CCC loss per example per component over time
+#         #train_losses = [[loss_fun(
+#         #    (tf.reshape(predictions[n, :, i], (-1,)),
+#         #     tf.reshape(ground_truths[n, :, i], (-1,)),
+#         #     tf.reshape(mask[n, :, i], (-1,))))
+#         #    for i in range(options['num_classes'])]
+#         #    for n in range(options['batch_size'])]
+#     if options['loss_fun'] == "concordance_cc":
+#         predictions = tf.transpose(predictions, (0, 2, 1))
+#         ground_truths = tf.transpose(ground_truths, (0, 2, 1))
+#         mask = tf.transpose(mask, (0, 2, 1))
+#         train_losses = tf.map_fn(
+#             fn=loss_fun,
+#             elems=(tf.reshape(predictions, (-1, max_label_len)),
+#                    tf.reshape(ground_truths, (-1, max_label_len)),
+#                    tf.reshape(mask, (-1, max_label_len))),
+#             dtype=tf.float32,
+#             parallel_iterations=10)
+#     elif options['loss_fun'] == "mse":
+#         train_losses = tf.map_fn(
+#             fn=loss_fun,
+#             elems=(tf.reshape(predictions, (-1, label_dim)),
+#                    tf.reshape(ground_truths, (-1, label_dim)),
+#                    tf.reshape(mask, (-1, label_dim))),
+#             dtype=tf.float32,
+#             parallel_iterations=10)
+#         train_losses = tf.boolean_mask(train_losses, tf.logical_not(tf.is_nan(train_losses)))
+#     if return_mean:
+#         return tf.reduce_mean(train_losses)
+#     return train_losses
 
 
 def concordance_cc(prediction, ground_truth):
@@ -70,29 +70,27 @@ def concordance_cc(prediction, ground_truth):
     return - (2 * mean_cent_prod) / (pred_var + gt_var + tf.square(pred_mean - gt_mean))
 
 
-def masked_concordance_cc(values_in):
-    return masked_loss(values_in, concordance_cc)
-
-
 def batch_masked_concordance_cc(values_in, options, return_mean=True):
+    def masked_concordance_cc(values_in):
+        return masked_loss(values_in, concordance_cc)
     predictions, ground_truths, mask = values_in
     max_label_len = tf.shape(ground_truths)[1]
     label_dim = tf.shape(ground_truths)[-1]
-    #predictions = tf.transpose(predictions, (0, 2, 1))
-    #ground_truths = tf.transpose(ground_truths, (0, 2, 1))
-    #mask = tf.transpose(mask, (0, 2, 1))
-    #train_losses = tf.map_fn(
-    #    fn=masked_concordance_cc,
-    #    elems=(tf.reshape(predictions, (-1, max_label_len)),
-    #           tf.reshape(ground_truths, (-1, max_label_len)),
-    #           tf.reshape(mask, (-1, max_label_len))),
-    #    dtype=tf.float32,
-    #    parallel_iterations=10)
-    train_losses = [masked_concordance_cc(
-        (tf.reshape(predictions[:, :, i], (-1,)), 
-         tf.reshape(ground_truths[:, :, i], (-1,)), 
-         tf.reshape(mask[:, :, i], (-1,))))
-        for i in range(options['num_classes'])] 
+    predictions = tf.transpose(predictions, (0, 2, 1))
+    ground_truths = tf.transpose(ground_truths, (0, 2, 1))
+    mask = tf.transpose(mask, (0, 2, 1))
+    train_losses = tf.map_fn(
+       fn=masked_concordance_cc,
+       elems=(tf.reshape(predictions, (-1, max_label_len)),
+              tf.reshape(ground_truths, (-1, max_label_len)),
+              tf.reshape(mask, (-1, max_label_len))),
+       dtype=tf.float32,
+       parallel_iterations=label_dim)
+    # train_losses = [masked_concordance_cc(
+    #     (tf.reshape(predictions[:, :, i], (-1,)),
+    #      tf.reshape(ground_truths[:, :, i], (-1,)),
+    #      tf.reshape(mask[:, :, i], (-1,))))
+    #     for i in range(options['num_classes'])]
     if return_mean:
         return tf.reduce_mean(train_losses)
     return train_losses
@@ -103,21 +101,27 @@ def mse(prediction, ground_truth):
         tf.pow(prediction - ground_truth, 2))
 
 
-def masked_mse(values_in):
-    return masked_loss(values_in, mse)
-
-
 def batch_masked_mse(values_in, options, return_mean=True):
+    def masked_mse(values_in):
+        return masked_loss(values_in, mse)
     predictions, ground_truths, mask = values_in
-    #max_label_len = tf.shape(ground_truths)[1]
-    label_dim = tf.shape(ground_truths)[-1]
+    batch_size =options['batch_size']
+    # # option 1 - take average per label vector
+    # train_losses = tf.map_fn(
+    #         fn=masked_mse,
+    #         elems=(tf.reshape(predictions, (-1, label_dim)),
+    #                tf.reshape(ground_truths, (-1, label_dim)),
+    #                tf.reshape(mask, (-1, label_dim))),
+    #         dtype=tf.float32,
+    #         parallel_iterations=10)
+    # option 2 - take average per sample
     train_losses = tf.map_fn(
             fn=masked_mse,
-            elems=(tf.reshape(predictions, (-1, label_dim)),
-                   tf.reshape(ground_truths, (-1, label_dim)),
-                   tf.reshape(mask, (-1, label_dim))),
+            elems=(tf.reshape(predictions, (batch_size, -1)),
+                   tf.reshape(ground_truths, (batch_size, -1)),
+                   tf.reshape(mask, (batch_size, -1))),
             dtype=tf.float32,
-            parallel_iterations=10)
+            parallel_iterations=batch_size)
     train_losses = tf.boolean_mask(train_losses, tf.logical_not(tf.is_nan(train_losses)))
     if return_mean:
         return tf.reduce_mean(train_losses)
