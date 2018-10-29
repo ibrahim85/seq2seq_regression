@@ -2,22 +2,22 @@ from cnn_models import CNNModel
 from tf_utils import start_interactive_session, set_gpu
 import numpy as np
 
-set_gpu(3)
+set_gpu(-1)
 
 options = {
     'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_lrs",
 # "/home/michaeltrs/Projects/audio23d/data",
 # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
-    'split_name': "train",  # 'devel',
-    'is_training' : True,
+    'split_name': 'devel',
+    'is_training' : False,
     'data_in': 'mfcc',  # mfcc, melf, melf_2d
     'max_seq_len': -20,
     'use_rmse': False,
     'batch_size': 128,   # number of examples in queue either for training or inference
-    'reverse_time': False,
-    'shuffle': True,
-    'random_crop': False,
-    'standardize_inputs_and_labels': False,
+    #'reverse_time': False,
+    #'shuffle': False,
+    #'random_crop': False,
+    #'standardize_inputs_and_labels': False,
     'mfcc_num_features': 20,  # 20,
     'raw_audio_num_features': 533,  # 256,
     'num_classes': 28,  # number of output classes 29 = |a-z, " ", <sos>, <eos>|
@@ -63,10 +63,10 @@ options = {
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
 
     'restore': True, # boolean. restore model from disk
-    'restore_model': "/data/mat10/Projects/audio23d/Models/1dconv_res/1dconv_res_all_mse_era1_epoch2_step302",
+    'restore_model': "/data/mat10/Projects/audio23d/Models/1dconv_res/1dconv_res_all_mse_era2_epoch5_step302",
 #"/data/mat10/Projects/audio23d/Models/1dconv_res/1dconv_res_seq10_era1_epoch10_step604",
 
-    'save': True,  # boolean. save model to disk during current era
+    'save': False,  # boolean. save model to disk during current era
     'save_model': "/data/mat10/Projects/audio23d/Models/1dconv_res/1dconv_res_all_mse_era2",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
@@ -92,4 +92,4 @@ if options['restore']:
 if options['is_training']:
     model.train(sess)
 else:
-    loss = model.eval(sess, return_words=False)
+    loss = model.eval(sess, 1000, return_words=False)
