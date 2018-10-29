@@ -237,7 +237,7 @@ class BasicModel:
             self.mask = lengths_mask(self.target_labels, self.target_labels_lengths, self.options)
             if self.options['loss_fun'] is "mse":
                 self.train_loss = batch_masked_mse(
-                    (self.decoder_outputs, self.target_labels, self.mask), self.options, return_mean=False)
+                    (self.decoder_outputs, self.target_labels, self.mask), self.options, return_mean=True)
             elif self.options['loss_fun'] is 'concordance_cc':
                 self.train_loss = batch_masked_concordance_cc(
                     (self.decoder_outputs, self.target_labels, self.mask), self.options)

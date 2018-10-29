@@ -75,7 +75,7 @@ def batch_masked_concordance_cc(values_in, options, return_mean=True):
         return masked_loss(values_in, concordance_cc)
     predictions, ground_truths, mask = values_in
     max_label_len = tf.shape(ground_truths)[1]
-    label_dim = tf.shape(ground_truths)[-1]
+    label_dim = options['num_classes'] 
     predictions = tf.transpose(predictions, (0, 2, 1))
     ground_truths = tf.transpose(ground_truths, (0, 2, 1))
     mask = tf.transpose(mask, (0, 2, 1))
