@@ -1,17 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="c1a86913-0c0e-4386-87e3-d73557d331f0" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/mixed_seq2seq_models.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rnn_seq2seq_models.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/seq2seq_cnn_rnn_model_run.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/seq2seq_rnn_model_run.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/seq2seq_trans_rnn_model_run.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basic_models.py" beforeDir="false" afterPath="$PROJECT_DIR$/basic_models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_provider_fmfcc.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_provider_fmfcc.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rnn_models.py" beforeDir="false" afterPath="$PROJECT_DIR$/rnn_models.py" afterDir="false" />
-    </list>
+    <list default="true" id="c1a86913-0c0e-4386-87e3-d73557d331f0" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -22,7 +12,7 @@
     <session id="1327381187">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="3" />
+          <entry key="project.closed" value="4" />
           <entry key="project.open.time.0" value="2" />
           <entry key="project.open.time.3" value="2" />
           <entry key="project.opened" value="4" />
@@ -60,8 +50,8 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/mixed_seq2seq_models.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="720">
-                  <caret line="101" column="45" lean-forward="true" selection-start-line="101" selection-start-column="45" selection-end-line="101" selection-end-column="45" />
+                <state relative-caret-position="360">
+                  <caret line="77" lean-forward="true" selection-start-line="77" selection-end-line="77" />
                   <folding>
                     <element signature="e#0#38#0" expanded="true" />
                   </folding>
@@ -136,8 +126,8 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/basic_models.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="326">
-                  <caret line="281" column="32" selection-start-line="281" selection-start-column="21" selection-end-line="281" selection-end-column="32" />
+                <state relative-caret-position="311">
+                  <caret line="280" column="53" lean-forward="true" selection-start-line="280" selection-start-column="53" selection-end-line="280" selection-end-column="53" />
                   <folding>
                     <element signature="e#0#38#0" expanded="true" />
                   </folding>
@@ -316,9 +306,8 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="67" y="25" width="1853" height="1055" extended-state="6" />
-    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.18579236" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.18579236" />
       <window_info id="Structure" order="1" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -331,7 +320,7 @@
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Terminal" order="8" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
-      <window_info anchor="bottom" id="Python Console" order="10" visible="true" weight="0.43027028" />
+      <window_info active="true" anchor="bottom" id="Python Console" order="10" visible="true" weight="0.43027028" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -583,16 +572,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mixed_seq2seq_models.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="720">
-          <caret line="101" column="45" lean-forward="true" selection-start-line="101" selection-start-column="45" selection-end-line="101" selection-end-column="45" />
-          <folding>
-            <element signature="e#0#38#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/seq2seq_trans_rnn_model_run.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="210">
@@ -605,8 +584,18 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/basic_models.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="326">
-          <caret line="281" column="32" selection-start-line="281" selection-start-column="21" selection-end-line="281" selection-end-column="32" />
+        <state relative-caret-position="311">
+          <caret line="280" column="53" lean-forward="true" selection-start-line="280" selection-start-column="53" selection-end-line="280" selection-end-column="53" />
+          <folding>
+            <element signature="e#0#38#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mixed_seq2seq_models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="77" lean-forward="true" selection-start-line="77" selection-end-line="77" />
           <folding>
             <element signature="e#0#38#0" expanded="true" />
           </folding>
