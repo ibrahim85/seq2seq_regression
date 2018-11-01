@@ -7,12 +7,13 @@ import numpy as np
 set_gpu(0)
 
 options = {
-    'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_lrs",
+    'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_dtwN",
+# "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_lrs",
 # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",
 
     'is_training' : True,
     'data_in': 'melf',  # mfcc, melf, melf_2d
-    'max_seq_len': -20,
+    'max_seq_len': -4,
     'split_name': 'train',
     #'use_rmse': False,
     'batch_size': 128,   # number of examples in queue either for training or inference
@@ -31,7 +32,7 @@ options = {
     '1dcnn_features_dims': [256, 256, 256],
     
     'has_decoder': True,
-    'decoder_num_layers': 2,  # number of hidden layers in decoder lstm
+    'decoder_num_layers': 1,  # number of hidden layers in decoder lstm
     'residual_decoder': False,  # 
     'decoder_num_hidden': 256,  # number of hidden units in decoder lstm
     'encoder_state_as_decoder_init': False,  # bool. encoder state is used for decoder init state, else zero state
@@ -39,7 +40,7 @@ options = {
     'decoder_dropout_keep_prob': 1.0,
     'attention_type': 'bahdanau',
     'output_attention': True,
-    'attention_layer_size': 256,  # number of hidden units in attention layer
+    'attention_layer_size': 128,  # number of hidden units in attention layer
     'attention_layer_norm': True,
     'num_hidden_out': 128,  # number of hidden units in output fcn
     'alignment_history': False,
@@ -47,11 +48,11 @@ options = {
     #'max_in_len': None,  # maximum number of frames in input videos
     #'max_out_len': None,  # maximum number of characters in output text
 
-    'loss_fun': "mse",  # "mse", "cos", "concordance_cc"
+    'loss_fun': "concordance_cc",
     #'ccc_loss_per_batch': False,  # set True for PT loss (mean per component/batch), False (mean per component per sample)
     'reg_constant': 0.00,
     'max_grad_norm': 10.0, 
-    'num_epochs': 10,  # number of epochs over dataset for training
+    'num_epochs': 30,  # number of epochs over dataset for training
     'start_epoch': 1,  # epoch to start
     'reset_global_step': True,
     'train_era_step': 1,  # start train step during current era, value of 0 saves the current model
@@ -68,13 +69,13 @@ options = {
 #"/data/mat10/Projects/audio23d/Models/seq2seq_cnn_lstm/seq2seq_cnn_lstm_seq10_era1_epoch10_step604",
 
     'save': True,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/Projects/audio23d/Models/seq2seq_cnn_lstm/seq2seq_cnn_lstm_all_melf2_era1",
+    'save_model': "/data/mat10/Projects/audio23d/Models/dtwN/seq2seq_cnn_lstm/seq2seq_cnn_lstm_all_melf_cc_era1",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
 
     'save_graph': False,
-    'save_dir': "/data/mat10/Projects/audio23d/Models/seq2seq_cnn_lstm/summaries",
-    'save_summaries': False
+    'save_dir': "/data/mat10/Projects/audio23d/Models/dtwN/seq2seq_cnn_lstm/summaries",
+    'save_summaries': True
 
           }
 

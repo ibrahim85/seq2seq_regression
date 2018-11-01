@@ -70,7 +70,7 @@ options = {
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
 
     'restore': True, # boolean. restore model from disk
-    'restore_model': "/data/mat10/Projects/audio23d/Models/lstm/lstm_all_melf_era1_epoch3_step301",
+    'restore_model': "/data/mat10/Projects/audio23d/Models/lstm/lstm_all_melf_era1_epoch10_step301",
 
     'save': True,  # boolean. save model to disk during current era
     'save_model': "/data/mat10/Projects/audio23d/Models/lstm/lstm_all_melf_era1",
