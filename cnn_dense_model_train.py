@@ -18,7 +18,7 @@ options = {
     'batch_size': 64,   # number of examples in queue either for training or inference
     # 'reverse_time': False,
     # 'shuffle': True,
-    # 'random_crop': False,
+    'random_crop': False,
     # 'standardize_inputs_and_labels': False,
     'mfcc_num_features': 20,  # 20,
     'raw_audio_num_features': 533,  # 256,

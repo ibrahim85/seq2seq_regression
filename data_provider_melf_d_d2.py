@@ -9,7 +9,6 @@ import random
 
 from pathlib import Path
 
-
 slim = tf.contrib.slim
 
 dim_label = 28
@@ -63,7 +62,8 @@ def get_split(options):
     num_classes = 28
     base_path = Path(options['data_root_dir'])
     if split_name == 'train':
-        paths = np.loadtxt(str(base_path / 'train_set.csv'), dtype='<U150').tolist()
+        paths = np.loadtxt(str(base_path / 'train_set.csv'), dtype='<U150')#.tolist()
+        paths = np.concatenate([paths for i in range(10000)]).tolist()
         # MT - train with limited number of words
         #words = np.asarray(list(map(lambda x: x.split("/")[-1].split("_")[0], paths)))
         #set_words = []
@@ -71,6 +71,9 @@ def get_split(options):
         #paths = [p for i, p in enumerate(paths) if idx[i]]
         #
         #paths = random.sample(paths, 1000) 
+        print('Training examples : ', len(paths))
+    elif split_name == 'example':
+        paths = np.loadtxt(str(base_path / 'example_set.csv'), dtype='<U150').tolist()
         print('Training examples : ', len(paths))
     elif split_name == 'devel':
         paths = np.loadtxt(str(base_path / 'valid_set.csv'), dtype='<U150').tolist()
@@ -185,8 +188,31 @@ def get_split(options):
     #rmse = tf.reshape(rmse, (-1, 1))
     word = features['word']
     
-    dec_features = []
-    batch_features = []
+    if options['random_crop']:
+        rev = tf.random_uniform([1], minval=0, maxval=1, dtype=tf.float32)
+        [label, frame_melspectrogram, delta_frame_melspectrogram, delta2_frame_melspectrogram] = \
+            tf.cond(rev[0] > 0.5,
+                    lambda: [label, frame_melspectrogram, delta_frame_melspectrogram, delta2_frame_melspectrogram],
+                    lambda: [label[::-1], frame_melspectrogram[::-1],
+                             delta_frame_melspectrogram[::-1], delta2_frame_melspectrogram[::-1]])
+
+        maxval = tf.cast(tf.shape(label)[0], tf.float32)
+        s = tf.random_uniform([1], minval=0, maxval=0.3, dtype=tf.float32)
+        s = tf.cast(tf.floor(s * maxval), tf.int32)[0]
+
+        e = tf.random_uniform([1], minval=0.7, maxval=1, dtype=tf.float32)
+        e = tf.cast(tf.floor(e * maxval - tf.cast(s, tf.float32) + 1), tf.int32)[0]
+        e = tf.cond(e > s, lambda: e, lambda: s - e + 1)
+
+        label = tf.slice(label, [s, 0], [e, 28])
+        frame_melspectrogram = tf.slice(frame_melspectrogram, [s, 0], [e, dim_melspecs])
+        delta_frame_melspectrogram = tf.slice(delta_frame_melspectrogram, [s, 0], [e, dim_melspecs])
+        delta2_frame_melspectrogram = tf.slice(delta2_frame_melspectrogram, [s, 0], [e, dim_melspecs])
+        # frame_mfcc = tf.slice(frame_mfcc, [s, 0], [e, 20])
+        # delta_frame_mfcc = tf.slice(delta_frame_mfcc, [s, 0], [e, 20])
+        # delta2_frame_mfcc = tf.slice(delta2_frame_mfcc, [s, 0], [e, 20])
+        # melspectrogram = tf.slice(melspectrogram, [s, 0], [e, 20])
+        # rmse = tf.slice(rmse, [s, 0], [e, 1])
     
     #subject_id, label, raw_audio, frame_mfcc, frame_mfcc_overlap, delta_frame_mfcc, delta2_frame_mfcc, frame_melspectrogram, delta_frame_melspectrogram, delta2_frame_melspectrogram, frame_melspectrogram_overlap, frame_spectral_centroid, delta_frame_spectral_centroid, delta2_frame_spectral_centroid, noisy_frame_mfcc, delta_noisy_frame_mfcc, delta2_noisy_frame_mfcc, noisy_frame_spectral_centroid, delta_noisy_frame_spectral_centroid, delta2_noisy_frame_spectral_centroid, noisy_frame_melspectrogram, delta_noisy_frame_melspectrogram, delta2_noisy_frame_melspectrogram, noisy_frame_rmse, delta_noisy_frame_rmse, delta2_noisy_frame_rmse, seq_len = tf.train.batch([subject_id, label, raw_audio, frame_mfcc, frame_mfcc_overlap, delta_frame_mfcc, delta2_frame_mfcc, frame_melspectrogram, delta_frame_melspectrogram, delta2_frame_melspectrogram, frame_melspectrogram_overlap, frame_spectral_centroid, delta_frame_spectral_centroid, delta2_frame_spectral_centroid, noisy_frame_mfcc, delta_noisy_frame_mfcc, delta2_noisy_frame_mfcc, noisy_frame_spectral_centroid, delta_noisy_frame_spectral_centroid, delta2_noisy_frame_spectral_centroid, noisy_frame_melspectrogram, delta_noisy_frame_melspectrogram, delta2_noisy_frame_melspectrogram, noisy_frame_rmse, delta_noisy_frame_rmse, delta2_noisy_frame_rmse, seq_len], batch_size, num_threads=1, capacity=1000, dynamic_pad=True)
     #subject_id, label, frame_mfcc = tf.train.batch([subject_id, label, frame_mfcc], batch_size, num_threads=1, capacity=1000, dynamic_pad=True)
@@ -194,8 +220,8 @@ def get_split(options):
         tf.train.batch([subject_id, label, frame_melspectrogram, delta_frame_melspectrogram, delta2_frame_melspectrogram],
         batch_size, num_threads=1, capacity=1000, dynamic_pad=True)
 
-    subject_id = tf.reshape(subject_id, (batch_size, -1))
-    seq_length = -1
+    # subject_id = tf.reshape(subject_id, (batch_size, -1))
+    # seq_length = -1
     label = tf.reshape(label, (batch_size, -1, dim_label))
     #raw_audio = tf.reshape(raw_audio, (batch_size, -1, dim_raw_audio))
     
