@@ -72,7 +72,7 @@ def get_split(options):
         print('Training examples : ', len(paths))
     elif split_name == 'devel':
         paths = np.loadtxt(str(base_path / 'valid_set.csv'), dtype='<U150').tolist()
-        paths = paths[:10000]
+        #paths = paths[:10000]
         print('Evaluating examples : ', len(paths))
     elif split_name == 'test':
         paths = np.loadtxt(str(base_path / 'test_set.csv'), dtype='<U150').tolist()

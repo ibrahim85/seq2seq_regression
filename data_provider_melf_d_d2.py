@@ -61,7 +61,7 @@ def get_split(options):
     split_name = options['split_name']
 
     num_classes = 28
-    base_path = Path('/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean/')
+    base_path = Path(options['data_root_dir'])
     if split_name == 'train':
         paths = np.loadtxt(str(base_path / 'train_set.csv'), dtype='<U150').tolist()
         # MT - train with limited number of words

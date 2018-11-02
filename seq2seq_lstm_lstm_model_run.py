@@ -1,21 +1,23 @@
 import tensorflow as tf
 # from data_provider2 import get_split
 from tf_utils import start_interactive_session, set_gpu
-from mixed_seq2seq_models import CNNRNNSeq2SeqModel
+from rnn_seq2seq_models import RNNSeq2SeqModel
 import numpy as np
 
-set_gpu(0)
+set_gpu(3)
 
 options = {
-    'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_lrs",
+    'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_dtwN",
+# "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_lrs",
 # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",
 
     'is_training' : True,
-    'data_in': 'melf',  # mfcc, melf, melf_2d
-    'max_seq_len': -20,
+
+    'max_seq_len': None,  # -3,
     'split_name': 'train',
+    'data_in': 'mfcc',  # mcc, melf, melf_2d
     #'use_rmse': False,
-    'batch_size': 128,   # number of examples in queue either for training or inference
+    'batch_size': 64,   # number of examples in queue either for training or inference
     #'reverse_time': False,
     #'shuffle': True,
     #'random_crop': False,
@@ -28,10 +30,16 @@ options = {
     #'mfcc_gaussian_noise_std': 0.0,  # 0.05,
     #'label_gaussian_noise_std':0.0,
     
-    '1dcnn_features_dims': [256, 256, 256],
+    'has_encoder': True,
+    'encoder_num_layers': 1,  # number of hidden layers in encoder lstm
+    'residual_encoder': False,  # 
+    'encoder_num_hidden': 256,  # number of hidden units in encoder lstm
+    'encoder_dropout_keep_prob' : 1.0,  # probability of keeping neuron, deprecated
+    'encoder_layer_norm': True,
+    'bidir_encoder': False,
     
     'has_decoder': True,
-    'decoder_num_layers': 2,  # number of hidden layers in decoder lstm
+    'decoder_num_layers': 1,  # number of hidden layers in decoder lstm
     'residual_decoder': False,  # 
     'decoder_num_hidden': 256,  # number of hidden units in decoder lstm
     'encoder_state_as_decoder_init': False,  # bool. encoder state is used for decoder init state, else zero state
@@ -39,19 +47,19 @@ options = {
     'decoder_dropout_keep_prob': 1.0,
     'attention_type': 'bahdanau',
     'output_attention': True,
-    'attention_layer_size': 256,  # number of hidden units in attention layer
+    'attention_layer_size': 128,  # number of hidden units in attention layer
     'attention_layer_norm': True,
     'num_hidden_out': 128,  # number of hidden units in output fcn
-    'alignment_history': False,
+    'alignment_history': True,
 
     #'max_in_len': None,  # maximum number of frames in input videos
     #'max_out_len': None,  # maximum number of characters in output text
 
-    'loss_fun': "mse",  # "mse", "cos", "concordance_cc"
+    'loss_fun': "mse",  # "concordance_cc",
     #'ccc_loss_per_batch': False,  # set True for PT loss (mean per component/batch), False (mean per component per sample)
     'reg_constant': 0.00,
     'max_grad_norm': 10.0, 
-    'num_epochs': 10,  # number of epochs over dataset for training
+    'num_epochs': 100,  # number of epochs over dataset for training
     'start_epoch': 1,  # epoch to start
     'reset_global_step': True,
     'train_era_step': 1,  # start train step during current era, value of 0 saves the current model
@@ -64,16 +72,15 @@ options = {
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
    
     'restore': False, # boolean. restore model from disk
-    'restore_model': "/data/mat10/Projects/audio23d/Models/seq2seq_cnn_lstm/seq2seq_cnn_lstm_all_era1_epoch30_step1610",
-#"/data/mat10/Projects/audio23d/Models/seq2seq_cnn_lstm/seq2seq_cnn_lstm_seq10_era1_epoch10_step604",
+    'restore_model': "/data/mat10/Projects/audio23d/Models/seq2seq_lstm_lstm/seq2seq_lstm_lstm_all_era1_epoch30_step1208",
 
-    'save': True,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/Projects/audio23d/Models/seq2seq_cnn_lstm/seq2seq_cnn_lstm_all_melf2_era1",
+    'save': False,  # boolean. save model to disk during current era
+    'save_model': "/data/mat10/Projects/audio23d/Models/dtwN/seq2seq_lstm_lstm/seq2seq_lstm_lstm_all_mfcc_cc_era1",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
 
     'save_graph': False,
-    'save_dir': "/data/mat10/Projects/audio23d/Models/seq2seq_cnn_lstm/summaries",
+    'save_dir': "/data/mat10/Projects/audio23d/Models/dtwN/seq2seq_lstm_lstm/summaries",
     'save_summaries': False
 
           }
@@ -84,7 +91,7 @@ options = {
 #label_lengths, mfcc_lengths, decoder_inputs_lengths = get_split(options)
 #raw_audio, mfcc, label, num_examples, word = get_split()
 
-model = CNNRNNSeq2SeqModel(options)
+model = RNNSeq2SeqModel(options)
 
 sess = start_interactive_session()
 
@@ -97,7 +104,7 @@ if options['restore']:
 if options['is_training']:
     model.train(sess)
 else:
-    loss = model.predict(sess, num_steps=None, return_words=True)
+    loss = model.eval(sess, num_steps=None)#, return_words=True)
 
 #pred = model.predict_from_array(sess, feed_dict)
 

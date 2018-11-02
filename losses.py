@@ -121,7 +121,7 @@ def batch_masked_mse(values_in, options, return_mean=True):
                    tf.reshape(ground_truths, (batch_size, -1)),
                    tf.reshape(mask, (batch_size, -1))),
             dtype=tf.float32,
-            parallel_iterations=batch_size)
+            parallel_iterations=10)  # batch_size)
     train_losses = tf.boolean_mask(train_losses, tf.logical_not(tf.is_nan(train_losses)))
     if return_mean:
         return tf.reduce_mean(train_losses)

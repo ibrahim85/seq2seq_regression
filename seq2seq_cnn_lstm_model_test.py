@@ -10,10 +10,10 @@ options = {
     'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_lrs",
 # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",
 
-    'is_training' : True,
-    'data_in': 'melf',  # mfcc, melf, melf_2d
+    'is_training' : False,
+    'data_in': 'melf',  # mcc, melf, melf_2d
     'max_seq_len': -20,
-    'split_name': 'train',
+    'split_name': 'devel',
     #'use_rmse': False,
     'batch_size': 128,   # number of examples in queue either for training or inference
     #'reverse_time': False,
@@ -51,7 +51,7 @@ options = {
     #'ccc_loss_per_batch': False,  # set True for PT loss (mean per component/batch), False (mean per component per sample)
     'reg_constant': 0.00,
     'max_grad_norm': 10.0, 
-    'num_epochs': 10,  # number of epochs over dataset for training
+    'num_epochs': 100,  # number of epochs over dataset for training
     'start_epoch': 1,  # epoch to start
     'reset_global_step': True,
     'train_era_step': 1,  # start train step during current era, value of 0 saves the current model
@@ -63,12 +63,12 @@ options = {
 
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
    
-    'restore': False, # boolean. restore model from disk
-    'restore_model': "/data/mat10/Projects/audio23d/Models/seq2seq_cnn_lstm/seq2seq_cnn_lstm_all_era1_epoch30_step1610",
+    'restore': True, # boolean. restore model from disk
+    'restore_model': "/data/mat10/Projects/audio23d/Models/seq2seq_cnn_lstm/seq2seq_cnn_lstm_all_melf_era1_epoch20_step604",
 #"/data/mat10/Projects/audio23d/Models/seq2seq_cnn_lstm/seq2seq_cnn_lstm_seq10_era1_epoch10_step604",
 
     'save': True,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/Projects/audio23d/Models/seq2seq_cnn_lstm/seq2seq_cnn_lstm_all_melf2_era1",
+    'save_model': "/data/mat10/Projects/audio23d/Models/seq2seq_cnn_lstm/seq2seq_cnn_lstm_all_melf_era1",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
 
@@ -84,20 +84,26 @@ options = {
 #label_lengths, mfcc_lengths, decoder_inputs_lengths = get_split(options)
 #raw_audio, mfcc, label, num_examples, word = get_split()
 
-model = CNNRNNSeq2SeqModel(options)
+if False:
+    model = CNNRNNSeq2SeqModel(options)
+    sess = start_interactive_session()
+    if options['restore']:
+        model.restore_model(sess)
+    if options['is_training']:
+        model.train(sess)
+    else:
+        loss = model.eval(sess, num_steps=None, return_words=False)
 
-sess = start_interactive_session()
-
-#if options['save_graph']:
-#    model.save_graph(sess)
-
-if options['restore']:
-    model.restore_model(sess)
-
-if options['is_training']:
-    model.train(sess)
-else:
-    loss = model.predict(sess, num_steps=None, return_words=True)
+if True:
+    losses = {}
+    for ep in range(1, 79):
+        options['restore_model'] = "/data/mat10/Projects/audio23d/Models/seq2seq_cnn_lstm/seq2seq_cnn_lstm_all_melf2_era1_epoch%d_step302" % ep
+        model = CNNRNNSeq2SeqModel(options)
+        sess = start_interactive_session()
+        model.restore_model(sess)
+        loss = model.eval(sess, num_steps=None, return_words=False)
+        losses[ep] = np.mean(loss)
+        tf.reset_default_graph()
 
 #pred = model.predict_from_array(sess, feed_dict)
 
