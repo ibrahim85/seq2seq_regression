@@ -70,7 +70,7 @@ def get_split(options):
         #idx = np.asarray([w in set_words for w in words])
         #paths = [p for i, p in enumerate(paths) if idx[i]]
         #
-        #paths = random.sample(paths, 1000) 
+        #paths = random.sample(paths, 10) 
         print('Training examples : ', len(paths))
     elif split_name == 'devel':
         paths = np.loadtxt(str(base_path / 'valid_set.csv'), dtype='<U150').tolist()
@@ -192,7 +192,7 @@ def get_split(options):
     #subject_id, label, frame_mfcc = tf.train.batch([subject_id, label, frame_mfcc], batch_size, num_threads=1, capacity=1000, dynamic_pad=True)
     subject_id, label, frame_melspectrogram, delta_frame_melspectrogram, delta2_frame_melspectrogram = \
         tf.train.batch([subject_id, label, frame_melspectrogram, delta_frame_melspectrogram, delta2_frame_melspectrogram],
-        batch_size, num_threads=1, capacity=1000, dynamic_pad=True)
+        batch_size, num_threads=1, capacity=200, dynamic_pad=True)
 
     subject_id = tf.reshape(subject_id, (batch_size, -1))
     seq_length = -1

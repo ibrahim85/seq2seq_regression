@@ -15,7 +15,7 @@ options = {
 
     'max_seq_len': None,  # -3,
     'split_name': 'train',
-    'data_in': 'mfcc',  # mcc, melf, melf_2d
+    'data_in': 'melf',  # mcc, melf, melf_2d
     #'use_rmse': False,
     'batch_size': 64,   # number of examples in queue either for training or inference
     #'reverse_time': False,
