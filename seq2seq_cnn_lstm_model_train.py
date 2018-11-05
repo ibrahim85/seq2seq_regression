@@ -4,7 +4,7 @@ from tf_utils import start_interactive_session, set_gpu
 from mixed_seq2seq_models import CNNRNNSeq2SeqModel
 import numpy as np
 
-set_gpu(0)
+set_gpu(8)
 
 options = {
     'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_dtwN",
@@ -12,9 +12,9 @@ options = {
 # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",
 
     'is_training' : True,
-    'data_in': 'melf',  # mfcc, melf, melf_2d
+    'data_in': 'mfcc',  # mcc, melf, melf_2d
     'split_name': 'train',
-    'batch_size': 128,   # number of examples in queue either for training or inference
+    'batch_size': 50,   # number of examples in queue either for training or inference
     'random_crop': True,
     'mfcc_num_features': 20,  # 20,
     'raw_audio_num_features': 533,  # 256,

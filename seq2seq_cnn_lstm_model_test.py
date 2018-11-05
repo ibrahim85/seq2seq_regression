@@ -4,7 +4,7 @@ from tf_utils import start_interactive_session, set_gpu
 from mixed_seq2seq_models import CNNRNNSeq2SeqModel
 import numpy as np
 
-set_gpu(0)
+set_gpu(8)
 
 options = {
     'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_lrs",
@@ -12,13 +12,13 @@ options = {
 
     'is_training' : False,
     'data_in': 'melf',  # mcc, melf, melf_2d
-    'max_seq_len': -20,
+    #'max_seq_len': -20,
     'split_name': 'devel',
     #'use_rmse': False,
     'batch_size': 128,   # number of examples in queue either for training or inference
     #'reverse_time': False,
     #'shuffle': True,
-    #'random_crop': False,
+    'random_crop': False,
     #'standardize_inputs_and_labels': True,
     'mfcc_num_features': 20,  # 20,
     'raw_audio_num_features': 533,  # 256,
@@ -63,11 +63,11 @@ options = {
 
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
    
-    'restore': True, # boolean. restore model from disk
+    'restore': False, # boolean. restore model from disk
     'restore_model': "/data/mat10/Projects/audio23d/Models/seq2seq_cnn_lstm/seq2seq_cnn_lstm_all_melf_era1_epoch20_step604",
 #"/data/mat10/Projects/audio23d/Models/seq2seq_cnn_lstm/seq2seq_cnn_lstm_seq10_era1_epoch10_step604",
 
-    'save': True,  # boolean. save model to disk during current era
+    'save': False,  # boolean. save model to disk during current era
     'save_model': "/data/mat10/Projects/audio23d/Models/seq2seq_cnn_lstm/seq2seq_cnn_lstm_all_melf_era1",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
@@ -84,7 +84,7 @@ options = {
 #label_lengths, mfcc_lengths, decoder_inputs_lengths = get_split(options)
 #raw_audio, mfcc, label, num_examples, word = get_split()
 
-if False:
+if True:
     model = CNNRNNSeq2SeqModel(options)
     sess = start_interactive_session()
     if options['restore']:

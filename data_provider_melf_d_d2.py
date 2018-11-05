@@ -62,8 +62,8 @@ def get_split(options):
     num_classes = 28
     base_path = Path(options['data_root_dir'])
     if split_name == 'train':
-        paths = np.loadtxt(str(base_path / 'train_set.csv'), dtype='<U150')#.tolist()
-        paths = np.concatenate([paths for i in range(10000)]).tolist()
+        paths = np.loadtxt(str(base_path / 'train_set.csv'), dtype='<U150').tolist()
+        #paths = np.concatenate([paths for i in range(10000)]).tolist()
         # MT - train with limited number of words
         #words = np.asarray(list(map(lambda x: x.split("/")[-1].split("_")[0], paths)))
         #set_words = []
