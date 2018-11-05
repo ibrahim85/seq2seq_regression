@@ -178,9 +178,26 @@ def get_split(options):
     # rmse = tf.decode_raw(features['rmse'], tf.float32)
     # rmse = tf.reshape(rmse, (-1, 1))
     word = features['word']
-    
-    dec_features = []
-    batch_features = []
+
+    if options['random_crop']:
+        rev = tf.random_uniform([1], minval=0, maxval=1, dtype=tf.float32)
+        [label, frame_mfcc] = tf.cond(rev[0] > 0.5,
+                                      lambda: [label, frame_mfcc], lambda: [label[::-1], frame_mfcc[::-1]])
+
+        maxval = tf.cast(tf.shape(label)[0], tf.float32)
+        s = tf.random_uniform([1], minval=0, maxval=0.3, dtype=tf.float32)
+        s = tf.cast(tf.floor(s * maxval), tf.int32)[0]
+
+        e = tf.random_uniform([1], minval=0.7, maxval=1, dtype=tf.float32)
+        e = tf.cast(tf.floor(e * maxval - tf.cast(s, tf.float32) + 1), tf.int32)[0]
+        e = tf.cond(e > s, lambda: e, lambda: s - e + 1)
+
+        label = tf.slice(label, [s, 0], [e, 28])
+        frame_mfcc = tf.slice(frame_mfcc, [s, 0], [e, 20])
+        # delta_frame_mfcc = tf.slice(delta_frame_mfcc, [s, 0], [e, 20])
+        # delta2_frame_mfcc = tf.slice(delta2_frame_mfcc, [s, 0], [e, 20])
+        # melspectrogram = tf.slice(melspectrogram, [s, 0], [e, 20])
+        # rmse = tf.slice(rmse, [s, 0], [e, 1])
 
     # subject_id, label, raw_audio, frame_mfcc, frame_mfcc_overlap, delta_frame_mfcc, delta2_frame_mfcc, frame_melspectrogram, delta_frame_melspectrogram, delta2_frame_melspectrogram, frame_melspectrogram_overlap, frame_spectral_centroid, delta_frame_spectral_centroid, delta2_frame_spectral_centroid, noisy_frame_mfcc, delta_noisy_frame_mfcc, delta2_noisy_frame_mfcc, noisy_frame_spectral_centroid, delta_noisy_frame_spectral_centroid, delta2_noisy_frame_spectral_centroid, noisy_frame_melspectrogram, delta_noisy_frame_melspectrogram, delta2_noisy_frame_melspectrogram, noisy_frame_rmse, delta_noisy_frame_rmse, delta2_noisy_frame_rmse, seq_len = tf.train.batch([subject_id, label, raw_audio, frame_mfcc, frame_mfcc_overlap, delta_frame_mfcc, delta2_frame_mfcc, frame_melspectrogram, delta_frame_melspectrogram, delta2_frame_melspectrogram, frame_melspectrogram_overlap, frame_spectral_centroid, delta_frame_spectral_centroid, delta2_frame_spectral_centroid, noisy_frame_mfcc, delta_noisy_frame_mfcc, delta2_noisy_frame_mfcc, noisy_frame_spectral_centroid, delta_noisy_frame_spectral_centroid, delta2_noisy_frame_spectral_centroid, noisy_frame_melspectrogram, delta_noisy_frame_melspectrogram, delta2_noisy_frame_melspectrogram, noisy_frame_rmse, delta_noisy_frame_rmse, delta2_noisy_frame_rmse, seq_len],
     #     batch_size, num_threads=1, capacity=1000, dynamic_pad=True)
@@ -241,16 +258,17 @@ def get_split(options):
     # delta2_noisy_frame_rmse = tf.reshape(delta2_noisy_frame_rmse, (batch_size, seq_length, num_fms, 1))
     audio_frames = frame_mfcc
 
-    # curicullum learning and random start
-    if options['max_seq_len'] is not None:
-        if options['max_seq_len'] < 0:
-            start_id = np.random.randint(0, -options['max_seq_len'], 1)[0]
-            label = label[:, start_id:, :]
-            audio_frames = audio_frames[:, start_id:, :]
-        else:
-            start_id = np.random.randint(0, 30, 1)[0]   # start among the first 30 frames
-            label = label[:, start_id:start_id+options['max_seq_len'], :]
-            audio_frames = audio_frames[:, start_id:start_id+options['max_seq_len'], :]
+    ## curicullum learning and random start
+    # if options['max_seq_len'] is not None:
+    #     if options['max_seq_len'] < 0:
+    #         # start_id = np.random.randint(0, -options['max_seq_len'], 1)[0]
+    #         start_id =
+    #         label = label[:, start_id:, :]
+    #         audio_frames = audio_frames[:, start_id:, :]
+    #     else:
+    #         start_id = np.random.randint(0, 30, 1)[0]   # start among the first 30 frames
+    #         label = label[:, start_id:start_id+options['max_seq_len'], :]
+    #         audio_frames = audio_frames[:, start_id:start_id+options['max_seq_len'], :]
     label_lengths = length(label)
     audio_frames_lengths = length(audio_frames)
     return audio_frames, label, audio_frames_lengths, label_lengths, word, num_examples
