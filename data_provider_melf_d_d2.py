@@ -62,15 +62,15 @@ def get_split(options):
     num_classes = 28
     base_path = Path(options['data_root_dir'])
     if split_name == 'train':
-        paths = np.loadtxt(str(base_path / 'train_set.csv'), dtype='<U150')#.tolist()
-        paths = np.concatenate([paths for i in range(10000)]).tolist()
+        paths = np.loadtxt(str(base_path / 'train_set.csv'), dtype='<U150').tolist()
+        #paths = np.concatenate([paths for i in range(10000)]).tolist()
         # MT - train with limited number of words
         #words = np.asarray(list(map(lambda x: x.split("/")[-1].split("_")[0], paths)))
         #set_words = []
         #idx = np.asarray([w in set_words for w in words])
         #paths = [p for i, p in enumerate(paths) if idx[i]]
         #
-        #paths = random.sample(paths, 1000) 
+        #paths = random.sample(paths, 10) 
         print('Training examples : ', len(paths))
     elif split_name == 'example':
         paths = np.loadtxt(str(base_path / 'example_set.csv'), dtype='<U150').tolist()
@@ -218,7 +218,7 @@ def get_split(options):
     #subject_id, label, frame_mfcc = tf.train.batch([subject_id, label, frame_mfcc], batch_size, num_threads=1, capacity=1000, dynamic_pad=True)
     subject_id, label, frame_melspectrogram, delta_frame_melspectrogram, delta2_frame_melspectrogram = \
         tf.train.batch([subject_id, label, frame_melspectrogram, delta_frame_melspectrogram, delta2_frame_melspectrogram],
-        batch_size, num_threads=1, capacity=1000, dynamic_pad=True)
+        batch_size, num_threads=1, capacity=200, dynamic_pad=True)
 
     # subject_id = tf.reshape(subject_id, (batch_size, -1))
     # seq_length = -1

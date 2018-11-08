@@ -12,7 +12,7 @@ from data_provider_melf_d_d2 import get_split as get_split_melf_d_d2
 from data_provider_2d import get_split as get_split_2d
 
 from losses import batch_masked_concordance_cc, batch_masked_mse, L2loss
-
+from time import time
 
 class BasicModel:
     """
@@ -143,6 +143,7 @@ class BasicModel:
         for epoch in range(start_epoch, start_epoch + num_epochs):
             # self.options['current_epoch'] = epoch
             for step in range(number_of_steps):
+                t0 = time()
                 _, ei, do, tl, gstep, loss, l2loss, lr, sp = sess.run(
                     [self.update_step,
                      self.encoder_inputs,
@@ -153,12 +154,12 @@ class BasicModel:
                      self.l2_loss,
                      self.optimizer._lr,
                      self.sampling_prob])
-                print("%d,%d,%d,%d,%d,%.4f,%.4f,%.8f,%.4f"
+                print("%d,%d,%d,%d,%d,%.4f,%.4f,%.8f,%.4f,%.4f"
                       % (gstep, epoch,
                          self.options['num_epochs'],
                          step,
                          self.number_of_steps_per_epoch,
-                         loss, l2loss, lr, sp))
+                         loss, l2loss, lr, sp, time()-t0))
 
                 if np.isinf(loss) or np.isnan(loss):
                     self.ei = ei
@@ -240,7 +241,7 @@ class BasicModel:
                     (self.decoder_outputs, self.target_labels, self.mask), self.options, return_mean=True)
             elif self.options['loss_fun'] is 'concordance_cc':
                 self.train_loss = batch_masked_concordance_cc(
-                    (self.decoder_outputs, self.target_labels, self.mask), self.options)
+                    (self.decoder_outputs, self.target_labels, self.mask), self.options, return_mean=True)
             self.l2_loss = L2loss(self.options['reg_constant'])
             self.train_loss = self.train_loss + self.l2_loss
             if self.options['save_summaries']:
