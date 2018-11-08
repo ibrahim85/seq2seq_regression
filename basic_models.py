@@ -241,7 +241,7 @@ class BasicModel:
                     (self.decoder_outputs, self.target_labels, self.mask), self.options, return_mean=True)
             elif self.options['loss_fun'] is 'concordance_cc':
                 self.train_loss = batch_masked_concordance_cc(
-                    (self.decoder_outputs, self.target_labels, self.mask), self.options)
+                    (self.decoder_outputs, self.target_labels, self.mask), self.options, return_mean=True)
             self.l2_loss = L2loss(self.options['reg_constant'])
             self.train_loss = self.train_loss + self.l2_loss
             if self.options['save_summaries']:
