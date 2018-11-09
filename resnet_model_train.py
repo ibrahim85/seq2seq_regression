@@ -2,16 +2,16 @@ from resnet_models import ResNetModel
 from tf_utils import start_interactive_session, set_gpu
 import numpy as np
 
-set_gpu(0)
+set_gpu(5)
 
 options = {
-    'data_root_dir': "/home/michaeltrs/Projects/audio23d/data",  # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
+    'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_dtw_antonio",  # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
 
     'is_training' : True,
     'split_name': "train",  # 'devel',
     'data_in': 'melf',  # mfcc, melf, melf_2d
     #'use_rmse': False,
-    'batch_size': 1,   # number of examples in queue either for training or inference
+    'batch_size': 32,   # number of examples in queue either for training or inference
     #'reverse_time': False,
     #'shuffle': True,
     'random_crop': False,
@@ -59,16 +59,16 @@ options = {
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
 
     'restore': False, # boolean. restore model from disk
-    'restore_model':"/data/mat10/Projects/audio23d/Models/1dconv/conv1d_100words_ccloss_era1_epoch1_step1478",
+    'restore_model':"/data/mat10/Projects/audio23d/Models/2dresnet/ds_ccloss_era1_epoch1_step1478",
 
-    'save': False,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/Projects/audio23d/Models/1dconv/conv1d_ccloss_era1",
+    'save': True,  # boolean. save model to disk during current era
+    'save_model': "/data/mat10/Projects/audio23d/Models/resnet2d/resnet2d_6_ccloss_era1",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
 
     'save_graph': False,
-    'save_dir': "/data/mat10/Projects/audio23d/Models/1dconv/summaries",
-    'save_summaries': False
+    'save_dir': "/data/mat10/Projects/audio23d/Models/resnet2d/summaries",
+    'save_summaries': True
 
           }
 
