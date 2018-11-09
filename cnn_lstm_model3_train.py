@@ -1,7 +1,7 @@
 import tensorflow as tf
 # from data_provider2 import get_split
 from tf_utils import start_interactive_session, set_gpu
-from mixed_seq_models import CNNRNNModel
+from mixed_seq_models import CNNRNNModel3
 import numpy as np
 
 set_gpu(-1)
@@ -64,7 +64,7 @@ options = {
 
 if __name__ == "__main__":
 
-    model = CNNRNNModel(options)
+    model = CNNRNNModel3(options)
 
     sess = start_interactive_session()
 

@@ -602,7 +602,138 @@ def RNMTplus_net(inputs, options):
     return inputs
 
 
+def cnn_audio_model2d(audio_frames, batch_size, nfilters=256):
+    """
+    cnn audio model with no aggregation over results, kernels take individual time steps as inputs
+    """
+    # normalize_fn = tf.layers.batch_normalization
+    with tf.variable_scope("audio_model"):
+        ks = 3
+        print("1.0", audio_frames)
+        net = tf.layers.conv2d(audio_frames,
+                               filters=nfilters,
+                               kernel_size=(1, ks),
+                               strides=(1, 2),
+                               padding='valid',
+                               activation=tf.nn.relu)
+        print("1.1", net)
+        net = tf.layers.conv2d(net,
+                               filters=nfilters,
+                               kernel_size=(1, ks),
+                               strides=(1, 2),
+                               padding='valid',
+                               activation=tf.nn.relu)
+        print("1.2", net)
+        net = tf.layers.conv2d(net,
+                               filters=nfilters,
+                               kernel_size=(1, ks),
+                               strides=(1, 2),
+                               padding='valid',
+                               activation=tf.nn.relu)
+        print("1.3", net)
+        net = tf.layers.conv2d(net,
+                               filters=nfilters,
+                               kernel_size=(1, ks),
+                               strides=(1, 2),
+                               padding='valid',
+                               activation=tf.nn.relu)
+        print("1.4", net)
+        net = tf.layers.conv2d(net,
+                               filters=nfilters,
+                               kernel_size=(1, ks),
+                               strides=(1, 2),
+                               padding='valid',
+                               activation=tf.nn.relu)
+        print("1.5", net)
+        net = tf.layers.conv2d(net,
+                               filters=nfilters,
+                               kernel_size=(3, 1),
+                               strides=(2, 1),
+                               padding='valid',
+                               activation=tf.nn.relu)
+        print("2.1", net)
+        net = tf.layers.conv2d(net,
+                               filters=nfilters,
+                               kernel_size=(3, 1),
+                               strides=(2, 1),
+                               padding='valid',
+                               activation=tf.nn.relu)
+        print("2.2", net)
+        net = tf.layers.conv2d(net,
+                               filters=nfilters,
+                               kernel_size=(3, 1),
+                               strides=(2, 1),
+                               padding='valid',
+                               activation=tf.nn.relu)
+        print("2.3", net)
+        # net = tf.layers.flatten(net)
+        #print(net)
+        net = tf.reshape(net, (batch_size, -1, nfilters))
+        print("3.1", net)
+        net = tf.contrib.layers.fully_connected(net, 128)  # , activation_fn=None)
+        print("3.2", net)
+        net = tf.reshape(net, [batch_size, -1, 128])
+    return net
 
+
+def cnn_audio_model3(audio_frames, batch_size, nfilters=256):
+    """
+    cnn audio model with no aggregation over results, kernels take individual time steps as inputs
+    """
+    # normalize_fn = tf.layers.batch_normalization
+    with tf.variable_scope("audio_model"):
+        ks = 3
+        print("1.0", audio_frames)
+        net = tf.layers.conv2d(audio_frames,
+                               filters=32,
+                               kernel_size=(1, ks),
+                               strides=(1, 2),
+                               padding='valid',
+                               activation=tf.nn.relu)
+        print("1.1", net)
+        net = tf.layers.conv2d(net,
+                               filters=64,
+                               kernel_size=(1, ks),
+                               strides=(1, 2),
+                               padding='valid',
+                               activation=tf.nn.relu)
+        print("1.2", net)
+        net = tf.layers.conv2d(net,
+                               filters=128,
+                               kernel_size=(1, ks),
+                               strides=(1, 2),
+                               padding='valid',
+                               activation=tf.nn.relu)
+        print("1.3", net)
+        net = tf.layers.conv2d(net,
+                               filters=256,
+                               kernel_size=(1, ks),
+                               strides=(1, 2),
+                               padding='valid',
+                               activation=tf.nn.relu)
+        print("1.4", net)
+        net = tf.layers.conv2d(net,
+                               filters=256,
+                               kernel_size=(1, ks),
+                               strides=(1, 2),
+                               padding='valid',
+                               activation=tf.nn.relu)
+        print("1.5", net)
+        net = tf.layers.conv2d(net,
+                               filters=256,
+                               kernel_size=(1, ks),
+                               strides=(1, 2),
+                               padding='valid',
+                               activation=tf.nn.relu)
+        print("1.6", net)
+        # net = tf.layers.flatten(net)
+        #print(net)
+        net = tf.reshape(net, (batch_size, -1, 256))
+        print("3.1", net)
+        net = tf.contrib.layers.fully_connected(net, 128)  # , activation_fn=None)
+        print("3.2", net)
+        #net = tf.reshape(net, [batch_size, -1, 128])
+    return net
 
 
 # class MultiLayerOutput(base.Layer):

@@ -39,7 +39,7 @@ class BasicModel:
         elif self.options['data_in'] == 'melf':
             self.encoder_inputs, self.target_labels, \
             self.encoder_inputs_lengths, self.target_labels_lengths, \
-            self.words, self.num_examples = get_split_melf_d_d2(options)
+            self.words, self.num_examples, self.noisy_mel_spectr = get_split_melf_d_d2(options)
         elif self.options['data_in'] == 'melf_2d':
             self.encoder_inputs, self.target_labels, \
             self.encoder_inputs_lengths, self.target_labels_lengths, \
