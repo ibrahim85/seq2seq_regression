@@ -4,7 +4,7 @@ from tf_utils import start_interactive_session, set_gpu
 from mixed_seq2seq_models import CNNRNNSeq2SeqModel
 import numpy as np
 
-set_gpu(5)
+set_gpu(2)
 
 options = {
     'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_dtw_antonio",
@@ -15,7 +15,7 @@ options = {
     'is_training' : True,
     'data_in': 'melf',  # mcc, melf, melf_2d
     'split_name': 'train',
-    'batch_size': 32,   # number of examples in queue either for training or inference
+    'batch_size': 64,   # number of examples in queue either for training or inference
     'random_crop': True,
     'mfcc_num_features': 20,  # 20,
     'raw_audio_num_features': 533,  # 256,
@@ -57,7 +57,7 @@ options = {
 #"/data/mat10/Projects/audio23d/Models/seq2seq_cnn_lstm/seq2seq_cnn_lstm_seq10_era1_epoch10_step604",
 
     'save': True,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/Projects/audio23d/Models/seq_cnn_lstm/seq2seq_cnn_lstm_all_melf_cc_era1",
+    'save_model': "/data/mat10/Projects/audio23d/Models/seq2seq_cnn_lstm/seq2seq_cnn_lstm_all_melf_cc_era1",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
 

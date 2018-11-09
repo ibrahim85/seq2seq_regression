@@ -3,7 +3,7 @@ from tf_utils import start_interactive_session, set_gpu
 import numpy as np
 import tensorflow as tf
 
-set_gpu(5)
+set_gpu(3)
 
 options = {
     'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_dtw_antonio",
@@ -14,7 +14,7 @@ options = {
     'split_name': "train",  # 'devel',
     'is_training' : True,
     'data_in': 'melf',  # mfcc, melf, melf_2d
-    'batch_size': 32,   # number of examples in queue either for training or inference
+    'batch_size': 64,   # number of examples in queue either for training or inference
     'random_crop': True,
     'mfcc_num_features': 20,  # 20,
     'raw_audio_num_features': 533,  # 256,

@@ -93,7 +93,7 @@ def batch_masked_concordance_cc(values_in, options, return_mean=True):
     #      tf.reshape(mask[:, :, i], (-1,))))
     #     for i in range(options['num_classes'])]
     if return_mean:
-        return tf.reduce_mean(train_losses)
+        return tf.reduce_mean(tf.multiply(loss_weights, train_losses))
     return train_losses
 
 
