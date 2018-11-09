@@ -8,13 +8,13 @@ options = {
     'data_root_dir': "/home/michaeltrs/Projects/audio23d/data",  # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",  # enhanced",
 
     'is_training' : True,
-    'split_name': "example",  # 'devel',
-    'data_in': 'melf_2d',  # mfcc, melf, melf_2d
+    'split_name': "train",  # 'devel',
+    'data_in': 'melf',  # mfcc, melf, melf_2d
     #'use_rmse': False,
-    'batch_size': 32,   # number of examples in queue either for training or inference
+    'batch_size': 1,   # number of examples in queue either for training or inference
     #'reverse_time': False,
     #'shuffle': True,
-    #'random_crop': False,
+    'random_crop': False,
     #'standardize_inputs_and_labels': False,
     # 'mfcc_num_features': 20,  # 20,
     # 'raw_audio_num_features': 533,  # 256,

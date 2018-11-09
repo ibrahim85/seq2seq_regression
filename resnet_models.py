@@ -16,6 +16,15 @@ class ResNetModel(BasicModel):
 
     def __init__(self, options):
         super(ResNetModel, self).__init__(options=options)
+        fmel = tf.reshape(self.noisy_mel_spectr[0], (-1, 21, 128))
+        fmel = tf.expand_dims(fmel, 3)
+        dfmel = tf.reshape(self.noisy_mel_spectr[1], (-1, 21, 128))
+        dfmel = tf.expand_dims(dfmel, 3)
+        d2fmel = tf.reshape(self.noisy_mel_spectr[2], (-1, 21, 128))
+        d2fmel = tf.expand_dims(d2fmel, 3)
+        self.new_encoder_inputs = tf.concat([fmel, dfmel, d2fmel], axis=3)
+        self.new_encoder_inputs = tf.reshape(self.new_encoder_inputs, (self.batch_size, -1, 21, 128, 3))
+        print(self.new_encoder_inputs)
         if self.is_training:
             self.train_era_step = self.options['train_era_step']
             self.build_train_graph()
@@ -24,7 +33,7 @@ class ResNetModel(BasicModel):
         self.make_savers()
 
     def build_train_graph(self):
-        self.encoder_out = backend_resnet(self.encoder_inputs, resnet_size=6,
+        self.encoder_out = backend_resnet(self.new_encoder_inputs, resnet_size=6,
                                           final_size=512, num_classes=None,
                                           frontend_3d=False, training=True, name="resnet")
         print("Encoder out:", self.encoder_out)

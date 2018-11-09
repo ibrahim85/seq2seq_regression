@@ -7,7 +7,8 @@ import numpy as np
 set_gpu(3)
 
 options = {
-    'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_dtw_antonio",
+    'data_root_dir': "/home/michaeltrs/Projects/audio23d/data",
+        # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_dtw_antonio",
 # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_dtwN",
 # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_lrs",
 # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",
