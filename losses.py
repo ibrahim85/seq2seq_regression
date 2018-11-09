@@ -70,42 +70,10 @@ def concordance_cc(prediction, ground_truth):
     return - (2 * mean_cent_prod) / (pred_var + gt_var + tf.square(pred_mean - gt_mean))
 
 
-def batch_masked_concordance_cc(values_in, options, return_mean=True):
-    def masked_concordance_cc(values_in):
-        return masked_loss(values_in, concordance_cc)
-    predictions, ground_truths, mask = values_in
-    max_label_len = tf.shape(ground_truths)[1]
-    label_dim = options['num_classes'] 
-    predictions = tf.transpose(predictions, (2, 0, 1))  # (0, 2, 1))
-    ground_truths = tf.transpose(ground_truths, (2, 0, 1))  # (0, 2, 1))
-    mask = tf.transpose(mask, (2, 0, 1))  # (0, 2, 1))
-    train_losses = tf.map_fn(
-       fn=masked_concordance_cc,
-       elems=(tf.reshape(predictions, (label_dim, -1)),  # (-1, max_label_len)),
-              tf.reshape(ground_truths, (label_dim, -1)),  # (-1, max_label_len)),
-              tf.reshape(mask, (label_dim, -1))),  # (-1, max_label_len))),
-       dtype=tf.float32,
-       parallel_iterations=label_dim)
-    print(train_losses)
-    # train_losses = [masked_concordance_cc(
-    #     (tf.reshape(predictions[:, :, i], (-1,)),
-    #      tf.reshape(ground_truths[:, :, i], (-1,)),
-    #      tf.reshape(mask[:, :, i], (-1,))))
-    #     for i in range(options['num_classes'])]
-    if return_mean:
-        return tf.reduce_mean(tf.multiply(loss_weights, train_losses))
-    return train_losses
-
-
-def mse(prediction, ground_truth):
-    return tf.reduce_mean(
-        tf.pow(prediction - ground_truth, 2))
-
-
 loss_weights = tf.convert_to_tensor(
     value=[
  0.48839835553540395,
- 0.19681425259490665, 
+ 0.19681425259490665,
  0.12217412465555928,
  0.08584908914809869,
  0.026193009075865175,
@@ -133,6 +101,43 @@ loss_weights = tf.convert_to_tensor(
  0.00022583396687155238,
  0.00021181614378860966],
     dtype=tf.float32)
+# loss_weights = tf.convert_to_tensor(
+#     value=[0.03571428571428571]*28,
+#     dtype=tf.float32)
+
+
+def batch_masked_concordance_cc(values_in, options, return_mean=True):
+    def masked_concordance_cc(values_in):
+        return masked_loss(values_in, concordance_cc)
+    predictions, ground_truths, mask = values_in
+    max_label_len = tf.shape(ground_truths)[1]
+    label_dim = options['num_classes'] 
+    predictions = tf.transpose(predictions, (2, 0, 1))  # (0, 2, 1))
+    ground_truths = tf.transpose(ground_truths, (2, 0, 1))  # (0, 2, 1))
+    mask = tf.transpose(mask, (2, 0, 1))  # (0, 2, 1))
+    train_losses = tf.map_fn(
+       fn=masked_concordance_cc,
+       elems=(tf.reshape(predictions, (label_dim, -1)),  # (-1, max_label_len)),
+              tf.reshape(ground_truths, (label_dim, -1)),  # (-1, max_label_len)),
+              tf.reshape(mask, (label_dim, -1))),  # (-1, max_label_len))),
+       dtype=tf.float32,
+       parallel_iterations=label_dim)
+    print("train losses:", train_losses)
+    # train_losses = [masked_concordance_cc(
+    #     (tf.reshape(predictions[:, :, i], (-1,)),
+    #      tf.reshape(ground_truths[:, :, i], (-1,)),
+    #      tf.reshape(mask[:, :, i], (-1,))))
+    #     for i in range(options['num_classes'])]
+    if return_mean:
+        return tf.reduce_sum(tf.multiply(loss_weights, train_losses))
+    # tf.losses.compute_weighted_loss(losses=train_losses, weights=loss_weights)  #tf.reduce_mean(train_losses)  #
+    return train_losses
+
+
+def mse(prediction, ground_truth):
+    return tf.reduce_mean(
+        tf.pow(prediction - ground_truth, 2))
+
 
 def batch_masked_mse(values_in, options, return_mean=True):
     def masked_mse(values_in):
