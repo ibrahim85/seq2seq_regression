@@ -1,14 +1,14 @@
 import tensorflow as tf
 # from data_provider2 import get_split
 from tf_utils import start_interactive_session, set_gpu
-from mixed_seq_models import CNNRNNModel3
+from mixed_seq_models import CNNRNNModel2d_res
 import numpy as np
 
-set_gpu(0)
+set_gpu(1)
 
 options = {
     'data_root_dir': "/home/michaeltrs/Projects/audio23d/data",
-        # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_dtw_antonio",
+        #"/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_dtw_antonio",
 # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_dtwN",
 # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_lrs",
 # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",
@@ -16,8 +16,8 @@ options = {
     'is_training' : True,
     'data_in': 'melf',  # mcc, melf, melf_2d
     'split_name': 'train',
-    'batch_size': 64,   # number of examples in queue either for training or inference
-    'random_crop': True,
+    'batch_size': 1,   # number of examples in queue either for training or inference
+    'random_crop': False,
     'mfcc_num_features': 20,  # 20,
     'raw_audio_num_features': 533,  # 256,
     'num_classes': 28,  # number of output classes 29 = |a-z, " ", <sos>, <eos>|
@@ -52,19 +52,19 @@ options = {
 #"/data/mat10/Projects/audio23d/Models/seq2seq_cnn_lstm/seq2seq_cnn_lstm_seq10_era1_epoch10_step604",
 
     'save': False,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/Projects/audio23d/Models/seq_cnn3_lstm/seq2seq_cnn3_lstm_all_melf_cc_era1",
+    'save_model': "/data/mat10/Projects/audio23d/Models/seq_cnn2d_lstm/seq2seq_cnn2d_lstm_all_melf_cc_era1",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
 
     'save_graph': False,
-    'save_dir': "/data/mat10/Projects/audio23d/Models/seq_cnn3_lstm/summaries",
+    'save_dir': "/data/mat10/Projects/audio23d/Models/seq_cnn2d_lstm/summaries",
     'save_summaries': False
 
           }
 
 if __name__ == "__main__":
 
-    model = CNNRNNModel3(options)
+    model = CNNRNNModel2d_res(options)
 
     sess = start_interactive_session()
 
@@ -77,4 +77,4 @@ if __name__ == "__main__":
     if options['is_training']:
         model.train(sess)
     else:
-        loss = model.predict(sess, num_steps=None, return_words=True)
+        loss = model.eval(sess, num_steps=None, return_words=True)
