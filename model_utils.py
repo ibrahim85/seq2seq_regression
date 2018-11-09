@@ -752,7 +752,7 @@ def cnn_audio_model2d_res(audio_frames, batch_size, nfilters=256):
         ks = 3
         print("0.0", audio_frames)
         net = tf.layers.conv2d(audio_frames,
-                               filters=64,
+                               filters=32,
                                kernel_size=(1, 7),
                                strides=(1, 2),
                                padding='valid',
@@ -764,7 +764,7 @@ def cnn_audio_model2d_res(audio_frames, batch_size, nfilters=256):
                                padding='valid')
         print("1.0", net0)
         net = tf.layers.conv2d(net0,
-                               filters=64,
+                               filters=32,
                                kernel_size=(1, 3),
                                strides=(1, 1),
                                padding='same',
@@ -779,14 +779,14 @@ def cnn_audio_model2d_res(audio_frames, batch_size, nfilters=256):
         net1 = net0 + net
         print("1.2", net1)
         net1 = tf.layers.conv2d(net1,
-                               filters=128,
+                               filters=64,
                                kernel_size=(1, 3),
                                strides=(1, 2),
                                padding='valid',
                                activation=tf.nn.relu)
         print("2.0", net1)
         net = tf.layers.conv2d(net1,
-                               filters=128,
+                               filters=64,
                                kernel_size=(1, 3),
                                strides=(1, 1),
                                padding='same',
@@ -799,16 +799,38 @@ def cnn_audio_model2d_res(audio_frames, batch_size, nfilters=256):
         #                        padding='same',
         #                        activation=tf.nn.relu)
         net2 = net1 + net
-        print("2.2", net)
+        print("2.2", net2)
 
         net2 = tf.layers.conv2d(net2,
-                               filters=256,
+                               filters=128,
                                kernel_size=(1, 3),
                                strides=(1, 2),
                                padding='valid',
                                activation=tf.nn.relu)
         print("3.0", net2)
         net = tf.layers.conv2d(net2,
+                               filters=128,
+                               kernel_size=(1, 3),
+                               strides=(1, 1),
+                               padding='same',
+                               activation=tf.nn.relu)
+        # print("3.1", net)
+        # net = tf.layers.conv2d(net,
+        #                        filters=256,
+        #                        kernel_size=(1, 3),
+        #                        strides=(1, 1),
+        #                        padding='same',
+        #                        activation=tf.nn.relu)
+        net3 = net2 + net
+        print("3.2", net3)
+        net3 = tf.layers.conv2d(net3,
+                                filters=256,
+                                kernel_size=(1, 3),
+                                strides=(1, 2),
+                                padding='valid',
+                                activation=tf.nn.relu)
+        print("4.0", net3)
+        net = tf.layers.conv2d(net3,
                                filters=256,
                                kernel_size=(1, 3),
                                strides=(1, 1),
@@ -821,16 +843,69 @@ def cnn_audio_model2d_res(audio_frames, batch_size, nfilters=256):
         #                        strides=(1, 1),
         #                        padding='same',
         #                        activation=tf.nn.relu)
-        net = net2 + net
-        print("3.2", net)
+        net4 = net3 + net
+        print("4.2", net4)
+
+        net4 = tf.layers.conv2d(net4,
+                                filters=256,
+                                kernel_size=(3, 1),
+                                strides=(2, 1),
+                                padding='valid',
+                                activation=tf.nn.relu)
+        print("5.0", net4)
+        net = tf.layers.conv2d(net4,
+                               filters=256,
+                               kernel_size=(3, 1),
+                               strides=(1, 1),
+                               padding='same',
+                               activation=tf.nn.relu)
+        # print("3.1", net)
+        # net = tf.layers.conv2d(net,
+        #                        filters=256,
+        #                        kernel_size=(1, 3),
+        #                        strides=(1, 1),
+        #                        padding='same',
+        #                        activation=tf.nn.relu)
+        net5 = net4 + net
+        print("5.2", net5)
+
+        net5 = tf.layers.conv2d(net5,
+                                filters=256,
+                                kernel_size=(3, 1),
+                                strides=(2, 1),
+                                padding='valid',
+                                activation=tf.nn.relu)
+        print("5.0", net4)
+        net = tf.layers.conv2d(net5,
+                               filters=256,
+                               kernel_size=(3, 1),
+                               strides=(1, 1),
+                               padding='same',
+                               activation=tf.nn.relu)
+        net6 = net5 + net
+        print("5.2", net6)
+        net = tf.layers.conv2d(net6,
+                               filters=256,
+                               kernel_size=(3, 1),
+                               strides=(1, 1),
+                               padding='valid',
+                               activation=tf.nn.relu)
+
         # net = tf.layers.flatten(net)
-        #print(net)
-        net = tf.reshape(net, (batch_size, -1, nfilters))
-        print("4.1", net)
+        print("6.1", net)
+        net = tf.layers.max_pooling2d(net,
+                                       pool_size=(2, 2),
+                                       strides=(1, 1),
+                                       padding='valid')
+        print("7.1", net)
+        net = tf.reshape(net, (batch_size, -1, 256))
+        print("5.1", net)
         net = tf.contrib.layers.fully_connected(net, 128)  # , activation_fn=None)
-        print("4.2", net)
+        print("5.2", net)
         net = tf.reshape(net, [batch_size, -1, 128])
     return net
+
+
 # class MultiLayerOutput(base.Layer):
 #     """2x Densely-connected layers class.
 #     Implements the operation:
