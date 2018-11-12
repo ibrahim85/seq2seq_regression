@@ -74,7 +74,11 @@ class CNNRNNModel2d(BasicModel):
     def build_train_graph(self):
         # if self.options['has_encoder']:
         with tf.variable_scope('encoder'):
-            self.encoder_out = cnn_audio_model2d(self.new_encoder_inputs, self.options['batch_size'])
+            self.encoder_out = cnn_audio_model2d(
+                audio_frames=self.new_encoder_inputs, 
+                batch_size=self.options['batch_size'],
+                nfilters=64,
+                batch_norm=self.options['batch_norm']) 
             print("enc_out", self.encoder_out)
         # if self.options['has_decoder']:
         with tf.variable_scope('decoder'):

@@ -61,30 +61,45 @@ options = {
 
           }
 
-#if __name__ == "__main__":
-#    model = CNNRNNModel3(options)
-#    sess = start_interactive_session()
-#    if options['save_graph']:
-#       model.save_graph(sess)
-#    if options['restore']:
-#        model.restore_model(sess)
-#    if options['is_training']:
-#        model.train(sess)
-#    else:
-#        loss = model.eval(sess, num_steps=None, return_words=False)
-
-if True:
+if __name__ == "__main__":
+    ep = 7 
+    options['restore_model'] = "/data/mat10/Projects/audio23d/Models/seq_cnn3_lstm/seq2seq_cnn3_lstm_all_melf_cc_era1_epoch%d_step6504" % ep
     model = CNNRNNModel3(options)
+    sess = start_interactive_session()
+    if options['save_graph']:
+       model.save_graph(sess)
+    if options['restore']:
+        model.restore_model(sess)
+    if options['is_training']:
+        model.train(sess)
+    else:
+        loss = model.eval(sess, num_steps=None, return_words=False)
+    print("loss at epoch %d is %.4f" % (ep, np.mean(loss)))
+
+
+if False:
+    #model = CNNRNNModel3(options)
     losses = {}
     for ep in range(1, 54):
-        options['restore_model'] = options["save_model"] + "_epoch%d_step6504" % ep
+        model = CNNRNNModel3(options)
+        model.options['restore_model'] = "/data/mat10/Projects/audio23d/Models/seq_cnn3_lstm/seq2seq_cnn3_lstm_all_melf_cc_era1_epoch%d_step6504" % ep
         #model = CNNRNNModel3(options)
         sess = start_interactive_session()
         model.restore_model(sess)
-        loss = model.eval(sess, num_steps=None, return_words=False)
+        loss = model.eval(sess, num_steps=10, return_words=False)
         losses[ep] = np.mean(loss)
         tf.reset_default_graph()
 
 
-
+if False:
+    losses = {}
+    models = {}
+    for ep in range(2, 79):
+        options['restore_model'] = "/data/mat10/Projects/audio23d/Models/seq_cnn3_lstm/seq2seq_cnn3_lstm_all_melf_cc_era1_epoch%d_step6504" % ep
+        models[ep] = CNNRNNModel3(options)
+        sess = start_interactive_session()
+        models[ep].restore_model(sess)
+        loss = models[ep].eval(sess, num_steps=10, return_words=False)
+        losses[ep] = np.mean(loss)
+        # tf.reset_default_graph()
 

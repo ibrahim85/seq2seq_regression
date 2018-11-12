@@ -14,8 +14,8 @@ options = {
 
     'is_training' : False,
     'data_in': 'melf',  # mcc, melf, melf_2d
-    'split_name': 'devel',
-    'batch_size': 1,   # number of examples in queue either for training or inference
+    'split_name': 'train',
+    'batch_size': 10,   # number of examples in queue either for training or inference
     'random_crop': False,
     'mfcc_num_features': 20,  # 20,
     'raw_audio_num_features': 533,  # 256,
@@ -61,19 +61,17 @@ options = {
 
           }
 
-#if __name__ == "__main__":
-#    model = CNNRNNModel2d_res(options)
-#    sess = start_interactive_session()
-#    if options['save_graph']:
-#       model.save_graph(sess)
-#    if options['restore']:
-#        model.restore_model(sess)
-#    if options['is_training']:
-#        model.train(sess)
-#    else:
-#        loss = model.eval(sess, num_steps=None, return_words=True)
+if __name__ == "__main__":
+    ep = 3
+    options['restore_model'] = options['save_model'] + "_epoch%d_step8325" % ep
+    model = CNNRNNModel2d_res(options)
+    sess = start_interactive_session()
+    model.restore_model(sess)
+    loss = model.eval(sess, num_steps=None, return_words=False)
+    print("loss at epoch %d is %.4f" % (ep, np.mean(loss)))
 
-if True:
+
+if False:
     model = CNNRNNModel2d_res(options)
     losses = {}
     for ep in range(1, 54):

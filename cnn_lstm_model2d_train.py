@@ -15,14 +15,15 @@ options = {
     'is_training' : True,
     'data_in': 'melf',  # mcc, melf, melf_2d
     'split_name': 'train',
-    'batch_size': 50,   # number of examples in queue either for training or inference
+    'batch_size': 20,   # number of examples in queue either for training or inference
     'random_crop': False,
     'mfcc_num_features': 20,  # 20,
     'raw_audio_num_features': 533,  # 256,
     'num_classes': 28,  # number of output classes 29 = |a-z, " ", <sos>, <eos>|
     
     #'1dcnn_features_dims': [256, 256, 256],
-    
+    'batch_norm': False,
+ 
     'has_decoder': True,
     'decoder_num_layers': 1,  # number of hidden layers in decoder lstm
     'residual_decoder': False,  # 
@@ -33,7 +34,7 @@ options = {
 
     'loss_fun': "concordance_cc",
     'reg_constant': 0.00,
-    'max_grad_norm': 10.0, 
+    'max_grad_norm': 1000, 
     'num_epochs': 30,  # number of epochs over dataset for training
     'start_epoch': 1,  # epoch to start
     'reset_global_step': True,
@@ -42,7 +43,7 @@ options = {
     'learn_rate': 0.001,  # initial learn rate corresponing top global step 0, or max lr for Adam
     'learn_rate_decay': 0.975,
     'staircase_decay': True,
-    'decay_steps': 0.5,
+    'decay_steps': 5.0,
 
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
    
@@ -51,7 +52,7 @@ options = {
 #"/data/mat10/Projects/audio23d/Models/seq2seq_cnn_lstm/seq2seq_cnn_lstm_seq10_era1_epoch10_step604",
 
     'save': True,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/Projects/audio23d/Models/seq_cnn2d_lstm/seq2seq_cnn2d_lstm_all_melf_cc_era1",
+    'save_model': "/data/mat10/Projects/audio23d/Models/seq_cnn2d_lstm/seq2seq_cnn2d_lstm_all_melf_cc_era2",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
 

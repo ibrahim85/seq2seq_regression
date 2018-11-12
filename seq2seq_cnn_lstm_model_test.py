@@ -67,19 +67,16 @@ options = {
 
           }
 
-#if __name__ == "__main__":
-#    model = CNNRNNSeq2SeqModel(options)
-#    sess = start_interactive_session()
-#    if options['save_graph']:
-#       model.save_graph(sess)
-#    if options['restore']:
-#        model.restore_model(sess)
-#    if options['is_training']:
-#        model.train(sess)
-#    else:
-#        loss = model.predict(sess, num_steps=None, return_words=True)
-
-if True:
+if __name__ == "__main__":
+    ep =4 
+    options['restore_model'] = options["save_model"] + "_epoch%d_step1254" % ep
+    model = CNNRNNSeq2SeqModel(options)
+    sess = start_interactive_session()
+    model.restore_model(sess)
+    loss = model.eval(sess, num_steps=None, return_words=False)
+    print("loss at epoch %d is %.4f" % (ep, np.mean(loss)))
+ 
+if False:
     model = CNNRNNSeq2SeqModel(options)
     losses = {}
     for ep in range(1, 54):

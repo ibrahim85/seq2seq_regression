@@ -52,24 +52,17 @@ options = {
 
           }
 
-#if __name__ == "__main__":
-#
-#    model = CNNModel(options)
-#
-#    sess = start_interactive_session()
-#
-#    if options['save_graph']:
-#        model.save_graph(sess)
-#
-#    if options['restore']:
-#        model.restore_model(sess)
-#
-#    if options['is_training']:
-#        model.train(sess)
-#    else:
-#        loss = model.eval(sess, return_words=False)
+if __name__ == "__main__":
+    ep =5 
+    options['restore_model'] = options['save_model'] + "_epoch%d_step6504" % ep
+    model = CNNModel(options)
+    sess = start_interactive_session()
+    model.restore_model(sess)
+    loss = model.eval(sess, return_words=False)
+    print("loss at epoch %d is %.4f" % (ep, np.mean(loss)))
 
-if True:
+
+if False:
     model = CNNModel(options)
     losses = {}
     for ep in range(1, 54):

@@ -144,7 +144,7 @@ class BasicModel:
             # self.options['current_epoch'] = epoch
             for step in range(number_of_steps):
                 t0 = time()
-                _, ei, do, tl, gstep, loss, l2loss, lr, sp = sess.run(
+                _, ei, do, tl, gstep, loss, l2loss, lr, sp, gnorm = sess.run(
                     [self.update_step,
                      self.encoder_inputs,
                      self.decoder_outputs,
@@ -153,13 +153,14 @@ class BasicModel:
                      self.train_loss,
                      self.l2_loss,
                      self.optimizer._lr,
-                     self.sampling_prob])
-                print("%d,%d,%d,%d,%d,%.4f,%.4f,%.8f,%.4f,%.4f"
+                     self.sampling_prob,
+                     self.gnorm])
+                print("%d,%d,%d,%d,%d,%.4f,%.4f,%.8f,%.4f,%.4f,%6f"
                       % (gstep, epoch,
                          self.options['num_epochs'],
                          step,
                          self.number_of_steps_per_epoch,
-                         loss, l2loss, lr, sp, time()-t0))
+                         loss, l2loss, lr, sp, time()-t0, gnorm))
 
                 if np.isinf(loss) or np.isnan(loss):
                     self.ei = ei
@@ -257,8 +258,9 @@ class BasicModel:
                 dtype=tf.float32,
                 name='max_gradient_norm')
             self.gradients = tf.gradients(self.train_loss, params)
-            self.clipped_gradients, _ = tf.clip_by_global_norm(
+            self.clipped_gradients, self.gnorm = tf.clip_by_global_norm(
                 self.gradients, max_gradient_norm)
+            #self.is_clipped = tf.greater(self.gnorm, max_gradient_norm)
             # self.clipped_gradients = [(tf.clip_by_value(grad, -1., 1.), var) for grad, var in self.gradients]
             # Optimization
             self.global_step = tf.Variable(0, trainable=False)
