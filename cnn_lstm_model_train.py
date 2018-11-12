@@ -35,8 +35,8 @@ options = {
     'reg_constant': 0.00,
     'max_grad_norm': 10.0, 
     'num_epochs': 30,  # number of epochs over dataset for training
-    'start_epoch': 1,  # epoch to start
-    'reset_global_step': True,
+    'start_epoch': 3,  # epoch to start
+    'reset_global_step': False,
     'train_era_step': 1,  # start train step during current era, value of 0 saves the current model
     
     'learn_rate': 0.001,  # initial learn rate corresponing top global step 0, or max lr for Adam
@@ -46,8 +46,8 @@ options = {
 
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
    
-    'restore': False, # boolean. restore model from disk
-    'restore_model': "/data/mat10/Projects/audio23d/Models/seq2seq_cnn_lstm/seq2seq_cnn_lstm_all_era1_epoch30_step1610",
+    'restore': True, # boolean. restore model from disk
+    'restore_model': "/data/mat10/Projects/audio23d/Models/seq_cnn_lstm/seq2seq_cnn_lstm_all_melf_cc_era1_epoch3_step6504",
 #"/data/mat10/Projects/audio23d/Models/seq2seq_cnn_lstm/seq2seq_cnn_lstm_seq10_era1_epoch10_step604",
 
     'save': True,  # boolean. save model to disk during current era

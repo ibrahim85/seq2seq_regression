@@ -7,8 +7,7 @@ import numpy as np
 set_gpu(1)
 
 options = {
-    'data_root_dir': "/home/michaeltrs/Projects/audio23d/data",
-        #"/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_dtw_antonio",
+    'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_dtw_antonio",
 # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_dtwN",
 # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_lrs",
 # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",
@@ -16,7 +15,7 @@ options = {
     'is_training' : True,
     'data_in': 'melf',  # mcc, melf, melf_2d
     'split_name': 'train',
-    'batch_size': 1,   # number of examples in queue either for training or inference
+    'batch_size': 50,   # number of examples in queue either for training or inference
     'random_crop': False,
     'mfcc_num_features': 20,  # 20,
     'raw_audio_num_features': 533,  # 256,
@@ -51,14 +50,14 @@ options = {
     'restore_model': "/data/mat10/Projects/audio23d/Models/seq2seq_cnn_lstm/seq2seq_cnn_lstm_all_era1_epoch30_step1610",
 #"/data/mat10/Projects/audio23d/Models/seq2seq_cnn_lstm/seq2seq_cnn_lstm_seq10_era1_epoch10_step604",
 
-    'save': False,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/Projects/audio23d/Models/seq_cnn2d_lstm/seq2seq_cnn2d_lstm_all_melf_cc_era1",
+    'save': True,  # boolean. save model to disk during current era
+    'save_model': "/data/mat10/Projects/audio23d/Models/seq_cnn2dres_lstm/seq2seq_cnn2dres_lstm_all_melf_cc_era1",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
 
     'save_graph': False,
-    'save_dir': "/data/mat10/Projects/audio23d/Models/seq_cnn2d_lstm/summaries",
-    'save_summaries': False
+    'save_dir': "/data/mat10/Projects/audio23d/Models/seq_cnn2dres_lstm/summaries",
+    'save_summaries': True
 
           }
 
