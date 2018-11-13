@@ -69,7 +69,7 @@ options = {
 if __name__ == "__main__":
 
     model = CNNRNNModel_raw2(options)
-
+"""
     sess = start_interactive_session()
 
     if options['save_graph']:
@@ -82,7 +82,7 @@ if __name__ == "__main__":
         model.train(sess)
     else:
         loss = model.eval(sess, num_steps=None, return_words=False)
-
+"""
 
 
 

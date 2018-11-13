@@ -305,11 +305,13 @@ class CNNRNNModel_raw2(BasicModel):
     def build_train_graph(self):
         # if self.options['has_encoder']:
         with tf.variable_scope('encoder'):
-            self.audio_features = cnn_raw_audio1(self.encoder_inputs)
-            self.audio_features = tf.reshape(self.audio_features, ())
+            self.audio_features = cnn_raw_audio1(self.encoder_inputs, return_mean=True)
+            print("audio features", self.audio_features)
+            #self.audio_features = tf.reshape(self.audio_features, ())
             self.audio_features = tf.reshape(self.audio_features, (self.batch_size, -1, 256))
             print("audio features", self.audio_features)
             self.encoder_out = temp_res_conv_network(self.audio_features, self.options)
+            print("encoder out", self.encoder_out)
             # if self.options['has_decoder']:
         with tf.variable_scope('decoder'):
             self.decoder_outputs = tf.layers.dense(

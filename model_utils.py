@@ -655,13 +655,14 @@ def cnn_audio_model2d(audio_frames, batch_size, nfilters=64, batch_norm=False, r
             net = tf.layers.batch_normalization(net)
         net = tf.nn.relu(net)
         print("1.5", net)
-        #net = tf.layers.conv2d(net,
-        #                       filters=nfilters,
-        #                       kernel_size=(1, ks),
-        #                       strides=(1, 2),
-        #                       padding='valid',
-        #                       activation=tf.nn.relu)
-        #print("1.6", net)
+        if not raw_model:
+            net = tf.layers.conv2d(net,
+                                   filters=nfilters,
+                                   kernel_size=(1, ks),
+                                   strides=(1, 2),
+                                   padding='valid',
+                                   activation=tf.nn.relu)
+            print("1.6", net)
         net = tf.layers.conv2d(net,
                                filters=nfilters,
                                kernel_size=(3, 1),
@@ -690,6 +691,15 @@ def cnn_audio_model2d(audio_frames, batch_size, nfilters=64, batch_norm=False, r
                 net = tf.layers.batch_normalization(net)
             net = tf.nn.relu(net)
             print("2.3", net)
+            #net = tf.layers.conv2d(net,
+            #                       filters=nfilters,
+            #                       kernel_size=(3, 1),
+            #                       strides=(1, 1),
+            #                       padding='valid')
+            #if batch_norm:
+            #    net = tf.layers.batch_normalization(net)
+            #net = tf.nn.relu(net)
+            #print("2.4", net)
         # net = tf.layers.flatten(net)
         #print(net)
         net = tf.reshape(net, (batch_size, -1, nfilters))
@@ -1031,8 +1041,8 @@ def cnn_raw_audio1(audio_frames, return_mean=False):
                           padding='valid', batch_norm=True, activation_fn=tf.nn.relu)
     net = cnn1d_block_raw(tensor_in=net, filters_out=256, kernel_size=3, strides=2,
                           padding='valid', batch_norm=True, activation_fn=tf.nn.relu)
-    net = cnn1d_block_raw(tensor_in=net, filters_out=256, kernel_size=3, strides=2,
-                          padding='valid', batch_norm=True, activation_fn=tf.nn.relu)
+    #net = cnn1d_block_raw(tensor_in=net, filters_out=256, kernel_size=3, strides=2,
+    #                      padding='valid', batch_norm=True, activation_fn=tf.nn.relu)
     # mean
     if return_mean:
         net = tf.reduce_mean(net, axis=1)
