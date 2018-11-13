@@ -53,13 +53,13 @@ class DenseNet1D(BasicModel):
         self.make_savers()
 
     def build_train_graph(self):
-        self.encoder_inputs = tf.layers.batch_normalization(self.encoder_inputs,
-            axis=-1, momentum=0.99, epsilon=0.001, center=True, scale=True,
-            beta_initializer=tf.zeros_initializer(),
-            gamma_initializer=tf.ones_initializer(),
-            moving_mean_initializer=tf.zeros_initializer(),
-            moving_variance_initializer=tf.ones_initializer(),
-            training=self.is_training)
+        # self.encoder_inputs = tf.layers.batch_normalization(self.encoder_inputs,
+        #     axis=-1, momentum=0.99, epsilon=0.001, center=True, scale=True,
+        #     beta_initializer=tf.zeros_initializer(),
+        #     gamma_initializer=tf.ones_initializer(),
+        #     moving_mean_initializer=tf.zeros_initializer(),
+        #     moving_variance_initializer=tf.ones_initializer(),
+        #     training=self.is_training)
         with tf.variable_scope('1dcnn'):
             self.encoder_out = dense_1d_conv_network(self.encoder_inputs, self.options)
             #self.encoder_out = temp_conv_network(self.encoder_inputs, self.options)
