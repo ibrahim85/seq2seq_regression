@@ -995,6 +995,48 @@ def cnn_audio_model2d_res(audio_frames, batch_size, nfilters=256, batch_norm=Fal
     return net
 
 
+def cnn1d_block_raw(tensor_in, filters_out, kernel_size, strides,
+                    padding='valid', batch_norm=True, activation_fn=tf.nn.relu):
+    net = tf.layers.conv1d(inputs=tensor_in, filters=filters_out,
+                           kernel_size=kernel_size, strides=strides,
+                           padding=padding)
+    if batch_norm: net = tf.layers.batch_normalization(net)
+    net = activation_fn(net)
+    return net
+
+
+def cnn_raw_audio1(audio_frames):
+    # front end
+    net = cnn1d_block_raw(tensor_in=audio_frames, filters_out=16, kernel_size=7, strides=2,
+                          padding='valid', batch_norm=True, activation_fn=tf.nn.relu)
+    net = tf.layers.max_pooling1d(inputs=net, pool_size=3, strides=2, padding='valid')
+    # f32
+    net = cnn1d_block_raw(tensor_in=net, filters_out=32, kernel_size=3, strides=2,
+                          padding='valid', batch_norm=True, activation_fn=tf.nn.relu)
+    net = cnn1d_block_raw(tensor_in=net, filters_out=32, kernel_size=3, strides=2,
+                          padding='valid', batch_norm=True, activation_fn=tf.nn.relu)
+    # f64
+    net = cnn1d_block_raw(tensor_in=net, filters_out=64, kernel_size=3, strides=2,
+                          padding='valid', batch_norm=True, activation_fn=tf.nn.relu)
+    net = cnn1d_block_raw(tensor_in=net, filters_out=64, kernel_size=3, strides=2,
+                          padding='valid', batch_norm=True, activation_fn=tf.nn.relu)
+    # f128
+    net = cnn1d_block_raw(tensor_in=net, filters_out=128, kernel_size=3, strides=2,
+                          padding='valid', batch_norm=True, activation_fn=tf.nn.relu)
+    net = cnn1d_block_raw(tensor_in=net, filters_out=128, kernel_size=3, strides=2,
+                          padding='valid', batch_norm=True, activation_fn=tf.nn.relu)
+    # f256
+    net = cnn1d_block_raw(tensor_in=net, filters_out=256, kernel_size=3, strides=2,
+                          padding='valid', batch_norm=True, activation_fn=tf.nn.relu)
+    net = cnn1d_block_raw(tensor_in=net, filters_out=256, kernel_size=3, strides=2,
+                          padding='valid', batch_norm=True, activation_fn=tf.nn.relu)
+    net = cnn1d_block_raw(tensor_in=net, filters_out=256, kernel_size=3, strides=2,
+                          padding='valid', batch_norm=True, activation_fn=tf.nn.relu)
+    # mean
+    net = tf.reduce_mean(net, axis=1)
+    return net
+
+
 # class MultiLayerOutput(base.Layer):
 #     """2x Densely-connected layers class.
 #     Implements the operation:

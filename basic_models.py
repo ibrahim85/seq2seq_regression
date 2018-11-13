@@ -10,6 +10,7 @@ from model_utils import lengths_mask
 from data_provider_fmfcc import get_split as get_split_mfcc
 from data_provider_melf_d_d2 import get_split as get_split_melf_d_d2
 from data_provider_2d import get_split as get_split_2d
+from data_provider_raw import get_split as get_split_raw
 
 from losses import batch_masked_concordance_cc, batch_masked_mse, L2loss
 from time import time
@@ -44,6 +45,12 @@ class BasicModel:
             self.encoder_inputs, self.target_labels, \
             self.encoder_inputs_lengths, self.target_labels_lengths, \
             self.words, self.num_examples = get_split_2d(options)
+        elif self.options['data_in'] == 'raw':
+            self.encoder_inputs, self.target_labels, \
+            self.target_labels_lengths, self.num_examples = get_split_raw(options)
+            # self.features, self.num_examples, self.target_labels_lengths = get_split_raw(options)
+            self.encoder_inputs = tf.reshape(self.encoder_inputs, (-1, 8820, 1))
+            # self.target_labels = self.features[1]
 
         self.number_of_steps_per_epoch = self.num_examples // self.batch_size + 1
         self.number_of_steps = self.number_of_steps_per_epoch * options['num_epochs']

@@ -77,4 +77,4 @@ if __name__ == "__main__":
     if options['is_training']:
         model.train(sess)
     else:
-        loss = model.predict(sess, num_steps=None, return_words=True)
+        loss = model.eval(sess, num_steps=None, return_words=False)
