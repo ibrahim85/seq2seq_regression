@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="BookmarkManager">
-    <bookmark url="file://$PROJECT_DIR$/model_utils.py" line="897" />
+    <bookmark url="file://$PROJECT_DIR$/model_utils.py" line="898" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c1a86913-0c0e-4386-87e3-d73557d331f0" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/cnn_lstm_raw_model2_train.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cnn_lstm_raw_model3_train.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mixed_seq_models.py" beforeDir="false" afterPath="$PROJECT_DIR$/mixed_seq_models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/model_utils.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -27,40 +28,40 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="py" value="121" />
+          <entry key="py" value="124" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="Python" value="121" />
+          <entry key="Python" value="124" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="Python Console" value="1562" />
           <entry key="dummy" value="75" />
-          <entry key="py" value="7463" />
+          <entry key="py" value="7750" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="PLAIN_TEXT" value="75" />
-          <entry key="Python" value="9025" />
+          <entry key="Python" value="9312" />
         </counts>
       </usages-collector>
     </session>
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.4816273">
+    <splitter split-orientation="horizontal" split-proportion="0.4632546">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-          <file pinned="false" current-in-tab="true">
+          <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/model_utils.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="362">
-                  <caret line="468" column="36" lean-forward="true" selection-start-line="468" selection-start-column="36" selection-end-line="468" selection-end-column="36" />
+                <state relative-caret-position="222">
+                  <caret line="685" column="28" selection-start-line="685" selection-start-column="28" selection-end-line="685" selection-end-column="28" />
                   <folding>
-                    <marker date="1542110649356" expanded="true" signature="47706:49606" ph="..." />
+                    <marker date="1542121437877" expanded="true" signature="47804:49728" ph="..." />
                   </folding>
                 </state>
               </provider>
@@ -78,23 +79,11 @@
               </provider>
             </entry>
           </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/data_provider_raw.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="488">
-                  <caret line="279" column="47" selection-start-line="279" selection-start-column="47" selection-end-line="279" selection-end-column="47" />
-                  <folding>
-                    <element signature="e#0#38#0" expanded="true" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
+          <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/mixed_seq_models.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="362">
-                  <caret line="309" column="56" lean-forward="true" selection-start-line="309" selection-start-column="56" selection-end-line="309" selection-end-column="56" />
+                <state relative-caret-position="306">
+                  <caret line="365" column="35" lean-forward="true" selection-start-line="365" selection-start-column="35" selection-end-line="365" selection-end-column="35" />
                   <folding>
                     <element signature="e#0#38#0" expanded="true" />
                   </folding>
@@ -130,11 +119,23 @@
               </provider>
             </entry>
           </file>
-          <file pinned="false" current-in-tab="true">
+          <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/cnn_lstm_raw_model2_train.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="390">
-                  <caret line="71" column="37" lean-forward="true" selection-start-line="71" selection-start-column="37" selection-end-line="71" selection-end-column="37" />
+                <state relative-caret-position="360">
+                  <caret line="69" column="26" lean-forward="true" selection-start-line="69" selection-start-column="26" selection-end-line="69" selection-end-column="26" />
+                  <folding>
+                    <element signature="e#0#23#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/cnn_lstm_raw_model3_train.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="167">
+                  <caret line="37" lean-forward="true" selection-start-line="37" selection-end-line="37" />
                   <folding>
                     <element signature="e#0#23#0" expanded="true" />
                   </folding>
@@ -193,7 +194,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/previous_data_utils.py" />
         <option value="$PROJECT_DIR$/main.py" />
         <option value="$PROJECT_DIR$/seq2seq_train_bahdanau.py" />
         <option value="$PROJECT_DIR$/regression_model.py" />
@@ -236,14 +236,15 @@
         <option value="$PROJECT_DIR$/cnn_lstm_model3_train.py" />
         <option value="$PROJECT_DIR$/cnn_lstm_model2d_train.py" />
         <option value="$PROJECT_DIR$/cnn_lstm_model2d_res_train.py" />
-        <option value="$PROJECT_DIR$/model_utils.py" />
         <option value="$PROJECT_DIR$/cnn_lstm_model2d_batchnorm_train.py" />
         <option value="$PROJECT_DIR$/data_provider_raw.py" />
         <option value="$PROJECT_DIR$/basic_models.py" />
         <option value="$PROJECT_DIR$/cnn_lstm_model_raw_train.py" />
         <option value="$PROJECT_DIR$/cnn_lstm_raw_model_train.py" />
-        <option value="$PROJECT_DIR$/mixed_seq_models.py" />
         <option value="$PROJECT_DIR$/cnn_lstm_raw_model2_train.py" />
+        <option value="$PROJECT_DIR$/model_utils.py" />
+        <option value="$PROJECT_DIR$/mixed_seq_models.py" />
+        <option value="$PROJECT_DIR$/cnn_lstm_raw_model3_train.py" />
       </list>
     </option>
   </component>
@@ -328,9 +329,9 @@
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Version Control" order="7" />
-      <window_info anchor="bottom" id="Terminal" order="8" weight="0.24972972" />
+      <window_info anchor="bottom" id="Terminal" order="8" weight="0.38918918" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
-      <window_info active="true" anchor="bottom" id="Python Console" order="10" visible="true" weight="0.33837837" />
+      <window_info active="true" anchor="bottom" id="Python Console" order="10" visible="true" weight="0.47135136" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -361,7 +362,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/model/model_utils.py" />
     <entry file="file://$PROJECT_DIR$/model/basic_models.py" />
     <entry file="file://$PROJECT_DIR$/model/cnn_models.py" />
     <entry file="file://$PROJECT_DIR$/__init__.py" />
@@ -606,16 +606,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/data_provider_raw.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="488">
-          <caret line="279" column="47" selection-start-line="279" selection-start-column="47" selection-end-line="279" selection-end-column="47" />
-          <folding>
-            <element signature="e#0#38#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/cnn_lstm_model_raw_train.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="372">
@@ -646,32 +636,52 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mixed_seq_models.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="362">
-          <caret line="309" column="56" lean-forward="true" selection-start-line="309" selection-start-column="56" selection-end-line="309" selection-end-column="56" />
-          <folding>
-            <element signature="e#0#38#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/cnn_lstm_raw_model2_train.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="390">
-          <caret line="71" column="37" lean-forward="true" selection-start-line="71" selection-start-column="37" selection-end-line="71" selection-end-column="37" />
+        <state relative-caret-position="360">
+          <caret line="69" column="26" lean-forward="true" selection-start-line="69" selection-start-column="26" selection-end-line="69" selection-end-column="26" />
           <folding>
             <element signature="e#0#23#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/data_provider_raw.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="488">
+          <caret line="279" column="47" selection-start-line="279" selection-start-column="47" selection-end-line="279" selection-end-column="47" />
+          <folding>
+            <element signature="e#0#38#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/model_utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="362">
-          <caret line="468" column="36" lean-forward="true" selection-start-line="468" selection-start-column="36" selection-end-line="468" selection-end-column="36" />
+        <state relative-caret-position="222">
+          <caret line="685" column="28" selection-start-line="685" selection-start-column="28" selection-end-line="685" selection-end-column="28" />
           <folding>
-            <marker date="1542110649356" expanded="true" signature="47706:49606" ph="..." />
+            <marker date="1542121437877" expanded="true" signature="47804:49728" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mixed_seq_models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="365" column="35" lean-forward="true" selection-start-line="365" selection-start-column="35" selection-end-line="365" selection-end-column="35" />
+          <folding>
+            <element signature="e#0#38#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cnn_lstm_raw_model3_train.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="167">
+          <caret line="37" lean-forward="true" selection-start-line="37" selection-end-line="37" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
           </folding>
         </state>
       </provider>
