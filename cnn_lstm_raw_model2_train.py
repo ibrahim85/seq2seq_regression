@@ -5,11 +5,10 @@ from tf_utils import start_interactive_session, set_gpu
 from mixed_seq_models import CNNRNNModel_raw2
 
 
-set_gpu(0)
+set_gpu(1)
 
 options = {
-    'data_root_dir': "/home/michaeltrs/Projects/audio23d/data/antonio",
-    # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_antonio",
+    'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_antonio",
     # "/home/michaeltrs/Projects/audio23d/data",
     # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_dtw_antonio",
     # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_dtwN",
@@ -18,8 +17,8 @@ options = {
 
     'is_training': True,
     'data_in': 'raw',  # mcc, melf, melf_2d
-    'split_name': 'example',
-    'batch_size': 1,  # number of examples in queue either for training or inference
+    'split_name': 'train',
+    'batch_size': 20,  # number of examples in queue either for training or inference
     'random_crop': False,
     'mfcc_num_features': 20,  # 20,
     'raw_audio_num_features': 533,  # 256,
@@ -55,14 +54,14 @@ options = {
     'restore_model': "/data/mat10/Projects/audio23d/Models/seq_cnn2dres_lstm/seq2seq_cnn2dres_lstm_all_melf_cc_era1_epoch1_step8325",
     # "/data/mat10/Projects/audio23d/Models/seq2seq_cnn_lstm/seq2seq_cnn_lstm_seq10_era1_epoch10_step604",
 
-    'save': False,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/Projects/audio23d/Models/seq_cnn2dres_lstm/seq2seq_cnn2dres_lstm_batchnorm_all_melf_cc_era2",
+    'save': True,  # boolean. save model to disk during current era
+    'save_model': "/data/mat10/Projects/audio23d/Models/seq_cnn_raw2/seq_cnn_raw2_batchnorm_all_melf_cc_era",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
 
     'save_graph': False,
-    'save_dir': "/data/mat10/Projects/audio23d/Models/seq_cnn2dres_lstm/summaries",
-    'save_summaries': False
+    'save_dir': "/data/mat10/Projects/audio23d/Models/seq_cnn_raw2/summaries",
+    'save_summaries': True
 
 }
 

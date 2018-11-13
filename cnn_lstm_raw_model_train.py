@@ -54,14 +54,14 @@ options = {
     'restore_model': "/data/mat10/Projects/audio23d/Models/seq_cnn2dres_lstm/seq2seq_cnn2dres_lstm_all_melf_cc_era1_epoch1_step8325",
     # "/data/mat10/Projects/audio23d/Models/seq2seq_cnn_lstm/seq2seq_cnn_lstm_seq10_era1_epoch10_step604",
 
-    'save': False,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/Projects/audio23d/Models/seq_cnn2dres_lstm/seq2seq_cnn2dres_lstm_batchnorm_all_melf_cc_era2",
+    'save': True,  # boolean. save model to disk during current era
+    'save_model': "/data/mat10/Projects/audio23d/Models/seq_cnn_raw1/seq_cnn_raw1_batchnorm_all_melf_cc_era1",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
 
     'save_graph': False,
-    'save_dir': "/data/mat10/Projects/audio23d/Models/seq_cnn2dres_lstm/summaries",
-    'save_summaries': False
+    'save_dir': "/data/mat10/Projects/audio23d/Models/seq_cnn_raw1/summaries",
+    'save_summaries': True
 
 }
 
