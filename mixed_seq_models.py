@@ -287,3 +287,38 @@ class CNNRNNModel_raw(BasicModel):
             print("dec_out2", self.decoder_outputs)
         self.define_loss()
         self.define_training_params()
+
+
+class CNNRNNModel_raw2(BasicModel):
+    """
+    cnn feature extractor directly from raw audio
+    """
+    def __init__(self, options):
+        super(CNNRNNModel_raw2, self).__init__(options=options)
+        if self.is_training:
+            self.train_era_step = self.options['train_era_step']
+            self.build_train_graph()
+        else:
+            self.build_train_graph()
+        self.make_savers()
+
+    def build_train_graph(self):
+        # if self.options['has_encoder']:
+        with tf.variable_scope('encoder'):
+            self.audio_features = cnn_raw_audio1(self.encoder_inputs)
+            self.audio_features = tf.reshape(self.audio_features, (self.batch_size, -1, 256))
+            print("audio features", self.audio_features)
+            self.encoder_out = temp_res_conv_network(self.audio_features, self.options)
+            # if self.options['has_decoder']:
+        with tf.variable_scope('decoder'):
+            self.decoder_outputs = tf.layers.dense(
+                    inputs=self.encoder_out,
+                    units=self.options['num_classes'], activation=None, use_bias=True,
+                    kernel_initializer=tf.keras.initializers.he_normal(seed=None),
+                    bias_initializer=tf.zeros_initializer(),
+                    kernel_regularizer=None, bias_regularizer=None, activity_regularizer=None,
+                    kernel_constraint=None, bias_constraint=None, trainable=True,
+                    name=None, reuse=None)
+            print("dec_out2", self.decoder_outputs)
+        self.define_loss()
+        self.define_training_params()
