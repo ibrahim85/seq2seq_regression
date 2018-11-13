@@ -4,7 +4,7 @@ from tf_utils import start_interactive_session, set_gpu
 from mixed_seq_models import CNNRNNModel3
 import numpy as np
 
-set_gpu(3)
+set_gpu(0)
 
 options = {
     'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_dtw_antonio",
