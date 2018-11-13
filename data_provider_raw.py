@@ -78,7 +78,7 @@ def get_split(options):#batch_size=32, is_training=True, split_name='train'):
         print('Testing examples : ', len(paths))
     else:
         raise TypeError('split_name should be one of [train], [devel] or [test]')
-    print(paths)
+    
     num_examples = len(paths)
 
     filename_queue = tf.train.string_input_producer(paths, shuffle=is_training)
