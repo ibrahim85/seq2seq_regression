@@ -57,7 +57,7 @@ options = {
     'save': True,  # boolean. save model to disk during current era
     'save_model': "/data/mat10/Projects/audio23d/Models/seq_cnn_raw2/seq_cnn_raw2_batchnorm_all_melf_cc_era",
     'num_models_saved': 100,  # total number of models saved
-    'save_steps': None,  # every how many steps to save model
+    'save_steps': 500,  # every how many steps to save model
 
     'save_graph': False,
     'save_dir': "/data/mat10/Projects/audio23d/Models/seq_cnn_raw2/summaries",
