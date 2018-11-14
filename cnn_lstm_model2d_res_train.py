@@ -52,7 +52,7 @@ options = {
 #"/data/mat10/Projects/audio23d/Models/seq2seq_cnn_lstm/seq2seq_cnn_lstm_seq10_era1_epoch10_step604",
 
     'save': True,  # boolean. save model to disk during current era
-    'save_model': "/data/mat10/Projects/audio23d/Models/seq_cnn2dres_lstm/seq2seq_cnn2dres_lstm_batchnorm_all_melf_cc_era2",
+    'save_model': "/data/mat10/Projects/audio23d/Models/seq_cnn2dres_lstm/seq2seq_cnn2dres_lstm_batchnorm_all_melf_cc_era1",
     'num_models_saved': 100,  # total number of models saved
     'save_steps': None,  # every how many steps to save model
 

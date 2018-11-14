@@ -861,60 +861,65 @@ def cnn_audio_model2d_res(audio_frames, batch_size, nfilters=256, batch_norm=Fal
         if batch_norm:
             net = tf.layers.batch_normalization(net)
         net = tf.nn.relu(net)
-        # print("2.1", net)
-        # net = tf.layers.conv2d(net,
-        #                        filters=128,
-        #                        kernel_size=(1, 3),
-        #                        strides=(1, 1),
-        #                        padding='same',
-        #                        activation=tf.nn.relu)
         net2 = net1 + net
         print("2.2", net2)
 
-        #net2 = tf.layers.conv2d(net2,
-        #                       filters=128,
-        #                       kernel_size=(1, 3),
-        #                       strides=(1, 2),
-        #                       padding='valid',
-        #                       activation=tf.nn.relu)
-        #print("3.0", net2)
-        #net = tf.layers.conv2d(net2,
-        #                       filters=128,
-        #                       kernel_size=(1, 3),
-        #                       strides=(1, 1),
-        #                       padding='same',
-        #                       activation=tf.nn.relu)
-        # print("3.1", net)
-        # net = tf.layers.conv2d(net,
-        #                        filters=256,
-        #                        kernel_size=(1, 3),
-        #                        strides=(1, 1),
-        #                        padding='same',
-        #                        activation=tf.nn.relu)
-        #net3 = net2 + net
-        #print("3.2", net3)
-        #net3 = tf.layers.conv2d(net3,
-        #                        filters=256,
-        #                        kernel_size=(1, 3),
-        #                        strides=(1, 2),
-        #                        padding='valid',
-        #                        activation=tf.nn.relu)
-        #print("4.0", net3)
-        #net = tf.layers.conv2d(net3,
-        #                       filters=256,
-        #                       kernel_size=(1, 3),
-        #                       strides=(1, 1),
-        #                       padding='same',
-        #                       activation=tf.nn.relu)
-        # print("3.1", net)
-        # net = tf.layers.conv2d(net,
-        #                        filters=256,
-        #                        kernel_size=(1, 3),
-        #                        strides=(1, 1),
-        #                        padding='same',
-        #                        activation=tf.nn.relu)
-        #net4 = net3 + net
-        #print("4.2", net4)
+        net2 = tf.layers.conv2d(net2,
+                                filters=64,
+                                kernel_size=(1, 3),
+                                strides=(1, 2),
+                                padding='valid')
+        if batch_norm:
+            net2 = tf.layers.batch_normalization(net2)
+        net2 = tf.nn.relu(net2)
+        print("3.0", net2)
+        net = tf.layers.conv2d(net2,
+                               filters=64,
+                               kernel_size=(1, 3),
+                               strides=(1, 1),
+                               padding='same')
+        if batch_norm:
+            net = tf.layers.batch_normalization(net)
+        net = tf.nn.relu(net)
+        net = tf.layers.conv2d(net,
+                               filters=64,
+                               kernel_size=(1, 3),
+                               strides=(1, 1),
+                               padding='same')
+        if batch_norm:
+            net = tf.layers.batch_normalization(net)
+        net = tf.nn.relu(net)
+        net2 = net2 + net
+        print("3.2", net2)
+
+        net2 = tf.layers.conv2d(net2,
+                                filters=64,
+                                kernel_size=(1, 3),
+                                strides=(1, 2),
+                                padding='valid')
+        if batch_norm:
+            net2 = tf.layers.batch_normalization(net2)
+        net2 = tf.nn.relu(net2)
+        print("4.0", net2)
+        net = tf.layers.conv2d(net2,
+                               filters=64,
+                               kernel_size=(1, 3),
+                               strides=(1, 1),
+                               padding='same')
+        if batch_norm:
+            net = tf.layers.batch_normalization(net)
+        net = tf.nn.relu(net)
+        net = tf.layers.conv2d(net,
+                               filters=64,
+                               kernel_size=(1, 3),
+                               strides=(1, 1),
+                               padding='same')
+        if batch_norm:
+            net = tf.layers.batch_normalization(net)
+        net = tf.nn.relu(net)
+        net2 = net2 + net
+        print("4.2", net2)
+
         net4 = tf.layers.conv2d(net2,
                                 filters=64,
                                 kernel_size=(3, 1),
