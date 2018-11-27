@@ -4,21 +4,22 @@ from tf_utils import start_interactive_session, set_gpu
 from mixed_seq2seq_models import CNNRNNSeq2SeqModel
 import numpy as np
 
-set_gpu(0)
+set_gpu(-1)
 
 options = {
-    'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_lrs",
+    'data_root_dir': '/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_dtwN',
+# "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_lrs",
 # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",
 
     'is_training' : False,
-    'data_in': 'melf',  # mcc, melf, melf_2d
-    'max_seq_len': -20,
-    'split_name': 'devel',
+    'data_in': 'mfcc',  # mcc, melf, melf_2d
+    #'max_seq_len': -20,
+    'split_name': 'train',  # 'devel',
     #'use_rmse': False,
-    'batch_size': 128,   # number of examples in queue either for training or inference
+    'batch_size': 1,   # number of examples in queue either for training or inference
     #'reverse_time': False,
     #'shuffle': True,
-    #'random_crop': False,
+    'random_crop': False,
     #'standardize_inputs_and_labels': True,
     'mfcc_num_features': 20,  # 20,
     'raw_audio_num_features': 533,  # 256,
@@ -39,7 +40,7 @@ options = {
     'decoder_dropout_keep_prob': 1.0,
     'attention_type': 'bahdanau',
     'output_attention': True,
-    'attention_layer_size': 256,  # number of hidden units in attention layer
+    'attention_layer_size': 128,  # number of hidden units in attention layer
     'attention_layer_norm': True,
     'num_hidden_out': 128,  # number of hidden units in output fcn
     'alignment_history': False,
@@ -47,7 +48,7 @@ options = {
     #'max_in_len': None,  # maximum number of frames in input videos
     #'max_out_len': None,  # maximum number of characters in output text
 
-    'loss_fun': "mse",  # "mse", "cos", "concordance_cc"
+    'loss_fun': "concordance_cc",
     #'ccc_loss_per_batch': False,  # set True for PT loss (mean per component/batch), False (mean per component per sample)
     'reg_constant': 0.00,
     'max_grad_norm': 10.0, 
@@ -97,7 +98,7 @@ if False:
 if True:
     losses = {}
     for ep in range(1, 79):
-        options['restore_model'] = "/data/mat10/Projects/audio23d/Models/seq2seq_cnn_lstm/seq2seq_cnn_lstm_all_melf2_era1_epoch%d_step302" % ep
+        options['restore_model'] = "/data/mat10/Projects/audio23d/Models/dtwN/seq2seq_cnn_lstm/1dconv_res_mfcc_all_era1_epoch%d_step3536.index" % ep
         model = CNNRNNSeq2SeqModel(options)
         sess = start_interactive_session()
         model.restore_model(sess)

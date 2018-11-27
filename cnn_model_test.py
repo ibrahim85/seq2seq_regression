@@ -11,7 +11,7 @@ options = {
 # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_lrs",
     'split_name': 'devel',
     'is_training' : False,
-    'data_in': 'mfcc',  # mfcc, melf, melf_2d
+    'data_in': 'melf',  # mfcc, melf, melf_2d
     'batch_size': 1,   # number of examples in queue either for training or inference
     'random_crop': False,
     'mfcc_num_features': 20,  # 20,
@@ -37,8 +37,8 @@ options = {
 
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
 
-    'restore': False, # boolean. restore model from disk
-    'restore_model':"/data/mat10/Projects/audio23d/Models/1dconv_res/1dconv_res_melf_era1_epoch10_step604",
+    'restore': True, # boolean. restore model from disk
+    'restore_model':"/data/mat10/Projects/audio23d/Models/dtwN/1dconv_res/1dconv_res_mfcc_all_era1_epoch1_step3536",
 
     'save': False,  # boolean. save model to disk during current era
     'save_model': "/data/mat10/Projects/audio23d/Models/dtwN/1dconv_res/1dconv_res_melf_all_era1",
@@ -68,11 +68,11 @@ if __name__ == "__main__":
     if True:
         losses = {}
     for ep in range(1, 4):
-        options['restore_model'] = "/data/mat10/Projects/audio23d/Models/dtwN/1dconv_res/1dconv_res_mfcc_all_era1_epoch%d_step3536.index" % ep
+        options['restore_model'] = "/data/mat10/Projects/audio23d/Models/dtwN/1dconv_res/1dconv_res_melf_all_era1_epoch%d_step3536" % ep
         model = CNNModel(options)
         sess = start_interactive_session()
-        if options['restore']:
-            model.restore_model(sess)
+        #if options['restore']:
+        model.restore_model(sess)
         loss = model.eval(sess, num_steps=None, return_words=False)
         losses[ep] = np.mean(loss)
         tf.reset_default_graph()
