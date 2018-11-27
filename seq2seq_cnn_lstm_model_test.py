@@ -4,19 +4,38 @@ from tf_utils import start_interactive_session, set_gpu
 from mixed_seq2seq_models import CNNRNNSeq2SeqModel
 import numpy as np
 
+<<<<<<< HEAD
 set_gpu(2)
 
 options = {
     'data_root_dir': "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_dtw_antonio",
 # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_dtwN",
+=======
+set_gpu(-1)
+
+options = {
+    'data_root_dir': '/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_dtwN',
+>>>>>>> f798981d5c303deabd8107e5086cbc23a1985d2f
 # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_lrs",
 # "/vol/atlas/homes/pt511/db/audio_to_3d/tf_records_clean",
 
     'is_training' : False,
+<<<<<<< HEAD
     'data_in': 'melf',  # mcc, melf, melf_2d
     'split_name': 'devel',
     'batch_size': 1,   # number of examples in queue either for training or inference
     'random_crop': False,
+=======
+    'data_in': 'mfcc',  # mcc, melf, melf_2d
+    #'max_seq_len': -20,
+    'split_name': 'train',  # 'devel',
+    #'use_rmse': False,
+    'batch_size': 1,   # number of examples in queue either for training or inference
+    #'reverse_time': False,
+    #'shuffle': True,
+    'random_crop': False,
+    #'standardize_inputs_and_labels': True,
+>>>>>>> f798981d5c303deabd8107e5086cbc23a1985d2f
     'mfcc_num_features': 20,  # 20,
     'raw_audio_num_features': 533,  # 256,
     'num_classes': 28,  # number of output classes 29 = |a-z, " ", <sos>, <eos>|
@@ -37,7 +56,15 @@ options = {
     'num_hidden_out': 128,  # number of hidden units in output fcn
     'alignment_history': False,
 
+<<<<<<< HEAD
     'loss_fun': "concordance_cc",
+=======
+    #'max_in_len': None,  # maximum number of frames in input videos
+    #'max_out_len': None,  # maximum number of characters in output text
+
+    'loss_fun': "concordance_cc",
+    #'ccc_loss_per_batch': False,  # set True for PT loss (mean per component/batch), False (mean per component per sample)
+>>>>>>> f798981d5c303deabd8107e5086cbc23a1985d2f
     'reg_constant': 0.00,
     'max_grad_norm': 10.0, 
     'num_epochs': 30,  # number of epochs over dataset for training
@@ -79,9 +106,15 @@ if __name__ == "__main__":
 if False:
     model = CNNRNNSeq2SeqModel(options)
     losses = {}
+<<<<<<< HEAD
     for ep in range(1, 54):
         options['restore_model'] = options["save_model"] + "_epoch%d_step6504" % ep
         #model = CNNRNNSeq2SeqModel(options)
+=======
+    for ep in range(1, 79):
+        options['restore_model'] = "/data/mat10/Projects/audio23d/Models/dtwN/seq2seq_cnn_lstm/1dconv_res_mfcc_all_era1_epoch%d_step3536.index" % ep
+        model = CNNRNNSeq2SeqModel(options)
+>>>>>>> f798981d5c303deabd8107e5086cbc23a1985d2f
         sess = start_interactive_session()
         model.restore_model(sess)
         loss = model.eval(sess, num_steps=None, return_words=False)

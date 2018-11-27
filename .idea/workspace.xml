@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c1a86913-0c0e-4386-87e3-d73557d331f0" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/cnn_lstm_model2d_res_train.py" beforeDir="false" afterPath="$PROJECT_DIR$/cnn_lstm_model2d_res_train.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/model_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -15,21 +14,22 @@
     <session id="1327381187">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="11" />
+          <entry key="project.closed" value="13" />
           <entry key="project.open.time.0" value="6" />
+          <entry key="project.open.time.1" value="1" />
           <entry key="project.open.time.3" value="3" />
           <entry key="project.open.time.4" value="3" />
-          <entry key="project.opened" value="12" />
+          <entry key="project.opened" value="13" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="py" value="132" />
+          <entry key="py" value="133" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="Python" value="132" />
+          <entry key="Python" value="133" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
@@ -48,14 +48,14 @@
     </session>
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.3031496">
+    <splitter split-orientation="horizontal" split-proportion="0.5551181">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/basic_models.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="15">
-                  <caret line="50" column="42" selection-start-line="50" selection-start-column="42" selection-end-line="50" selection-end-column="42" />
+                <state relative-caret-position="2565">
+                  <caret line="186" column="29" selection-start-line="186" selection-start-column="29" selection-end-line="186" selection-end-column="29" />
                   <folding>
                     <element signature="e#0#38#0" expanded="true" />
                   </folding>
@@ -64,9 +64,21 @@
             </entry>
           </file>
           <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/data_provider_melf_d_d2.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="255">
+                  <caret line="17" column="18" selection-start-line="17" selection-start-column="18" selection-end-line="17" selection-end-column="18" />
+                  <folding>
+                    <element signature="e#0#38#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/model_utils.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="-853">
+                <state relative-caret-position="13710">
                   <caret line="919" column="25" selection-start-line="919" selection-start-column="25" selection-end-line="919" selection-end-column="25" />
                   <folding>
                     <element signature="e#0#38#0" expanded="true" />
@@ -78,7 +90,7 @@
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/mixed_seq_models.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="3519">
+                <state relative-caret-position="5655">
                   <caret line="386" column="35" selection-start-line="386" selection-start-column="35" selection-end-line="386" selection-end-column="35" />
                   <folding>
                     <element signature="e#0#38#0" expanded="true" />
@@ -94,7 +106,7 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/cnn_lstm_model2d_res_train.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="180">
+                <state relative-caret-position="483">
                   <caret line="60" column="26" selection-start-line="60" selection-start-column="26" selection-end-line="60" selection-end-column="26" />
                   <folding>
                     <element signature="e#0#23#0" expanded="true" />
@@ -116,7 +128,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>encoder_inputs_lengths</find>
       <find>weights=t</find>
       <find>embedding_decoder</find>
       <find>max_input_len</find>
@@ -146,6 +157,7 @@
       <find>normalize_fn</find>
       <find>backend</find>
       <find>dense</find>
+      <find>word</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -222,6 +234,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -233,11 +246,10 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../FaceSoft_Olympia_Demos_Nov18/Facesoft-Hotel-Door" />
     <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
   </component>
   <component name="RecentsManager">
@@ -276,7 +288,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="67" y="25" width="1853" height="1055" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.16721311" />
       <window_info id="Structure" order="1" weight="0.25" />
@@ -289,9 +300,9 @@
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Version Control" order="7" />
-      <window_info anchor="bottom" id="Terminal" order="8" weight="0.24756756" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="8" visible="true" weight="0.24756756" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
-      <window_info active="true" anchor="bottom" id="Python Console" order="10" visible="true" weight="0.39027026" />
+      <window_info anchor="bottom" id="Python Console" order="10" weight="0.39027026" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -432,13 +443,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/data_provider_melf_d_d2.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="412">
-          <caret line="270" column="44" lean-forward="true" selection-start-line="270" selection-start-column="44" selection-end-line="270" selection-end-column="44" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/data_statistics.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="315">
@@ -535,9 +539,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="975">
           <caret line="69" selection-start-line="68" selection-end-line="84" />
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -552,9 +553,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="128">
           <caret line="37" column="37" lean-forward="true" selection-start-line="37" selection-start-column="37" selection-end-line="37" selection-end-column="37" />
-          <folding>
-            <element signature="e#0#38#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -562,9 +560,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="488">
           <caret line="53" selection-start-line="53" selection-end-line="53" />
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -575,30 +570,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/basic_models.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="50" column="42" selection-start-line="50" selection-start-column="42" selection-end-line="50" selection-end-column="42" />
-          <folding>
-            <element signature="e#0#38#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/cnn_lstm_model2d_batchnorm_train.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="180">
           <caret line="12" column="40" selection-end-line="67" />
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mixed_seq_models.py">
+    <entry file="file://$PROJECT_DIR$/basic_models.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3519">
-          <caret line="386" column="35" selection-start-line="386" selection-start-column="35" selection-end-line="386" selection-end-column="35" />
+        <state relative-caret-position="2565">
+          <caret line="186" column="29" selection-start-line="186" selection-start-column="29" selection-end-line="186" selection-end-column="29" />
           <folding>
             <element signature="e#0#38#0" expanded="true" />
           </folding>
@@ -607,8 +589,28 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/model_utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-853">
+        <state relative-caret-position="13710">
           <caret line="919" column="25" selection-start-line="919" selection-start-column="25" selection-end-line="919" selection-end-column="25" />
+          <folding>
+            <element signature="e#0#38#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mixed_seq_models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="5655">
+          <caret line="386" column="35" selection-start-line="386" selection-start-column="35" selection-end-line="386" selection-end-column="35" />
+          <folding>
+            <element signature="e#0#38#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data_provider_melf_d_d2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="17" column="18" selection-start-line="17" selection-start-column="18" selection-end-line="17" selection-end-column="18" />
           <folding>
             <element signature="e#0#38#0" expanded="true" />
           </folding>
@@ -617,7 +619,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/cnn_lstm_model2d_res_train.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
+        <state relative-caret-position="483">
           <caret line="60" column="26" selection-start-line="60" selection-start-column="26" selection-end-line="60" selection-end-column="26" />
           <folding>
             <element signature="e#0#23#0" expanded="true" />

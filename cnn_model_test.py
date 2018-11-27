@@ -39,7 +39,11 @@ options = {
     'ss_prob': 1.0,  # scheduled sampling probability for training. probability of passing decoder output as next
 
     'restore': True, # boolean. restore model from disk
+<<<<<<< HEAD
     'restore_model':"/data/mat10/Projects/audio23d/Models/1dcnn/1dconv_res_melf_cc_era1",
+=======
+    'restore_model':"/data/mat10/Projects/audio23d/Models/dtwN/1dconv_res/1dconv_res_mfcc_all_era1_epoch1_step3536",
+>>>>>>> f798981d5c303deabd8107e5086cbc23a1985d2f
 
     'save': True,  # boolean. save model to disk during current era
     'save_model': "/data/mat10/Projects/audio23d/Models/1dcnn/1dconv_res_melf_cc_era1",
@@ -62,6 +66,7 @@ if __name__ == "__main__":
     print("loss at epoch %d is %.4f" % (ep, np.mean(loss)))
 
 
+<<<<<<< HEAD
 if False:
     model = CNNModel(options)
     losses = {}
@@ -69,6 +74,15 @@ if False:
         options['restore_model'] = options["save_model"] + "_epoch%d_step6504" % ep
         #model = CNNModel(options)
         sess = start_interactive_session()
+=======
+    if True:
+        losses = {}
+    for ep in range(1, 4):
+        options['restore_model'] = "/data/mat10/Projects/audio23d/Models/dtwN/1dconv_res/1dconv_res_melf_all_era1_epoch%d_step3536" % ep
+        model = CNNModel(options)
+        sess = start_interactive_session()
+        #if options['restore']:
+>>>>>>> f798981d5c303deabd8107e5086cbc23a1985d2f
         model.restore_model(sess)
         loss = model.eval(sess, num_steps=None, return_words=False)
         losses[ep] = np.mean(loss)
